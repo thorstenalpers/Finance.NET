@@ -1,0 +1,94 @@
+# ignore visual studio folders and files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+$tf/
+**/.vs/
+**/.VSCodeCounter/
+*.[Cc]ache
+!*.[Cc]ache/
+_UpgradeReport_Files/
+UpgradeLog*.XML
+UpgradeLog*.htm
+
+# ignore build outputs
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+dist/
+out/
+[Bb]in/
+[Oo]bj/
+[Ff]akes[Aa]ssemblies/
+*.binlog
+
+# ignore nuget packages folder
+/packages
+/NuGet
+
+# ignore generated html files
+*.htm
+
+# Visual Studio test runner
+[Tt]est[Rr]esult*/
+[Ii]ndex.dat
+[Ss]torage.dat
+
+# .NET CLI
+project.lock.json
+artifacts/
+
+# Visual Studio profiler
+*.psess
+*.vsp
+*.vspx
+
+# ReSharper folders and files
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# NCrunch folders and files
+_NCrunch_*/
+_NCrunch_*
+*.ncrunch*
+
+# VsCode folder and files
+.vscode/
+
+
+
+# local nuget package
+*.nupkg
+
+# See https://help.github.com/ignore-files/ for more about ignoring files.
+
+# dependencies
+**/node_modules
+
+# testing
+**/coverage
+
+# production
+**/build
+
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+/backend/scripts
+*drawio.bkp
+
+
+# ignore pod logs folder
+/logs
+
+deploy.cmd
