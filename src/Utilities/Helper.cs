@@ -193,15 +193,12 @@ public static class Helper
 	{
 		if (cookieCollection != null && requestMessage != null && cookieCollection.Count > 0)
 		{
-			var cookieHeader = ConvertCookiesToHeader(cookieCollection);
 			try
 			{
+				var cookieHeader = ToCookieHeader(cookieCollection);
 				requestMessage.Headers.Add("Cookie", cookieHeader);
 			}
-			catch
-			{
-
-			}
+			catch { }
 		}
 	}
 
@@ -218,13 +215,12 @@ public static class Helper
 		return fields.All(field => field.GetValue(obj) == null);
 	}
 
-	private static string ConvertCookiesToHeader(CookieCollection cookieCollection)
+	private static string ToCookieHeader(this CookieCollection cookies)
 	{
-		List<string> cookieStrings = new();
-		foreach (Cookie cookie in cookieCollection)
+		if (cookies == null || cookies.Count == 0)
 		{
-			cookieStrings.Add($"{cookie.Name}={cookie.Value}");
+			return string.Empty;
 		}
-		return string.Join(";", cookieStrings);
+		return string.Join("; ", cookies.Cast<Cookie>().Select(cookie => $"{cookie.Name}={cookie.Value}"));
 	}
 }
