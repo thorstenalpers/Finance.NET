@@ -91,4 +91,6 @@ yarn-error.log*
 # ignore pod logs folder
 /logs
 
-deploy.cmd
+deploy-nuget.cmd
+create-licenses.cmd
+**/TestResult/
