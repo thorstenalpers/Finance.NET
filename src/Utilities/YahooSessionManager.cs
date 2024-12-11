@@ -12,47 +12,50 @@ using NetFinance.Interfaces;
 
 namespace NetFinance.Utilities;
 
-internal class YahooSessionManager(ILogger<IYahooSessionManager> logger,
+internal class YahooSessionManager(IHttpClientFactory httpClientFactory,
+	ILogger<IYahooSessionManager> logger,
 								   IOptions<NetFinanceConfiguration> options,
-								   IYahooCredentialsManager yahooCredentialsManager) : IYahooSessionManager
+								   IYahooSessionState sessionState) : IYahooSessionManager
 {
 	private readonly ILogger<IYahooSessionManager> _logger = logger;
-	private readonly IYahooCredentialsManager _credentialsManager = yahooCredentialsManager ?? throw new ArgumentNullException(nameof(yahooCredentialsManager));
+	private readonly IYahooSessionState _sessionState = sessionState ?? throw new ArgumentNullException(nameof(sessionState));
 	private readonly NetFinanceConfiguration _options = options.Value ?? throw new ArgumentNullException(nameof(options));
 	private static readonly SemaphoreSlim _semaphore = new(1, 1);
+	private readonly IHttpClientFactory _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
 
-	public async Task<(string userAgent, CookieCollection? cookies, string? crumb)> GetApiCredentials(CancellationToken token = default)
+	public string? GetApiCrumb()
 	{
-		await RefreshSessionAsync(token).ConfigureAwait(false);
-		return _credentialsManager.GetApiCredentials();
+		return _sessionState.GetCrumb();
 	}
 
-	public async Task<(string userAgent, CookieCollection? cookies)> GetUiCredentials(CancellationToken token = default)
+	public string GetUserAgent()
 	{
-		await RefreshSessionAsync(token).ConfigureAwait(false);
-		return _credentialsManager.GetUiCredentials();
+		return _sessionState.GetUserAgent();
 	}
 
-	public string GetUiUserAgent()
+	public IEnumerable<Cookie> GetCookies()
 	{
-		return _credentialsManager.GetUiUserAgent();
+		var cookies = _sessionState.GetCookieContainer().GetCookies(new Uri(_options.Yahoo_BaseUrl_Html)).Cast<Cookie>();
+		return cookies;
 	}
 
 	public async Task RefreshSessionAsync(CancellationToken token = default, bool forceRefresh = false)
 	{
+		var cookies = GetCookies();
+		_logger.LogDebug(() => $"cookieNames= {string.Join(", ", cookies.Cast<Cookie>().Select(cookie => cookie.Name))}");
+
 		if (forceRefresh)
 		{
-			_credentialsManager.SetApiCredentials(null, null);
-			_credentialsManager.SetUiCredentials(null);
+			_sessionState.InvalidateSession();
 		}
-		if (_credentialsManager.AreValid())
+		if (_sessionState.AreValid())
 		{
 			return;
 		}
 
 		await _semaphore.WaitAsync(token).ConfigureAwait(false);
 
-		if (_credentialsManager.AreValid())
+		if (_sessionState.AreValid())
 		{
 			return;
 		}
@@ -63,21 +66,21 @@ internal class YahooSessionManager(ILogger<IYahooSessionManager> logger,
 			{
 				try
 				{
-					if (!_credentialsManager.AreApiCredentialsValid())
+
+					var crumb = await CreateApiCookiesAndCrumb(token).ConfigureAwait(false);
+					_sessionState.SetCrumb(crumb);
+					await CreateUiCookies(token).ConfigureAwait(false);
+					if (!_sessionState.AreValid())
 					{
-						var (crumb, cookieContainer) = await CreateApiCookiesAndCrumb(token).ConfigureAwait(false);
-						_credentialsManager.SetApiCredentials(crumb, cookieContainer);
+						throw new NetFinanceException("cannot fetch Yahoo credentials");
 					}
-					if (!_credentialsManager.AreUiCredentialsValid())
-					{
-						var cookieContainer = await CreateUiCookiesAndCrumb(token).ConfigureAwait(false);
-						_credentialsManager.SetUiCredentials(cookieContainer);
-					}
+					return;
 				}
 				catch (Exception ex)
 				{
+					_sessionState.InvalidateSession();
 					_logger.LogInformation($"Retry after exception={ex?.Message}");
-					await Task.Delay(TimeSpan.FromSeconds(2));
+					await Task.Delay(TimeSpan.FromSeconds(1 * attempt));
 				}
 			}
 		}
@@ -87,126 +90,105 @@ internal class YahooSessionManager(ILogger<IYahooSessionManager> logger,
 		}
 	}
 
-	private async Task<(string? crumb, CookieContainer? cookieContainer)> CreateApiCookiesAndCrumb(CancellationToken token)
+	private async Task<string> CreateApiCookiesAndCrumb(CancellationToken token)
 	{
-		var userAgent = _credentialsManager.GetApiUserAgent();
-		var handler = new HttpClientHandler
+		var httpClient = _httpClientFactory.CreateClient(_options.Yahoo_Http_ClientName);
+		httpClient.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml,application/json;q=0.9,*/*;q=0.8");
+
+		string? crumb = null;
+		var response = await httpClient.GetAsync(_options.Yahoo_BaseUrl_Authentication.ToLower(), token).ConfigureAwait(false);
+
+		var requestMessage = new HttpRequestMessage(HttpMethod.Get, _options.Yahoo_BaseUrl_Crumb_Api.ToLower());
+		var cookieHeader = response.Headers.GetValues("Set-Cookie").FirstOrDefault();
+		requestMessage.Headers.Add("Cookie", cookieHeader);
+
+		response = await httpClient.SendAsync(requestMessage, token).ConfigureAwait(false);
+		crumb = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+		if (string.IsNullOrEmpty(crumb) || crumb.Contains("Too Many Requests"))
 		{
-			CookieContainer = new CookieContainer(),
-			UseCookies = true
-		};
-		using (var httpClient = new HttpClient(handler))
-		{
-			httpClient.DefaultRequestHeaders.Add("User-Agent", userAgent);
-			httpClient.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml,application/json;q=0.9,*/*;q=0.8");
-			httpClient.DefaultRequestHeaders.Add("Accept-Language", "en-US,en;q=0.5");
-
-			string? crumb = null;
-			var response = await httpClient.GetAsync(_options.Yahoo_BaseUrl_Authentication.ToLower(), token).ConfigureAwait(false);
-
-			var requestMessage = new HttpRequestMessage(HttpMethod.Get, _options.Yahoo_BaseUrl_Crumb_Api.ToLower());
-			var cookieHeader = response.Headers.GetValues("Set-Cookie").FirstOrDefault();
-			requestMessage.Headers.Add("Cookie", cookieHeader);
-
-			response = await httpClient.SendAsync(requestMessage, token).ConfigureAwait(false);
-			crumb = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-			if (string.IsNullOrEmpty(crumb) || crumb.Contains("Too Many Requests"))
-			{
-				throw new NetFinanceException("Unable to retrieve Yahoo crumb.");
-			}
-			if (handler?.CookieContainer?.Count < 3)
-			{
-				throw new NetFinanceException("Unable to get api cookies.");
-			}
-			var cookieString = handler?.CookieContainer?.GetCookies(new Uri(_options.Yahoo_BaseUrl_Html)).Cast<Cookie>().Select(cookie => cookie.Name);
-			_logger.LogDebug(() => $"cookieNames= {cookieString}");
-			_logger.LogDebug(() => $"_crumb= {crumb}");
-			_logger.LogInformation($"API Session established successfully");
-			return (crumb, handler?.CookieContainer);
+			throw new NetFinanceException("Unable to retrieve Yahoo crumb.");
 		}
+
+		if (_sessionState?.GetCookieContainer().Count < 3)
+		{
+			throw new NetFinanceException("Unable to get api cookies.");
+		}
+		var cookieString = _sessionState?.GetCookieContainer()?.GetCookies(new Uri(_options.Yahoo_BaseUrl_Html)).Cast<Cookie>().Select(cookie => cookie.Name);
+		_logger.LogDebug(() => $"cookieNames= {cookieString}");
+		_logger.LogDebug(() => $"_crumb= {crumb}");
+		_logger.LogInformation($"API Session established successfully");
+		return crumb;
 	}
 
-	private async Task<CookieContainer> CreateUiCookiesAndCrumb(CancellationToken token)
+	private async Task CreateUiCookies(CancellationToken token)
 	{
-		var userAgent = _credentialsManager.GetUiUserAgent();
-		var handler = new HttpClientHandler
-		{
-			CookieContainer = new CookieContainer(),
-			UseCookies = true
-		};
-		using (var httpClient = new HttpClient(handler))
-		{
-			httpClient.DefaultRequestHeaders.Add("User-Agent", userAgent);
-			httpClient.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml,application/json;q=0.9,*/*;q=0.8");
-			httpClient.DefaultRequestHeaders.Add("Accept-Language", "en-US,en;q=0.5");
+		var httpClient = _httpClientFactory.CreateClient(_options.Yahoo_Http_ClientName);
+		httpClient.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml,application/json;q=0.9,*/*;q=0.8");
 
-			// get consent
-			await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
-			var response = await httpClient.GetAsync(_options.Yahoo_BaseUrl_Html, token);
+		// get consent
+		await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
+		var response = await httpClient.GetAsync(_options.Yahoo_BaseUrl_Html, token);
+		response.EnsureSuccessStatusCode();
+
+		var htmlContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+		var document = new AngleSharp.Html.Parser.HtmlParser().ParseDocument(htmlContent);
+		var csrfTokenNode = document.QuerySelector("input[name='csrfToken']");
+		var sessionIdNode = document.QuerySelector("input[name='sessionId']");
+		if (csrfTokenNode == null || sessionIdNode == null)
+		{
+			response = await httpClient.GetAsync(_options.Yahoo_BaseUrl_Html, token);
 			response.EnsureSuccessStatusCode();
 
-			var htmlContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-			var document = new AngleSharp.Html.Parser.HtmlParser().ParseDocument(htmlContent);
-			var csrfTokenNode = document.QuerySelector("input[name='csrfToken']");
-			var sessionIdNode = document.QuerySelector("input[name='sessionId']");
-			if (csrfTokenNode == null || sessionIdNode == null)
+			// no EU consent, call from coming outside of EU
+			if (_sessionState?.GetCookieContainer()?.Count >= 3)
 			{
-				response = await httpClient.GetAsync(_options.Yahoo_BaseUrl_Html, token);
-				response.EnsureSuccessStatusCode();
-
-				// no EU consent, call from coming outside of EU
-				if (handler?.CookieContainer?.Count >= 3)
-				{
-					_logger.LogInformation($"UI Session established successfully without EU consent");
-					return handler.CookieContainer;
-				}
-				var cookieNames = string.Join(", ", handler?.CookieContainer?.GetCookies(new Uri(_options.Yahoo_BaseUrl_Html)).Cast<Cookie>().Select(cookie => cookie.Name));
-				throw new NetFinanceException($"Unable to retrieve csrfTokenNode and sessionIdNode, cnt={handler?.CookieContainer?.Count},names={cookieNames}");
+				_logger.LogInformation($"UI Session established successfully without EU consent");
+				return;
 			}
-			var csrfToken = csrfTokenNode.GetAttribute("value");
-			var sessionId = sessionIdNode.GetAttribute("value");
-			if (string.IsNullOrEmpty(csrfToken) || string.IsNullOrEmpty(sessionId))
-			{
-				var cookieNames = string.Join(", ", handler?.CookieContainer?.GetCookies(new Uri(_options.Yahoo_BaseUrl_Html)).Cast<Cookie>().Select(cookie => cookie.Name));
-				throw new NetFinanceException($"Unable to retrieve csrfToken and sessionId, cnt={handler?.CookieContainer?.Count},names={cookieNames}");
-			}
-			await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
+			var cookieNames = string.Join(", ", _sessionState?.GetCookieContainer()?.GetCookies(new Uri(_options.Yahoo_BaseUrl_Html)).Cast<Cookie>().Select(cookie => cookie.Name));
+			throw new NetFinanceException($"Unable to retrieve csrfTokenNode and sessionIdNode, cnt={_sessionState?.GetCookieContainer()?.Count},names={cookieNames}");
+		}
+		var csrfToken = csrfTokenNode.GetAttribute("value");
+		var sessionId = sessionIdNode.GetAttribute("value");
+		if (string.IsNullOrEmpty(csrfToken) || string.IsNullOrEmpty(sessionId))
+		{
+			var cookieNames = string.Join(", ", _sessionState?.GetCookieContainer()?.GetCookies(new Uri(_options.Yahoo_BaseUrl_Html)).Cast<Cookie>().Select(cookie => cookie.Name));
+			throw new NetFinanceException($"Unable to retrieve csrfToken and sessionId, cnt={_sessionState?.GetCookieContainer()?.Count},names={cookieNames}");
+		}
+		await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
 
-			// reject consent
-			var postData = new List<KeyValuePair<string, string>>
+		// reject consent
+		var postData = new List<KeyValuePair<string, string>>
 						{
 							new("csrfToken", csrfToken),
 							new("sessionId", sessionId),
 							new("originalDoneUrl", _options.Yahoo_BaseUrl_Html),
 							new("namespace", "yahoo"),
 						};
-			foreach (var value in new List<string> { "reject", "reject" })
-			{
-				postData.Add(new("reject", value));
-			}
-			var requestMessage = new HttpRequestMessage(HttpMethod.Post, (string?)$"{_options.Yahoo_BaseUrl_Consent_Collect}?sessionId={sessionId}")
-			{
-				Content = new FormUrlEncodedContent(postData)
-			};
-			requestMessage.Headers.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
-			response = await httpClient.SendAsync(requestMessage, token);
-			response.EnsureSuccessStatusCode();
-			await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
-
-			// finalize
-			response = await httpClient.GetAsync(_options.Yahoo_BaseUrl_Html, token);
-			response.EnsureSuccessStatusCode();
-			if (handler.CookieContainer?.Count < 3)
-			{
-				var cookieNames = string.Join(", ", handler.CookieContainer.GetCookies(new Uri(_options.Yahoo_BaseUrl_Html)).Cast<Cookie>().Select(cookie => cookie.Name));
-				throw new NetFinanceException($"Unable to get ui cookies, cnt={handler.CookieContainer?.Count},names={cookieNames}");
-			}
+		foreach (var value in new List<string> { "reject", "reject" })
+		{
+			postData.Add(new("reject", value));
+		}
+		var requestMessage = new HttpRequestMessage(HttpMethod.Post, (string?)$"{_options.Yahoo_BaseUrl_Consent_Collect}?sessionId={sessionId}")
+		{
+			Content = new FormUrlEncodedContent(postData)
 		};
-		if (handler?.CookieContainer != null && handler?.CookieContainer?.Count >= 3)
+		requestMessage.Headers.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+		response = await httpClient.SendAsync(requestMessage, token);
+		response.EnsureSuccessStatusCode();
+		await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
+
+		// finalize
+		response = await httpClient.GetAsync(_options.Yahoo_BaseUrl_Html, token);
+		response.EnsureSuccessStatusCode();
+		if (_sessionState.GetCookieContainer()?.Count < 3)
+		{
+			var cookieNames = string.Join(", ", GetCookies().Select(cookie => cookie.Name));
+			throw new NetFinanceException($"Unable to get ui cookies, cnt={_sessionState.GetCookieContainer()?.Count},names={cookieNames}");
+		}
+		if (_sessionState?.GetCookieContainer() != null && _sessionState?.GetCookieContainer()?.Count >= 3)
 		{
 			_logger.LogInformation($"UI Session established successfully");
-			return handler.CookieContainer;
 		}
-		return new();
 	}
 }

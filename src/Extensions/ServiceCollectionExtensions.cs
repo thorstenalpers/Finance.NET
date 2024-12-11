@@ -1,4 +1,5 @@
 using System;
+using System.Net.Http;
 using Microsoft.Extensions.DependencyInjection;
 using NetFinance.Interfaces;
 using NetFinance.Services;
@@ -35,7 +36,7 @@ public static class ServiceCollectionExtensions
 			opt.Yahoo_BaseUrl_Consent_Collect = cfg.Yahoo_BaseUrl_Consent_Collect;
 		});
 
-		services.AddSingleton<IYahooCredentialsManager, YahooCredentialsManager>();
+		services.AddSingleton<IYahooSessionState, YahooSessionState>();
 		services.AddSingleton<IYahooSessionManager, YahooSessionManager>();
 
 		services.AddScoped<IYahooService, YahooService>();
@@ -47,11 +48,21 @@ public static class ServiceCollectionExtensions
 			.ConfigureHttpClient((provider, client) =>
 			{
 				var session = provider.GetRequiredService<IYahooSessionManager>();
-				var userAgent = session.GetUiUserAgent();
+				var userAgent = session.GetUserAgent();
 				client.DefaultRequestHeaders.Add("User-Agent", userAgent);
 				client.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
 				client.DefaultRequestHeaders.Add("Accept-Language", "en-US,en;q=0.5");
 				client.Timeout = TimeSpan.FromSeconds(cfg.Http_Timeout);
+			})
+			.ConfigurePrimaryHttpMessageHandler((provider) =>
+			{
+				var sessionState = provider.GetRequiredService<IYahooSessionState>();
+				var handler = new HttpClientHandler
+				{
+					CookieContainer = sessionState.GetCookieContainer(),
+					UseCookies = true,
+				};
+				return handler;
 			});
 
 		services.AddHttpClient(cfg.Xetra_Http_ClientName)

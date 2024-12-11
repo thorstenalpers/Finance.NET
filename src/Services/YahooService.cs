@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -69,7 +68,8 @@ internal class YahooService : IYahooService
 
 	public async Task<IEnumerable<Quote>> GetQuotesAsync(List<string> symbols, CancellationToken token = default)
 	{
-		var (userAgent, cookies, crumb) = await _yahooSession.GetApiCredentials(token).ConfigureAwait(false);
+		await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
+		var crumb = _yahooSession.GetApiCrumb();
 		var httpClient = _httpClientFactory.CreateClient(_options.Yahoo_Http_ClientName);
 		var url = $"{_options.Yahoo_BaseUrl_Quote_Api}?" +
 			$"&symbols={string.Join(",", symbols).ToLower()}" +
@@ -80,10 +80,6 @@ internal class YahooService : IYahooService
 			{
 				var quotes = new List<Quote>();
 				var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
-
-				requestMessage.AddCookiesToRequest(cookies);
-
-				_logger.LogDebug(() => $"cookieNames= {string.Join(", ", cookies.Cast<Cookie>().Select(cookie => cookie.Name))}");
 
 				var response = await httpClient.SendAsync(requestMessage, token).ConfigureAwait(false);
 				response.EnsureSuccessStatusCode();
@@ -120,7 +116,7 @@ internal class YahooService : IYahooService
 			{
 				_logger.LogInformation($"Retry for {string.Join(",", symbols)}");
 				_logger.LogDebug(() => $"url={url}, ex={ex}");
-				await Task.Delay(TimeSpan.FromSeconds(2));
+				await Task.Delay(TimeSpan.FromSeconds(1 * attempt));
 			}
 		}
 		_logger.LogWarning($"No quotes found after {_options.Http_Retries} attempts.");
@@ -129,6 +125,7 @@ internal class YahooService : IYahooService
 
 	public async Task<Models.Yahoo.Profile> GetProfileAsync(string symbol, CancellationToken token = default)
 	{
+		await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
 		var httpClient = _httpClientFactory.CreateClient(_options.Yahoo_Http_ClientName);
 		var url = $"{_options.Yahoo_BaseUrl_Quote_Html}/{symbol}/profile/".ToLower();
 
@@ -137,11 +134,6 @@ internal class YahooService : IYahooService
 			try
 			{
 				var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
-				if (attempt == 1)
-				{
-					(var userAgent, CookieCollection? cookies) = await _yahooSession.GetUiCredentials(token).ConfigureAwait(false);
-					requestMessage.AddCookiesToRequest(cookies);
-				}
 				var response = await httpClient.SendAsync(requestMessage, token).ConfigureAwait(false);
 				response.EnsureSuccessStatusCode();
 				var htmlContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -193,7 +185,7 @@ internal class YahooService : IYahooService
 			{
 				_logger.LogInformation($"Retry for {symbol}");
 				_logger.LogDebug(() => $"url={url}, ex={ex}");
-				await Task.Delay(TimeSpan.FromSeconds(2));
+				await Task.Delay(TimeSpan.FromSeconds(1 * attempt));
 
 				// try using without cookies
 				url = $"{_options.Yahoo_BaseUrl_Quote_Html}/{symbol}/profile/?_guc_consent_skip={Helper.ToUnixTimestamp(DateTime.UtcNow.AddHours(1))}".ToLower();
@@ -205,6 +197,7 @@ internal class YahooService : IYahooService
 
 	public async Task<IEnumerable<DailyRecord>> GetDailyRecordsAsync(string symbol, DateTime startDate, DateTime? endDate = null, CancellationToken token = default)
 	{
+		await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
 		var httpClient = _httpClientFactory.CreateClient(_options.Yahoo_Http_ClientName);
 
 		endDate ??= DateTime.UtcNow;
@@ -224,11 +217,6 @@ internal class YahooService : IYahooService
 				var headerMap = new Dictionary<string, int>();
 
 				var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
-				if (attempt == 1)
-				{
-					(var userAgent, CookieCollection? cookies) = await _yahooSession.GetUiCredentials(token).ConfigureAwait(false);
-					requestMessage.AddCookiesToRequest(cookies);
-				}
 				var response = await httpClient.SendAsync(requestMessage, token).ConfigureAwait(false);
 				response.EnsureSuccessStatusCode();
 
@@ -309,7 +297,7 @@ internal class YahooService : IYahooService
 			{
 				_logger.LogInformation($"Retry for {symbol}");
 				_logger.LogDebug(() => $"url={url}, ex={ex}");
-				await Task.Delay(TimeSpan.FromSeconds(2));
+				await Task.Delay(TimeSpan.FromSeconds(1 * attempt));
 
 				// try using without cookies
 				url = $"{_options.Yahoo_BaseUrl_Quote_Html}/{symbol}/history/?period1={period1}&period2={period2}&_guc_consent_skip={Helper.ToUnixTimestamp(DateTime.UtcNow.AddHours(1))}".ToLower();
@@ -321,6 +309,7 @@ internal class YahooService : IYahooService
 
 	public async Task<Dictionary<string, FinancialReport>> GetFinancialReportsAsync(string symbol, CancellationToken token = default)
 	{
+		await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
 		var httpClient = _httpClientFactory.CreateClient(_options.Yahoo_Http_ClientName);
 		var url = $"{_options.Yahoo_BaseUrl_Quote_Html}/{symbol}/financials/".ToLower();
 		for (int attempt = 1; attempt <= 20; attempt++)
@@ -328,14 +317,7 @@ internal class YahooService : IYahooService
 			try
 			{
 				var result = new Dictionary<string, FinancialReport>();
-
 				var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
-				if (attempt == 1)
-				{
-					(var userAgent, CookieCollection? cookies) = await _yahooSession.GetUiCredentials(token).ConfigureAwait(false);
-					requestMessage.AddCookiesToRequest(cookies);
-				}
-
 				var response = await httpClient.SendAsync(requestMessage, token).ConfigureAwait(false);
 				response.EnsureSuccessStatusCode();
 
@@ -400,7 +382,7 @@ internal class YahooService : IYahooService
 			{
 				_logger.LogInformation($"Retry for {symbol}");
 				_logger.LogDebug(() => $"url={url}, ex={ex}");
-				await Task.Delay(TimeSpan.FromSeconds(2));
+				await Task.Delay(TimeSpan.FromSeconds(1 * attempt));
 
 				// try using without cookies
 				url = $"{_options.Yahoo_BaseUrl_Quote_Html}/{symbol}/financials/?_guc_consent_skip={Helper.ToUnixTimestamp(DateTime.UtcNow.AddHours(1))}".ToLower();
@@ -412,6 +394,7 @@ internal class YahooService : IYahooService
 
 	public async Task<Summary> GetSummaryAsync(string symbol, CancellationToken token = default)
 	{
+		await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
 		var httpClient = _httpClientFactory.CreateClient(_options.Yahoo_Http_ClientName);
 		var symbolsToSecurity = new Dictionary<string, Quote>();
 		var url = $"{_options.Yahoo_BaseUrl_Quote_Html}/{symbol}/".ToLower();
@@ -421,11 +404,6 @@ internal class YahooService : IYahooService
 			try
 			{
 				var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
-				if (attempt == 1)
-				{
-					(var userAgent, CookieCollection? cookies) = await _yahooSession.GetUiCredentials(token).ConfigureAwait(false);
-					requestMessage.AddCookiesToRequest(cookies);
-				}
 				var response = await httpClient.SendAsync(requestMessage, token).ConfigureAwait(false);
 				response.EnsureSuccessStatusCode();
 
@@ -528,7 +506,7 @@ internal class YahooService : IYahooService
 			{
 				_logger.LogInformation($"Retry for {symbol}");
 				_logger.LogDebug(() => $"url={url}, ex={ex}");
-				await Task.Delay(TimeSpan.FromSeconds(2));
+				await Task.Delay(TimeSpan.FromSeconds(1 * attempt));
 
 				// try using without cookies
 				url = $"{_options.Yahoo_BaseUrl_Quote_Html}/{symbol}/?_guc_consent_skip={Helper.ToUnixTimestamp(DateTime.UtcNow.AddHours(1))}".ToLower();

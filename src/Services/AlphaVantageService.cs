@@ -73,7 +73,7 @@ internal class AlphaVantageService : IAlphaVantageService
 			{
 				_logger.LogInformation($"Retry for {symbol}");
 				_logger.LogDebug(() => $"url={url}, ex={ex}");
-				await Task.Delay(TimeSpan.FromSeconds(2));
+				await Task.Delay(TimeSpan.FromSeconds(1 * attempt));
 			}
 		}
 		throw new NetFinanceException($"No company overview found for {symbol} after {_options.Http_Retries} retries");
@@ -146,7 +146,7 @@ internal class AlphaVantageService : IAlphaVantageService
 			{
 				_logger.LogInformation($"Retry for {symbol}");
 				_logger.LogDebug(() => $"url={url}, ex={ex}");
-				await Task.Delay(TimeSpan.FromSeconds(2));
+				await Task.Delay(TimeSpan.FromSeconds(1 * attempt));
 			}
 		}
 		throw new NetFinanceException($"no daily records for {symbol} after {_options.Http_Retries} retries.");
@@ -253,7 +253,7 @@ internal class AlphaVantageService : IAlphaVantageService
 			{
 				_logger.LogInformation($"Retry for {symbol}");
 				_logger.LogDebug(() => $"url={url}, ex={ex}");
-				await Task.Delay(TimeSpan.FromSeconds(2));
+				await Task.Delay(TimeSpan.FromSeconds(1 * attempt));
 			}
 		}
 		throw new NetFinanceException($"No intraday records found for {symbol} after {_options.Http_Retries} retries.");
@@ -326,7 +326,7 @@ internal class AlphaVantageService : IAlphaVantageService
 			{
 				_logger.LogInformation($"Retry for {currency1} /{currency2}");
 				_logger.LogDebug(() => $"url={url}, ex={ex}");
-				await Task.Delay(TimeSpan.FromSeconds(2));
+				await Task.Delay(TimeSpan.FromSeconds(1 * attempt));
 			}
 		}
 		throw new NetFinanceException($"No forex records found for {currency1} /{currency2} after {_options.Http_Retries} retries.");
