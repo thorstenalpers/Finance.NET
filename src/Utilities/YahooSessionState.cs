@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using Microsoft.Extensions.Options;
 
 namespace NetFinance.Utilities;
@@ -31,7 +32,14 @@ internal class YahooSessionState(IOptions<NetFinanceConfiguration> options) : IY
 
 	public void InvalidateSession()
 	{
-		_cookieContainer = new CookieContainer();
+		var fieldInfo = typeof(CookieContainer).GetField("m_domainTable", BindingFlags.NonPublic | BindingFlags.Instance);
+		var domainTable = fieldInfo.GetValue(_cookieContainer);
+
+		if (domainTable != null)
+		{
+			var clearMethod = domainTable.GetType().GetMethod("Clear", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
+			clearMethod.Invoke(domainTable, null);
+		}
 		_crumb = null;
 		_refreshTime = null;
 	}
