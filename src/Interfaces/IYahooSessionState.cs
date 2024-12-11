@@ -4,7 +4,7 @@ namespace NetFinance.Utilities
 {
 	internal interface IYahooSessionState
 	{
-		bool AreValid();
+		bool IsValid();
 		string GetUserAgent();
 		CookieContainer GetCookieContainer();
 		string? GetCrumb();

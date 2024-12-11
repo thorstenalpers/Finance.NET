@@ -48,14 +48,14 @@ internal class YahooSessionManager(IHttpClientFactory httpClientFactory,
 		{
 			_sessionState.InvalidateSession();
 		}
-		if (_sessionState.AreValid())
+		if (_sessionState.IsValid())
 		{
 			return;
 		}
 
 		await _semaphore.WaitAsync(token).ConfigureAwait(false);
 
-		if (_sessionState.AreValid())
+		if (_sessionState.IsValid())
 		{
 			return;
 		}
@@ -70,7 +70,7 @@ internal class YahooSessionManager(IHttpClientFactory httpClientFactory,
 					var crumb = await CreateApiCookiesAndCrumb(token).ConfigureAwait(false);
 					_sessionState.SetCrumb(crumb);
 					await CreateUiCookies(token).ConfigureAwait(false);
-					if (!_sessionState.AreValid())
+					if (!_sessionState.IsValid())
 					{
 						throw new NetFinanceException("cannot fetch Yahoo credentials");
 					}

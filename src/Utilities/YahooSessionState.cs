@@ -49,7 +49,7 @@ internal class YahooSessionState(IOptions<NetFinanceConfiguration> options) : IY
 		return _cookieContainer;
 	}
 
-	public bool AreValid()
+	public bool IsValid()
 	{
 		var cookies = _cookieContainer?.GetCookies(new Uri(_options.Yahoo_BaseUrl_Html));
 		if (_refreshTime == null || cookies?.Count == null || cookies.Count == 0 || string.IsNullOrWhiteSpace(_crumb))
