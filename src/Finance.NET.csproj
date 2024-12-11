@@ -12,7 +12,7 @@
 	<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 
 	<PackageId>Finance.NET</PackageId>
-	<Version>1.0.0</Version>
+	<Version>0.1.0</Version>
 	<Authors>Thorsten Alpers</Authors>
 	<Description>Access publicly available financial data from Yahoo Finance and other reliable sources with ease.</Description>
 	<PackageProjectUrl>https://github.com/thorstenalpers/Finance.NET</PackageProjectUrl>
