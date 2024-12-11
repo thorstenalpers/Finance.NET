@@ -30,9 +30,11 @@ jobs:
     - name: Build project
       run: dotnet build ${{ env.Solution_Name }} --configuration Release  --no-restore
 
-    - name: Execute tests
-      run: dotnet test ${{ env.Test_Project_Path }} --configuration Release 
-      
+    - name: Run tests
+      run: dotnet test ${{ env.Test_Project_Path }} --configuration Release --logger "console;verbosity=detailed"
+      env:
+          FinanceNet__AlphaVantageApiKey: ${{ secrets.ALPHAVANTAGEAPIKEY }}      
+          
     - name: Pack NuGet Package
       run: dotnet pack ${{ env.Solution_Name }} --configuration Release --no-build --output ./nupkg
 
