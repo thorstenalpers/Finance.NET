@@ -7,15 +7,15 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Finance.Net.Interfaces;
+using Finance.Net.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using Moq.Protected;
-using NetFinance.Interfaces;
-using NetFinance.Services;
 using NUnit.Framework;
 
-namespace NetFinance.Tests.Services;
+namespace Finance.Net.Tests.Services;
 
 [TestFixture]
 [Category("UnitTests")]
@@ -24,14 +24,14 @@ public class YahooServiceTests
 	private Mock<ILogger<IYahooService>> _mockLogger;
 	private Mock<IHttpClientFactory> _mockHttpClientFactory;
 	private Mock<IYahooSessionManager> _mockYahooSession;
-	private Mock<IOptions<NetFinanceConfiguration>> _mockOptions;
+	private Mock<IOptions<FinanceNetConfiguration>> _mockOptions;
 	private Mock<HttpMessageHandler> _mockHandler;
 
 	[SetUp]
 	public void SetUp()
 	{
-		_mockOptions = new Mock<IOptions<NetFinanceConfiguration>>();
-		_mockOptions.Setup(x => x.Value).Returns(new NetFinanceConfiguration { });
+		_mockOptions = new Mock<IOptions<FinanceNetConfiguration>>();
+		_mockOptions.Setup(x => x.Value).Returns(new FinanceNetConfiguration { });
 		_mockLogger = new Mock<ILogger<IYahooService>>();
 		_mockHttpClientFactory = new Mock<IHttpClientFactory>();
 		_mockHandler = new Mock<HttpMessageHandler>();
@@ -55,7 +55,7 @@ public class YahooServiceTests
 	public void Create_Static_ReturnsObject()
 	{
 		// Arrange
-		NetFinanceConfiguration cfg = null;
+		FinanceNetConfiguration cfg = null;
 
 		// Act
 		var service = YahooService.Create(cfg);

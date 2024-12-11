@@ -6,10 +6,11 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
+using Finance.Net.Models.AlphaVantage;
+using Finance.Net.Utilities;
 using Microsoft.Extensions.Logging;
-using NetFinance.Models.AlphaVantage;
 
-namespace NetFinance.Utilities;
+namespace Finance.Net.Utilities;
 
 public static class Helper
 {
@@ -195,7 +196,7 @@ public static class Helper
 		{
 			try
 			{
-				var cookieHeader = ToCookieHeader(cookieCollection);
+				var cookieHeader = cookieCollection.ToCookieHeader();
 				requestMessage.Headers.Add("Cookie", cookieHeader);
 			}
 			catch { }

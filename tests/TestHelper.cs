@@ -1,10 +1,10 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Finance.Net.Extensions;
+using Finance.Net.Tests.IntegrationTests;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using NetFinance.Extensions;
-using NetFinance.Tests.IntegrationTests;
 
-namespace NetFinance.Tests;
+namespace Finance.Net.Tests;
 
 internal static class TestHelper
 {
@@ -18,18 +18,18 @@ internal static class TestHelper
 		var cfg = cfgBuilder.Build();
 
 		services.AddSingleton<IConfiguration>(cfg);
-		services.AddNetFinance(new NetFinanceConfiguration
+		services.AddFinanceServices(new FinanceNetConfiguration
 		{
-			Http_Timeout = 20,
-			Http_Retries = 3,
-			AlphaVantageApiKey = cfg["NetFinance:AlphaVantageApiKey"]
+			HttpTimeout = 20,
+			HttpRetries = 3,
+			AlphaVantageApiKey = cfg["FinanceNet:AlphaVantageApiKey"]
 		});
 		services.AddLogging(builder =>
 		{
 			builder.AddConsole();
 			builder.SetMinimumLevel(LogLevel.Information);
 			builder.AddFilter("System.Net.Http.HttpClient", LogLevel.Warning);
-			//builder.AddFilter("NetFinance", LogLevel.Debug);
+			//builder.AddFilter("Finance.Net", LogLevel.Debug);
 
 			builder.AddSimpleConsole(options =>
 			{

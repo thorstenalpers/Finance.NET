@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
 
-namespace NetFinance.Models.AlphaVantage.Dtos;
+namespace Finance.Net.Models.AlphaVantage.Dtos;
 [ExcludeFromCodeCoverage]
 internal record IntradayRecordRoot
 {

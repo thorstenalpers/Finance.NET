@@ -1,4 +1,4 @@
-﻿namespace NetFinance.Models.Yahoo;
+﻿namespace Finance.Net.Models.Yahoo;
 
 public record Profile
 {

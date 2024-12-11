@@ -1,4 +1,4 @@
-﻿namespace NetFinance.Models.DatahubIo;
+﻿namespace Finance.Net.Models.DatahubIo;
 
 public class SP500Instrument
 {

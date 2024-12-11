@@ -3,8 +3,8 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <LangVersion>latest</LangVersion>
-    <AssemblyName>NetFinance.Tests</AssemblyName>
-    <RootNamespace>NetFinance.Tests</RootNamespace>
+    <AssemblyName>Finance.NET.Tests</AssemblyName>
+    <RootNamespace>Finance.Net.Tests</RootNamespace>
     <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
 	<UserSecretsId>6573a458-faf1-4777-bdaf-52764d569eee</UserSecretsId>
   </PropertyGroup>
@@ -29,7 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\NetFinance.csproj" />
+    <ProjectReference Include="..\src\Finance.Net.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,9 +1,9 @@
 ﻿using System;
-using NetFinance.Models.AlphaVantage;
-using NetFinance.Utilities;
+using Finance.Net.Models.AlphaVantage;
+using Finance.Net.Utilities;
 using NUnit.Framework;
 
-namespace NetFinance.Tests.Utilities;
+namespace Finance.Net.Tests.Utilities;
 
 [TestFixture]
 [Category("UnitTests")]
@@ -15,7 +15,7 @@ public class HelperTests
 	[TestCase(new string[] { "Abc", "Abc" }, false)]
 	public void IsNullOrEmpty_WithValidEntries_ReturnsResult(string[] array, bool expected)
 	{
-		var result = Helper.IsNullOrEmpty(array);
+		var result = array.IsNullOrEmpty();
 
 		// Assert
 		Assert.That(result, Is.EqualTo(expected));

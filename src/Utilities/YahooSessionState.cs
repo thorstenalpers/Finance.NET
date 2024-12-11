@@ -2,13 +2,14 @@
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using Finance.Net.Interfaces;
 using Microsoft.Extensions.Options;
 
-namespace NetFinance.Utilities;
+namespace Finance.Net.Utilities;
 
-internal class YahooSessionState(IOptions<NetFinanceConfiguration> options) : IYahooSessionState
+internal class YahooSessionState(IOptions<FinanceNetConfiguration> options) : IYahooSessionState
 {
-	private readonly NetFinanceConfiguration _options = options.Value ?? throw new ArgumentNullException(nameof(options));
+	private readonly FinanceNetConfiguration _options = options.Value ?? throw new ArgumentNullException(nameof(options));
 	private string _userAgent = Helper.CreateRandomUserAgent();
 	private CookieContainer _cookieContainer = new();
 	private string? _crumb;
@@ -51,12 +52,12 @@ internal class YahooSessionState(IOptions<NetFinanceConfiguration> options) : IY
 
 	public bool IsValid()
 	{
-		var cookies = _cookieContainer?.GetCookies(new Uri(_options.Yahoo_BaseUrl_Html));
+		var cookies = _cookieContainer?.GetCookies(new Uri(_options.YahooBaseUrlHtml));
 		if (_refreshTime == null || cookies?.Count == null || cookies.Count == 0 || string.IsNullOrWhiteSpace(_crumb))
 		{
 			return false;
 		}
-		if (DateTime.UtcNow >= _refreshTime?.AddHours(_options.Yahoo_Cookie_RefreshTime))
+		if (DateTime.UtcNow >= _refreshTime?.AddHours(_options.YahooCookieRefreshTime))
 		{
 			// e.g. 10:00 >= 12:00 (09:00+3) = false, 10:00 >= 04:00 (01:00+3) = true
 			return false;

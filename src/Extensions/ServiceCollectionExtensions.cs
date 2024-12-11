@@ -1,39 +1,39 @@
 using System;
 using System.Net.Http;
+using Finance.Net.Interfaces;
+using Finance.Net.Services;
+using Finance.Net.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-using NetFinance.Interfaces;
-using NetFinance.Services;
-using NetFinance.Utilities;
 
-namespace NetFinance.Extensions;
+namespace Finance.Net.Extensions;
 
 public static class ServiceCollectionExtensions
 {
 	/// <summary>
-	/// Configures .Net Finance Service
+	/// Configures Finance.NET Service
 	/// </summary>
 	/// <param name="services">The service collection to configure.</param>
-	/// <param name="configuration">Optional: Default values to configure .Net Finance. <see cref="NetFinanceConfiguration"/> ></param>
-	public static void AddNetFinance(this IServiceCollection services, NetFinanceConfiguration? cfg = null)
+	/// <param name="configuration">Optional: Default values to configure Finance.NET. <see cref="FinanceNetConfiguration"/> ></param>
+	public static void AddFinanceServices(this IServiceCollection services, FinanceNetConfiguration? cfg = null)
 	{
-		cfg ??= new NetFinanceConfiguration();
+		cfg ??= new FinanceNetConfiguration();
 
-		services.Configure<NetFinanceConfiguration>(opt =>
+		services.Configure<FinanceNetConfiguration>(opt =>
 		{
-			opt.Http_Retries = cfg.Http_Retries;
-			opt.Http_Timeout = cfg.Http_Timeout;
+			opt.HttpRetries = cfg.HttpRetries;
+			opt.HttpTimeout = cfg.HttpTimeout;
 			opt.AlphaVantageApiKey = cfg.AlphaVantageApiKey;
-			opt.AlphaVantage_ApiUrl = cfg.AlphaVantage_ApiUrl;
-			opt.Xetra_DownloadUrl_Instruments = cfg.Xetra_DownloadUrl_Instruments;
-			opt.DatahubIo_DownloadUrl_SP500Symbols = cfg.DatahubIo_DownloadUrl_SP500Symbols;
-			opt.DatahubIo_DownloadUrl_NasdaqListedSymbols = cfg.DatahubIo_DownloadUrl_NasdaqListedSymbols;
-			opt.Yahoo_BaseUrl_Quote_Html = cfg.Yahoo_BaseUrl_Quote_Html;
-			opt.Yahoo_BaseUrl_Authentication = cfg.Yahoo_BaseUrl_Authentication;
-			opt.Yahoo_BaseUrl_Crumb_Api = cfg.Yahoo_BaseUrl_Crumb_Api;
-			opt.Yahoo_BaseUrl_Quote_Api = cfg.Yahoo_BaseUrl_Quote_Api;
-			opt.Yahoo_Cookie_RefreshTime = cfg.Yahoo_Cookie_RefreshTime;
-			opt.Yahoo_BaseUrl_Consent = cfg.Yahoo_BaseUrl_Consent;
-			opt.Yahoo_BaseUrl_Consent_Collect = cfg.Yahoo_BaseUrl_Consent_Collect;
+			opt.AlphaVantageApiUrl = cfg.AlphaVantageApiUrl;
+			opt.XetraDownloadUrlInstruments = cfg.XetraDownloadUrlInstruments;
+			opt.DatahubIoDownloadUrlSP500Symbols = cfg.DatahubIoDownloadUrlSP500Symbols;
+			opt.DatahubIoDownloadUrlNasdaqListedSymbols = cfg.DatahubIoDownloadUrlNasdaqListedSymbols;
+			opt.YahooBaseUrlQuoteHtml = cfg.YahooBaseUrlQuoteHtml;
+			opt.YahooBaseUrlAuthentication = cfg.YahooBaseUrlAuthentication;
+			opt.YahooBaseUrlCrumbApi = cfg.YahooBaseUrlCrumbApi;
+			opt.YahooBaseUrlQuoteApi = cfg.YahooBaseUrlQuoteApi;
+			opt.YahooCookieRefreshTime = cfg.YahooCookieRefreshTime;
+			opt.YahooBaseUrlConsent = cfg.YahooBaseUrlConsent;
+			opt.YahooBaseUrlConsentCollect = cfg.YahooBaseUrlConsentCollect;
 		});
 
 		services.AddSingleton<IYahooSessionState, YahooSessionState>();
@@ -44,7 +44,7 @@ public static class ServiceCollectionExtensions
 		services.AddScoped<IAlphaVantageService, AlphaVantageService>();
 		services.AddScoped<IDatahubIoService, DatahubIoService>();
 
-		services.AddHttpClient(cfg.Yahoo_Http_ClientName)
+		services.AddHttpClient(cfg.YahooHttpClientName)
 			.ConfigureHttpClient((provider, client) =>
 			{
 				var session = provider.GetRequiredService<IYahooSessionManager>();
@@ -52,7 +52,7 @@ public static class ServiceCollectionExtensions
 				client.DefaultRequestHeaders.Add("User-Agent", userAgent);
 				client.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
 				client.DefaultRequestHeaders.Add("Accept-Language", "en-US,en;q=0.5");
-				client.Timeout = TimeSpan.FromSeconds(cfg.Http_Timeout);
+				client.Timeout = TimeSpan.FromSeconds(cfg.HttpTimeout);
 			})
 			.ConfigurePrimaryHttpMessageHandler((provider) =>
 			{
@@ -65,34 +65,34 @@ public static class ServiceCollectionExtensions
 				return handler;
 			});
 
-		services.AddHttpClient(cfg.Xetra_Http_ClientName)
+		services.AddHttpClient(cfg.XetraHttpClientName)
 			.ConfigureHttpClient(client =>
 			{
 				var userAgent = Helper.CreateRandomUserAgent();
 				client.DefaultRequestHeaders.Add("User-Agent", userAgent);
 				client.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml,application/json;q=0.9,*/*;q=0.8");
 				client.DefaultRequestHeaders.Add("Accept-Language", "en-US,en;q=0.5");
-				client.Timeout = TimeSpan.FromSeconds(cfg.Http_Timeout);
+				client.Timeout = TimeSpan.FromSeconds(cfg.HttpTimeout);
 			});
 
-		services.AddHttpClient(cfg.AlphaVantage_Http_ClientName)
+		services.AddHttpClient(cfg.AlphaVantageHttpClientName)
 			.ConfigureHttpClient(client =>
 			{
 				var userAgent = Helper.CreateRandomUserAgent();
 				client.DefaultRequestHeaders.Add("User-Agent", userAgent);
 				client.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml,application/json;q=0.9,*/*;q=0.8");
 				client.DefaultRequestHeaders.Add("Accept-Language", "en-US,en;q=0.5");
-				client.Timeout = TimeSpan.FromSeconds(cfg.Http_Timeout);
+				client.Timeout = TimeSpan.FromSeconds(cfg.HttpTimeout);
 			});
 
-		services.AddHttpClient(cfg.DatahubIo_Http_ClientName)
+		services.AddHttpClient(cfg.DatahubIoHttpClientName)
 			.ConfigureHttpClient(client =>
 			{
 				var userAgent = Helper.CreateRandomUserAgent();
 				client.DefaultRequestHeaders.Add("User-Agent", userAgent);
 				client.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml,application/json;q=0.9,*/*;q=0.8");
 				client.DefaultRequestHeaders.Add("Accept-Language", "en-US,en;q=0.5");
-				client.Timeout = TimeSpan.FromSeconds(cfg.Http_Timeout);
+				client.Timeout = TimeSpan.FromSeconds(cfg.HttpTimeout);
 			});
 	}
 }

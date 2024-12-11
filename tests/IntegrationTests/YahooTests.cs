@@ -1,13 +1,13 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Finance.Net.Interfaces;
+using Finance.Net.Services;
 using Microsoft.Extensions.DependencyInjection;
-using NetFinance.Interfaces;
-using NetFinance.Services;
 using Newtonsoft.Json;
 using NUnit.Framework;
 
-namespace NetFinance.Tests.IntegrationTests;
+namespace Finance.Net.Tests.IntegrationTests;
 
 [TestFixture]
 [Category("IntegrationTests")]

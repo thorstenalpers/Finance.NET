@@ -3,7 +3,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace NetFinance.Interfaces
+namespace Finance.Net.Interfaces
 {
 	public interface IYahooSessionManager
 	{

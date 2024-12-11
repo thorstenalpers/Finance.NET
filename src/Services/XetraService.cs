@@ -9,25 +9,25 @@ using System.Threading.Tasks;
 using AutoMapper;
 using CsvHelper;
 using CsvHelper.Configuration;
+using Finance.Net.Exceptions;
+using Finance.Net.Extensions;
+using Finance.Net.Interfaces;
+using Finance.Net.Mappings;
+using Finance.Net.Models.Xetra;
+using Finance.Net.Models.Xetra.Dto;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using NetFinance.Exceptions;
-using NetFinance.Extensions;
-using NetFinance.Interfaces;
-using NetFinance.Mappings;
-using NetFinance.Models.Xetra;
-using NetFinance.Models.Xetra.Dto;
 
-namespace NetFinance.Services;
+namespace Finance.Net.Services;
 
 internal class XetraService : IXetraService
 {
 	private readonly IHttpClientFactory _httpClientFactory;
-	private readonly NetFinanceConfiguration _options;
+	private readonly FinanceNetConfiguration _options;
 	private readonly IMapper _mapper;
 	private static ServiceProvider? _serviceProvider = null;
 
-	public XetraService(IHttpClientFactory httpClientFactory, IOptions<NetFinanceConfiguration> options)
+	public XetraService(IHttpClientFactory httpClientFactory, IOptions<FinanceNetConfiguration> options)
 	{
 		_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
 		_options = options?.Value ?? throw new ArgumentNullException(nameof(options));
@@ -41,13 +41,13 @@ internal class XetraService : IXetraService
 	/// Creates a service for interacting with the Xetra API.
 	/// Provides methods for retrieving tradable instruments, market data, and other relevant information from Xetra.
 	/// </summary>
-	/// <param name="cfg">Optional: Default values to configure .Net Finance. <see cref="NetFinanceConfiguration"/> ></param>
-	public static IXetraService Create(NetFinanceConfiguration? cfg = null)
+	/// <param name="cfg">Optional: Default values to configure .Net Finance. <see cref="FinanceNetConfiguration"/> ></param>
+	public static IXetraService Create(FinanceNetConfiguration? cfg = null)
 	{
 		if (_serviceProvider == null)
 		{
 			var services = new ServiceCollection();
-			services.AddNetFinance(cfg);
+			services.AddFinanceServices(cfg);
 			_serviceProvider = services.BuildServiceProvider();
 		}
 		return _serviceProvider.GetRequiredService<IXetraService>();
@@ -55,10 +55,10 @@ internal class XetraService : IXetraService
 
 	public async Task<IEnumerable<Instrument>> GetInstruments(CancellationToken token = default)
 	{
-		var httpClient = _httpClientFactory.CreateClient(_options.Xetra_Http_ClientName);
+		var httpClient = _httpClientFactory.CreateClient(_options.XetraHttpClientName);
 		try
 		{
-			var response = await httpClient.GetAsync(_options.Xetra_DownloadUrl_Instruments, token);
+			var response = await httpClient.GetAsync(_options.XetraDownloadUrlInstruments, token);
 			response.EnsureSuccessStatusCode();
 			var config = new CsvConfiguration(CultureInfo.InvariantCulture)
 			{
@@ -77,7 +77,7 @@ internal class XetraService : IXetraService
 		}
 		catch (Exception ex)
 		{
-			throw new NetFinanceException($"Unable to download from {_options.Xetra_DownloadUrl_Instruments}", ex);
+			throw new FinanceNetException($"Unable to download from {_options.XetraDownloadUrlInstruments}", ex);
 		}
 	}
 }

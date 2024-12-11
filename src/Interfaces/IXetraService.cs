@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using NetFinance.Models.Xetra;
+using Finance.Net.Models.Xetra;
 
-namespace NetFinance.Interfaces;
+namespace Finance.Net.Interfaces;
 
 /// <summary>
 /// Represents a service for interacting with the Xetra API.

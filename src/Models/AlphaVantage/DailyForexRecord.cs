@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NetFinance.Models.AlphaVantage;
+namespace Finance.Net.Models.AlphaVantage;
 
 public record DailyForexRecord
 {

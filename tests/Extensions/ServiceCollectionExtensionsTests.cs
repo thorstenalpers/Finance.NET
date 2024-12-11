@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Linq;
 using System.Net.Http;
+using Finance.Net.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using NetFinance.Extensions;
 using NUnit.Framework;
 
-namespace NetFinance.Tests.Extensions;
+namespace Finance.Net.Tests.Extensions;
 
 [TestFixture]
 [Category("UnitTests")]
@@ -21,69 +21,69 @@ public class ServiceCollectionExtensionsTests
 	}
 
 	[Test]
-	public void AddNetFinance_WithCfg_Added()
+	public void AddFinanceServices_WithCfg_Added()
 	{
 		// Arrange
 		var services = new ServiceCollection();
-		var cfg = new NetFinanceConfiguration()
+		var cfg = new FinanceNetConfiguration()
 		{
 			AlphaVantageApiKey = "xxx",
-			AlphaVantage_ApiUrl = "https://www.google1.de",
-			DatahubIo_DownloadUrl_NasdaqListedSymbols = "https://www.google2.de",
-			DatahubIo_DownloadUrl_SP500Symbols = "https://www.google3.de",
-			Xetra_DownloadUrl_Instruments = "https://www.google4.de",
-			Yahoo_BaseUrl_Authentication = "https://www.google5.de",
-			Yahoo_BaseUrl_Crumb_Api = "https://www.google6.de",
-			Yahoo_BaseUrl_Quote_Html = "https://www.google7.de",
-			Yahoo_BaseUrl_Quote_Api = "https://www.google8.de",
-			Yahoo_BaseUrl_Consent = "https://www.google9.de",
-			Http_Retries = 100,
-			Http_Timeout = 1000,
+			AlphaVantageApiUrl = "https://www.google1.de",
+			DatahubIoDownloadUrlNasdaqListedSymbols = "https://www.google2.de",
+			DatahubIoDownloadUrlSP500Symbols = "https://www.google3.de",
+			XetraDownloadUrlInstruments = "https://www.google4.de",
+			YahooBaseUrlAuthentication = "https://www.google5.de",
+			YahooBaseUrlCrumbApi = "https://www.google6.de",
+			YahooBaseUrlQuoteHtml = "https://www.google7.de",
+			YahooBaseUrlQuoteApi = "https://www.google8.de",
+			YahooBaseUrlConsent = "https://www.google9.de",
+			HttpRetries = 100,
+			HttpTimeout = 1000,
 		};
 
 		// Act
-		services.AddNetFinance(cfg);
+		services.AddFinanceServices(cfg);
 
 		// Assert
 		var provider = services.BuildServiceProvider();
 
 		using var scope = provider.CreateScope();
-		var resolvedCfg = scope.ServiceProvider.GetService<IOptions<NetFinanceConfiguration>>().Value;
+		var resolvedCfg = scope.ServiceProvider.GetService<IOptions<FinanceNetConfiguration>>().Value;
 		var clientFactory = scope.ServiceProvider.GetService<IHttpClientFactory>();
 
 		// Assert
 		Assert.That(resolvedCfg.AlphaVantageApiKey, Is.EqualTo(cfg.AlphaVantageApiKey));
-		Assert.That(resolvedCfg.Http_Retries, Is.EqualTo(cfg.Http_Retries));
-		Assert.That(resolvedCfg.Yahoo_BaseUrl_Quote_Html, Is.EqualTo(cfg.Yahoo_BaseUrl_Quote_Html));
-		Assert.That(resolvedCfg.Yahoo_BaseUrl_Authentication, Is.EqualTo(cfg.Yahoo_BaseUrl_Authentication));
-		Assert.That(resolvedCfg.Yahoo_BaseUrl_Crumb_Api, Is.EqualTo(cfg.Yahoo_BaseUrl_Crumb_Api));
-		Assert.That(resolvedCfg.Yahoo_BaseUrl_Quote_Api, Is.EqualTo(cfg.Yahoo_BaseUrl_Quote_Api));
-		Assert.That(resolvedCfg.Http_Timeout, Is.EqualTo(cfg.Http_Timeout));
-		Assert.That(resolvedCfg.Xetra_DownloadUrl_Instruments, Is.EqualTo(cfg.Xetra_DownloadUrl_Instruments));
-		Assert.That(resolvedCfg.Xetra_DownloadUrl_Instruments, Is.EqualTo(cfg.Xetra_DownloadUrl_Instruments));
-		Assert.That(resolvedCfg.DatahubIo_DownloadUrl_SP500Symbols, Is.EqualTo(cfg.DatahubIo_DownloadUrl_SP500Symbols));
-		Assert.That(resolvedCfg.DatahubIo_DownloadUrl_NasdaqListedSymbols, Is.EqualTo(cfg.DatahubIo_DownloadUrl_NasdaqListedSymbols));
-		Assert.That(resolvedCfg.AlphaVantage_ApiUrl, Is.EqualTo(cfg.AlphaVantage_ApiUrl));
+		Assert.That(resolvedCfg.HttpRetries, Is.EqualTo(cfg.HttpRetries));
+		Assert.That(resolvedCfg.YahooBaseUrlQuoteHtml, Is.EqualTo(cfg.YahooBaseUrlQuoteHtml));
+		Assert.That(resolvedCfg.YahooBaseUrlAuthentication, Is.EqualTo(cfg.YahooBaseUrlAuthentication));
+		Assert.That(resolvedCfg.YahooBaseUrlCrumbApi, Is.EqualTo(cfg.YahooBaseUrlCrumbApi));
+		Assert.That(resolvedCfg.YahooBaseUrlQuoteApi, Is.EqualTo(cfg.YahooBaseUrlQuoteApi));
+		Assert.That(resolvedCfg.HttpTimeout, Is.EqualTo(cfg.HttpTimeout));
+		Assert.That(resolvedCfg.XetraDownloadUrlInstruments, Is.EqualTo(cfg.XetraDownloadUrlInstruments));
+		Assert.That(resolvedCfg.XetraDownloadUrlInstruments, Is.EqualTo(cfg.XetraDownloadUrlInstruments));
+		Assert.That(resolvedCfg.DatahubIoDownloadUrlSP500Symbols, Is.EqualTo(cfg.DatahubIoDownloadUrlSP500Symbols));
+		Assert.That(resolvedCfg.DatahubIoDownloadUrlNasdaqListedSymbols, Is.EqualTo(cfg.DatahubIoDownloadUrlNasdaqListedSymbols));
+		Assert.That(resolvedCfg.AlphaVantageApiUrl, Is.EqualTo(cfg.AlphaVantageApiUrl));
 
-		var clientDatahubIo = clientFactory.CreateClient(cfg.DatahubIo_Http_ClientName);
+		var clientDatahubIo = clientFactory.CreateClient(cfg.DatahubIoHttpClientName);
 		var userAgent = clientDatahubIo.DefaultRequestHeaders.GetValues("User-Agent").FirstOrDefault();
 		Assert.That(userAgent, Is.Not.Empty);
-		Assert.That(TimeSpan.FromSeconds(cfg.Http_Timeout), Is.EqualTo(clientDatahubIo.Timeout));
+		Assert.That(TimeSpan.FromSeconds(cfg.HttpTimeout), Is.EqualTo(clientDatahubIo.Timeout));
 
-		var clientAlphaVantage = clientFactory.CreateClient(cfg.AlphaVantage_Http_ClientName);
+		var clientAlphaVantage = clientFactory.CreateClient(cfg.AlphaVantageHttpClientName);
 		userAgent = clientAlphaVantage.DefaultRequestHeaders.GetValues("User-Agent").FirstOrDefault();
 		Assert.That(userAgent, Is.Not.Empty);
-		Assert.That(TimeSpan.FromSeconds(cfg.Http_Timeout), Is.EqualTo(clientAlphaVantage.Timeout));
+		Assert.That(TimeSpan.FromSeconds(cfg.HttpTimeout), Is.EqualTo(clientAlphaVantage.Timeout));
 
-		var clientXetra = clientFactory.CreateClient(cfg.Xetra_Http_ClientName);
+		var clientXetra = clientFactory.CreateClient(cfg.XetraHttpClientName);
 		userAgent = clientXetra.DefaultRequestHeaders.GetValues("User-Agent").FirstOrDefault();
 		Assert.That(userAgent, Is.Not.Empty);
-		Assert.That(TimeSpan.FromSeconds(cfg.Http_Timeout), Is.EqualTo(clientXetra.Timeout));
+		Assert.That(TimeSpan.FromSeconds(cfg.HttpTimeout), Is.EqualTo(clientXetra.Timeout));
 
-		var clientYahoo = clientFactory.CreateClient(cfg.Yahoo_Http_ClientName);
+		var clientYahoo = clientFactory.CreateClient(cfg.YahooHttpClientName);
 		Assert.That(clientYahoo, Is.Not.Null);
 		userAgent = clientYahoo.DefaultRequestHeaders.GetValues("User-Agent").FirstOrDefault();
 		Assert.That(userAgent, Is.Not.Empty);
-		Assert.That(TimeSpan.FromSeconds(cfg.Http_Timeout), Is.EqualTo(clientYahoo.Timeout));
+		Assert.That(TimeSpan.FromSeconds(cfg.HttpTimeout), Is.EqualTo(clientYahoo.Timeout));
 	}
 }

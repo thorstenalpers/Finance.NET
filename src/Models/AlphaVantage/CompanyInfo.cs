@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace NetFinance.Models.AlphaVantage;
+namespace Finance.Net.Models.AlphaVantage;
 public class CompanyInfo
 {
 	public string? Symbol { get; set; }

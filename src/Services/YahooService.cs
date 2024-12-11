@@ -9,19 +9,19 @@ using System.Threading.Tasks;
 using AngleSharp.Dom;
 using AngleSharp.XPath;
 using AutoMapper;
+using Finance.Net.Exceptions;
+using Finance.Net.Extensions;
+using Finance.Net.Interfaces;
+using Finance.Net.Mappings;
+using Finance.Net.Models.Yahoo;
+using Finance.Net.Models.Yahoo.Dtos;
+using Finance.Net.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using NetFinance.Exceptions;
-using NetFinance.Extensions;
-using NetFinance.Interfaces;
-using NetFinance.Mappings;
-using NetFinance.Models.Yahoo;
-using NetFinance.Models.Yahoo.Dtos;
-using NetFinance.Utilities;
 using Newtonsoft.Json;
 
-namespace NetFinance.Services;
+namespace Finance.Net.Services;
 
 internal class YahooService : IYahooService
 {
@@ -29,10 +29,10 @@ internal class YahooService : IYahooService
 	private readonly IHttpClientFactory _httpClientFactory;
 	private readonly IYahooSessionManager _yahooSession;
 	private readonly IMapper _mapper;
-	private readonly NetFinanceConfiguration _options;
+	private readonly FinanceNetConfiguration _options;
 	private static ServiceProvider? _serviceProvider = null;
 
-	public YahooService(ILogger<IYahooService> logger, IHttpClientFactory httpClientFactory, IYahooSessionManager yahooSession, IOptions<NetFinanceConfiguration> options)
+	public YahooService(ILogger<IYahooService> logger, IHttpClientFactory httpClientFactory, IYahooSessionManager yahooSession, IOptions<FinanceNetConfiguration> options)
 	{
 		_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
@@ -48,13 +48,13 @@ internal class YahooService : IYahooService
 	/// Creates a service for interacting with the Yahoo Finance API.
 	/// Provides methods for retrieving historical data, company profiles, summaries, and financial reports from Yahoo Finance.
 	/// </summary>
-	/// <param name="cfg">Optional: Default values to configure .Net Finance. <see cref="NetFinanceConfiguration"/> ></param>
-	public static IYahooService Create(NetFinanceConfiguration? cfg = null)
+	/// <param name="cfg">Optional: Default values to configure .Net Finance. <see cref="FinanceNetConfiguration"/> ></param>
+	public static IYahooService Create(FinanceNetConfiguration? cfg = null)
 	{
 		if (_serviceProvider == null)
 		{
 			var services = new ServiceCollection();
-			services.AddNetFinance(cfg);
+			services.AddFinanceServices(cfg);
 			_serviceProvider = services.BuildServiceProvider();
 		}
 		return _serviceProvider.GetRequiredService<IYahooService>();
@@ -70,11 +70,11 @@ internal class YahooService : IYahooService
 	{
 		await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
 		var crumb = _yahooSession.GetApiCrumb();
-		var httpClient = _httpClientFactory.CreateClient(_options.Yahoo_Http_ClientName);
-		var url = $"{_options.Yahoo_BaseUrl_Quote_Api}?" +
+		var httpClient = _httpClientFactory.CreateClient(_options.YahooHttpClientName);
+		var url = $"{_options.YahooBaseUrlQuoteApi}?" +
 			$"&symbols={string.Join(",", symbols).ToLower()}" +
 			$"&crumb={crumb}";
-		for (int attempt = 1; attempt <= _options.Http_Retries; attempt++)
+		for (int attempt = 1; attempt <= _options.HttpRetries; attempt++)
 		{
 			try
 			{
@@ -88,13 +88,13 @@ internal class YahooService : IYahooService
 
 				_logger.LogDebug(() => $"jsonContent={Regex.Replace(jsonContent, @"\s+", " ")}");
 
-				var parsedData = JsonConvert.DeserializeObject<QuoteResponseRoot>(jsonContent) ?? throw new NetFinanceException($"Invalid data returned by Yahoo");
-				var responseObj = parsedData.QuoteResponse ?? throw new NetFinanceException($"Unexpected response from Yahoo");
+				var parsedData = JsonConvert.DeserializeObject<QuoteResponseRoot>(jsonContent) ?? throw new FinanceNetException($"Invalid data returned by Yahoo");
+				var responseObj = parsedData.QuoteResponse ?? throw new FinanceNetException($"Unexpected response from Yahoo");
 
 				var error = responseObj.Error;
 				if (responseObj == null || error != null)
 				{
-					throw new NetFinanceException($"An error returned by Yahoo: {error}");
+					throw new FinanceNetException($"An error returned by Yahoo: {error}");
 				}
 				if (responseObj.Result == null)
 				{
@@ -105,7 +105,7 @@ internal class YahooService : IYahooService
 				{
 					if (quoteResponse.Symbol == null)
 					{
-						throw new NetFinanceException("Invalid quote field symbol");
+						throw new FinanceNetException("Invalid quote field symbol");
 					}
 					var quote = _mapper.Map<Quote>(quoteResponse);
 					quotes.Add(quote);
@@ -119,17 +119,17 @@ internal class YahooService : IYahooService
 				await Task.Delay(TimeSpan.FromSeconds(1 * attempt));
 			}
 		}
-		_logger.LogWarning($"No quotes found after {_options.Http_Retries} attempts.");
+		_logger.LogWarning($"No quotes found after {_options.HttpRetries} attempts.");
 		return [];
 	}
 
 	public async Task<Models.Yahoo.Profile> GetProfileAsync(string symbol, CancellationToken token = default)
 	{
 		await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
-		var httpClient = _httpClientFactory.CreateClient(_options.Yahoo_Http_ClientName);
-		var url = $"{_options.Yahoo_BaseUrl_Quote_Html}/{symbol}/profile/".ToLower();
+		var httpClient = _httpClientFactory.CreateClient(_options.YahooHttpClientName);
+		var url = $"{_options.YahooBaseUrlQuoteHtml}/{symbol}/profile/".ToLower();
 
-		for (int attempt = 1; attempt <= _options.Http_Retries; attempt++)
+		for (int attempt = 1; attempt <= _options.HttpRetries; attempt++)
 		{
 			try
 			{
@@ -177,7 +177,7 @@ internal class YahooService : IYahooService
 				};
 				if (Helper.AreAllFieldsNull(result))
 				{
-					throw new NetFinanceException("All fields empty");
+					throw new FinanceNetException("All fields empty");
 				}
 				return result;
 			}
@@ -188,26 +188,26 @@ internal class YahooService : IYahooService
 				await Task.Delay(TimeSpan.FromSeconds(1 * attempt));
 
 				// try using without cookies
-				url = $"{_options.Yahoo_BaseUrl_Quote_Html}/{symbol}/profile/?_guc_consent_skip={Helper.ToUnixTimestamp(DateTime.UtcNow.AddHours(1))}".ToLower();
+				url = $"{_options.YahooBaseUrlQuoteHtml}/{symbol}/profile/?_guc_consent_skip={Helper.ToUnixTimestamp(DateTime.UtcNow.AddHours(1))}".ToLower();
 			}
 		}
-		_logger.LogWarning($"No profile found after {_options.Http_Retries} attempts.");
+		_logger.LogWarning($"No profile found after {_options.HttpRetries} attempts.");
 		return new Models.Yahoo.Profile();
 	}
 
 	public async Task<IEnumerable<DailyRecord>> GetDailyRecordsAsync(string symbol, DateTime startDate, DateTime? endDate = null, CancellationToken token = default)
 	{
 		await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
-		var httpClient = _httpClientFactory.CreateClient(_options.Yahoo_Http_ClientName);
+		var httpClient = _httpClientFactory.CreateClient(_options.YahooHttpClientName);
 
 		endDate ??= DateTime.UtcNow;
 		endDate = endDate.Value.AddDays(1).Date;
 
-		var period1 = Helper.ToUnixTimestamp(startDate.Date) ?? throw new NetFinanceException("Invalid startDate");
-		var period2 = Helper.ToUnixTimestamp(endDate.Value.Date) ?? throw new NetFinanceException("Invalid endDate");
+		var period1 = Helper.ToUnixTimestamp(startDate.Date) ?? throw new FinanceNetException("Invalid startDate");
+		var period2 = Helper.ToUnixTimestamp(endDate.Value.Date) ?? throw new FinanceNetException("Invalid endDate");
 
-		var url = $"{_options.Yahoo_BaseUrl_Quote_Html}/{symbol}/history/?period1={period1}&period2={period2}".ToLower();
-		for (int attempt = 1; attempt <= _options.Http_Retries; attempt++)
+		var url = $"{_options.YahooBaseUrlQuoteHtml}/{symbol}/history/?period1={period1}&period2={period2}".ToLower();
+		for (int attempt = 1; attempt <= _options.HttpRetries; attempt++)
 		{
 			try
 			{
@@ -227,7 +227,7 @@ internal class YahooService : IYahooService
 				var table = document.QuerySelector("table.table");
 				if (table == null)
 				{
-					throw new NetFinanceException("No records found");
+					throw new FinanceNetException("No records found");
 				}
 
 				var headers = table.QuerySelectorAll("thead th")
@@ -243,7 +243,7 @@ internal class YahooService : IYahooService
 				}
 				if (!expectedHeaderSet.IsSubsetOf(headerMap.Keys))
 				{
-					throw new NetFinanceException("Headers are missing");
+					throw new FinanceNetException("Headers are missing");
 				}
 
 				var rows = table.QuerySelectorAll("tbody tr");
@@ -300,18 +300,18 @@ internal class YahooService : IYahooService
 				await Task.Delay(TimeSpan.FromSeconds(1 * attempt));
 
 				// try using without cookies
-				url = $"{_options.Yahoo_BaseUrl_Quote_Html}/{symbol}/history/?period1={period1}&period2={period2}&_guc_consent_skip={Helper.ToUnixTimestamp(DateTime.UtcNow.AddHours(1))}".ToLower();
+				url = $"{_options.YahooBaseUrlQuoteHtml}/{symbol}/history/?period1={period1}&period2={period2}&_guc_consent_skip={Helper.ToUnixTimestamp(DateTime.UtcNow.AddHours(1))}".ToLower();
 			}
 		}
-		_logger.LogWarning($"No records found after {_options.Http_Retries} attempts.");
+		_logger.LogWarning($"No records found after {_options.HttpRetries} attempts.");
 		return [];
 	}
 
 	public async Task<Dictionary<string, FinancialReport>> GetFinancialReportsAsync(string symbol, CancellationToken token = default)
 	{
 		await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
-		var httpClient = _httpClientFactory.CreateClient(_options.Yahoo_Http_ClientName);
-		var url = $"{_options.Yahoo_BaseUrl_Quote_Html}/{symbol}/financials/".ToLower();
+		var httpClient = _httpClientFactory.CreateClient(_options.YahooHttpClientName);
+		var url = $"{_options.YahooBaseUrlQuoteHtml}/{symbol}/financials/".ToLower();
 		for (int attempt = 1; attempt <= 20; attempt++)
 		{
 			try
@@ -347,7 +347,7 @@ internal class YahooService : IYahooService
 
 					if (columns.Count != headers.Count + 1)
 					{
-						throw new NetFinanceException($"Unknown table format of {url} html");
+						throw new FinanceNetException($"Unknown table format of {url} html");
 					}
 
 					var rowTitle = columns.FirstOrDefault();
@@ -373,7 +373,7 @@ internal class YahooService : IYahooService
 				}
 				if (result == null || result.Count == 0)
 				{
-					throw new NetFinanceException("no reports");
+					throw new FinanceNetException("no reports");
 				}
 
 				return result;
@@ -385,21 +385,21 @@ internal class YahooService : IYahooService
 				await Task.Delay(TimeSpan.FromSeconds(1 * attempt));
 
 				// try using without cookies
-				url = $"{_options.Yahoo_BaseUrl_Quote_Html}/{symbol}/financials/?_guc_consent_skip={Helper.ToUnixTimestamp(DateTime.UtcNow.AddHours(1))}".ToLower();
+				url = $"{_options.YahooBaseUrlQuoteHtml}/{symbol}/financials/?_guc_consent_skip={Helper.ToUnixTimestamp(DateTime.UtcNow.AddHours(1))}".ToLower();
 			}
 		}
-		_logger.LogWarning($"No financial reports found after {_options.Http_Retries} attempts.");
+		_logger.LogWarning($"No financial reports found after {_options.HttpRetries} attempts.");
 		return [];
 	}
 
 	public async Task<Summary> GetSummaryAsync(string symbol, CancellationToken token = default)
 	{
 		await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
-		var httpClient = _httpClientFactory.CreateClient(_options.Yahoo_Http_ClientName);
+		var httpClient = _httpClientFactory.CreateClient(_options.YahooHttpClientName);
 		var symbolsToSecurity = new Dictionary<string, Quote>();
-		var url = $"{_options.Yahoo_BaseUrl_Quote_Html}/{symbol}/".ToLower();
+		var url = $"{_options.YahooBaseUrlQuoteHtml}/{symbol}/".ToLower();
 
-		for (int attempt = 1; attempt <= _options.Http_Retries; attempt++)
+		for (int attempt = 1; attempt <= _options.HttpRetries; attempt++)
 		{
 			try
 			{
@@ -498,7 +498,7 @@ internal class YahooService : IYahooService
 				};
 				if (Helper.AreAllFieldsNull(result))
 				{
-					throw new NetFinanceException("All fields empty");
+					throw new FinanceNetException("All fields empty");
 				}
 				return result;
 			}
@@ -509,10 +509,10 @@ internal class YahooService : IYahooService
 				await Task.Delay(TimeSpan.FromSeconds(1 * attempt));
 
 				// try using without cookies
-				url = $"{_options.Yahoo_BaseUrl_Quote_Html}/{symbol}/?_guc_consent_skip={Helper.ToUnixTimestamp(DateTime.UtcNow.AddHours(1))}".ToLower();
+				url = $"{_options.YahooBaseUrlQuoteHtml}/{symbol}/?_guc_consent_skip={Helper.ToUnixTimestamp(DateTime.UtcNow.AddHours(1))}".ToLower();
 			}
 		}
-		_logger.LogWarning($"No summary found after {_options.Http_Retries} attempts.");
+		_logger.LogWarning($"No summary found after {_options.HttpRetries} attempts.");
 		return new Summary();
 	}
 }

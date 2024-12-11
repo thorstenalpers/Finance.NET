@@ -8,23 +8,23 @@ using System.Threading;
 using System.Threading.Tasks;
 using CsvHelper;
 using CsvHelper.Configuration;
+using Finance.Net.Exceptions;
+using Finance.Net.Extensions;
+using Finance.Net.Interfaces;
+using Finance.Net.Mappings;
+using Finance.Net.Models.DatahubIo;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using NetFinance.Exceptions;
-using NetFinance.Extensions;
-using NetFinance.Interfaces;
-using NetFinance.Mappings;
-using NetFinance.Models.DatahubIo;
 
-namespace NetFinance.Services;
+namespace Finance.Net.Services;
 
 internal class DatahubIoService : IDatahubIoService
 {
 	private readonly IHttpClientFactory _httpClientFactory;
-	private readonly NetFinanceConfiguration _options;
+	private readonly FinanceNetConfiguration _options;
 	private static ServiceProvider? _serviceProvider = null;
 
-	public DatahubIoService(IHttpClientFactory httpClientFactory, IOptions<NetFinanceConfiguration> options)
+	public DatahubIoService(IHttpClientFactory httpClientFactory, IOptions<FinanceNetConfiguration> options)
 	{
 		_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
 		_options = options?.Value ?? throw new ArgumentNullException(nameof(options));
@@ -34,13 +34,13 @@ internal class DatahubIoService : IDatahubIoService
 	/// Creates a service for interacting with the OpenData API.
 	/// Provides methods for retrieving financial instruments, market data, and other relevant information from OpenData.
 	/// </summary>
-	/// <param name="cfg">Optional: Default values to configure .Net Finance. <see cref="NetFinanceConfiguration"/> ></param>
-	public static IDatahubIoService Create(NetFinanceConfiguration? cfg = null)
+	/// <param name="cfg">Optional: Default values to configure .Net Finance. <see cref="FinanceNetConfiguration"/> ></param>
+	public static IDatahubIoService Create(FinanceNetConfiguration? cfg = null)
 	{
 		if (_serviceProvider == null)
 		{
 			var services = new ServiceCollection();
-			services.AddNetFinance(cfg);
+			services.AddFinanceServices(cfg);
 			_serviceProvider = services.BuildServiceProvider();
 		}
 		return _serviceProvider.GetRequiredService<IDatahubIoService>();
@@ -48,10 +48,10 @@ internal class DatahubIoService : IDatahubIoService
 
 	public async Task<IEnumerable<NasdaqInstrument>> GetNasdaqInstrumentsAsync(CancellationToken token = default)
 	{
-		var httpClient = _httpClientFactory.CreateClient(_options.DatahubIo_Http_ClientName);
+		var httpClient = _httpClientFactory.CreateClient(_options.DatahubIoHttpClientName);
 		try
 		{
-			var response = await httpClient.GetAsync(_options.DatahubIo_DownloadUrl_NasdaqListedSymbols, token);
+			var response = await httpClient.GetAsync(_options.DatahubIoDownloadUrlNasdaqListedSymbols, token);
 			response.EnsureSuccessStatusCode();
 			var config = new CsvConfiguration(CultureInfo.InvariantCulture);
 
@@ -62,16 +62,16 @@ internal class DatahubIoService : IDatahubIoService
 		}
 		catch (Exception ex)
 		{
-			throw new NetFinanceException($"Unable to download from {_options.DatahubIo_DownloadUrl_NasdaqListedSymbols}", ex);
+			throw new FinanceNetException($"Unable to download from {_options.DatahubIoDownloadUrlNasdaqListedSymbols}", ex);
 		}
 	}
 
 	public async Task<IEnumerable<SP500Instrument>> GetSAndP500InstrumentsAsync(CancellationToken token = default)
 	{
-		var httpClient = _httpClientFactory.CreateClient(_options.DatahubIo_Http_ClientName);
+		var httpClient = _httpClientFactory.CreateClient(_options.DatahubIoHttpClientName);
 		try
 		{
-			var response = await httpClient.GetAsync(_options.DatahubIo_DownloadUrl_SP500Symbols, token);
+			var response = await httpClient.GetAsync(_options.DatahubIoDownloadUrlSP500Symbols, token);
 			response.EnsureSuccessStatusCode();
 			var config = new CsvConfiguration(CultureInfo.InvariantCulture);
 
@@ -83,7 +83,7 @@ internal class DatahubIoService : IDatahubIoService
 		}
 		catch (Exception ex)
 		{
-			throw new NetFinanceException($"Unable to download from {_options.DatahubIo_DownloadUrl_SP500Symbols}", ex);
+			throw new FinanceNetException($"Unable to download from {_options.DatahubIoDownloadUrlSP500Symbols}", ex);
 		}
 	}
 }

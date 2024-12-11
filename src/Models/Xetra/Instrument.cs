@@ -1,4 +1,4 @@
-﻿namespace NetFinance.Models.Xetra;
+﻿namespace Finance.Net.Models.Xetra;
 public record Instrument
 {
 	public string? Symbol { get; set; }

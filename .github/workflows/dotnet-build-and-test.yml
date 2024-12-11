@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     
     env:
-      Solution_Name: NetFinance.sln
+      Solution_Name: Finance.NET.sln
       Test_Project_Path: tests/Tests.csproj      
       FORCE_COLOR: "true"
       DOTNET_LOGGING__CONSOLE__COLORBEHAVIOR: Enabled
@@ -55,7 +55,7 @@ jobs:
           }
           reportgenerator -reports:./TestResults/IntegrationTests/**/coverage.cobertura.xml -targetdir:./TestResults/Coverage/Integration -reporttypes:Html
       env:
-          NetFinance__AlphaVantageApiKey: ${{ secrets.ALPHAVANTAGEAPIKEY }}
+          FinanceNet__AlphaVantageApiKey: ${{ secrets.ALPHAVANTAGEAPIKEY }}
       
     - name: Upload unit test coverage report
       uses: actions/upload-artifact@v4.4.3

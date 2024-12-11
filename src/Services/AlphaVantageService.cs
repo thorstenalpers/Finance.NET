@@ -6,27 +6,27 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Ardalis.GuardClauses;
+using Finance.Net.Exceptions;
+using Finance.Net.Extensions;
+using Finance.Net.Interfaces;
+using Finance.Net.Models.AlphaVantage;
+using Finance.Net.Models.AlphaVantage.Dtos;
+using Finance.Net.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using NetFinance.Exceptions;
-using NetFinance.Extensions;
-using NetFinance.Interfaces;
-using NetFinance.Models.AlphaVantage;
-using NetFinance.Models.AlphaVantage.Dtos;
-using NetFinance.Utilities;
 using Newtonsoft.Json;
 
-namespace NetFinance.Services;
+namespace Finance.Net.Services;
 
 internal class AlphaVantageService : IAlphaVantageService
 {
 	private readonly ILogger<IAlphaVantageService> _logger;
 	private readonly IHttpClientFactory _httpClientFactory;
-	private readonly NetFinanceConfiguration _options;
+	private readonly FinanceNetConfiguration _options;
 	private static ServiceProvider? _serviceProvider = null;
 
-	public AlphaVantageService(ILogger<IAlphaVantageService> logger, IHttpClientFactory httpClientFactory, IOptions<NetFinanceConfiguration> options)
+	public AlphaVantageService(ILogger<IAlphaVantageService> logger, IHttpClientFactory httpClientFactory, IOptions<FinanceNetConfiguration> options)
 	{
 		_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
@@ -37,13 +37,13 @@ internal class AlphaVantageService : IAlphaVantageService
 	/// Creates a service for interacting with the AlphaVantage API.
 	/// Provides methods for retrieving company data, stock records, forex data, and intraday information.
 	/// </summary>
-	/// <param name="cfg">Optional: Default values to configure .Net Finance. <see cref="NetFinanceConfiguration"/> ></param>
-	public static IAlphaVantageService Create(NetFinanceConfiguration? cfg = null)
+	/// <param name="cfg">Optional: Default values to configure .Net Finance. <see cref="FinanceNetConfiguration"/> ></param>
+	public static IAlphaVantageService Create(FinanceNetConfiguration? cfg = null)
 	{
 		if (_serviceProvider == null)
 		{
 			var services = new ServiceCollection();
-			services.AddNetFinance(cfg);
+			services.AddFinanceServices(cfg);
 			_serviceProvider = services.BuildServiceProvider();
 		}
 		return _serviceProvider.GetRequiredService<IAlphaVantageService>();
@@ -51,11 +51,11 @@ internal class AlphaVantageService : IAlphaVantageService
 
 	public async Task<CompanyInfo?> GetCompanyInfoAsync(string symbol, CancellationToken token = default)
 	{
-		var httpClient = _httpClientFactory.CreateClient(_options.AlphaVantage_Http_ClientName);
-		var url = _options.AlphaVantage_ApiUrl + "/query?function=OVERVIEW" +
+		var httpClient = _httpClientFactory.CreateClient(_options.AlphaVantageHttpClientName);
+		var url = _options.AlphaVantageApiUrl + "/query?function=OVERVIEW" +
 			$"&symbol={symbol}" +
 			$"&apikey={_options.AlphaVantageApiKey}";
-		for (int attempt = 1; attempt <= _options.Http_Retries; attempt++)
+		for (int attempt = 1; attempt <= _options.HttpRetries; attempt++)
 		{
 			try
 			{
@@ -65,7 +65,7 @@ internal class AlphaVantageService : IAlphaVantageService
 				string jsonResponse = await response.Content.ReadAsStringAsync();
 				if (jsonResponse.Contains("higher API call volume"))
 				{
-					throw new NetFinanceException($"higher API call volume for {symbol}");
+					throw new FinanceNetException($"higher API call volume for {symbol}");
 				}
 				return JsonConvert.DeserializeObject<CompanyInfo>(jsonResponse);
 			}
@@ -76,13 +76,13 @@ internal class AlphaVantageService : IAlphaVantageService
 				await Task.Delay(TimeSpan.FromSeconds(1 * attempt));
 			}
 		}
-		throw new NetFinanceException($"No company overview found for {symbol} after {_options.Http_Retries} retries");
+		throw new FinanceNetException($"No company overview found for {symbol} after {_options.HttpRetries} retries");
 	}
 
 	public async Task<IEnumerable<DailyRecord>> GetDailyRecordsAsync(string symbol, DateTime startDate, DateTime? endDate = null, CancellationToken token = default)
 	{
-		var httpClient = _httpClientFactory.CreateClient(_options.AlphaVantage_Http_ClientName);
-		var url = _options.AlphaVantage_ApiUrl + "/query?function=TIME_SERIES_DAILY_ADJUSTED" +
+		var httpClient = _httpClientFactory.CreateClient(_options.AlphaVantageHttpClientName);
+		var url = _options.AlphaVantageApiUrl + "/query?function=TIME_SERIES_DAILY_ADJUSTED" +
 			$"&symbol={symbol}&outputsize=full&apikey={_options.AlphaVantageApiKey}";
 		Guard.Against.NullOrEmpty(symbol);
 		if (endDate == null || endDate?.Date >= DateTime.UtcNow.Date)
@@ -91,10 +91,10 @@ internal class AlphaVantageService : IAlphaVantageService
 		}
 		if (startDate > endDate)
 		{
-			throw new NetFinanceException("Startdate after Endate");
+			throw new FinanceNetException("Startdate after Endate");
 		}
 		var daysToImport = ((endDate ?? startDate) - startDate).TotalDays;
-		for (int attempt = 1; attempt <= _options.Http_Retries; attempt++)
+		for (int attempt = 1; attempt <= _options.HttpRetries; attempt++)
 		{
 			try
 			{
@@ -105,13 +105,13 @@ internal class AlphaVantageService : IAlphaVantageService
 				string jsonResponse = await response.Content.ReadAsStringAsync();
 				if (jsonResponse.Contains("higher API call volume"))
 				{
-					throw new NetFinanceException($"higher API call volume for {symbol}");
+					throw new FinanceNetException($"higher API call volume for {symbol}");
 				}
 
 				var data = JsonConvert.DeserializeObject<DailyRecordRoot>(jsonResponse);
 				if (data?.TimeSeries == null)
 				{
-					throw new NetFinanceException($"no daily records for {symbol}");
+					throw new FinanceNetException($"no daily records for {symbol}");
 				}
 				foreach (var item in data.TimeSeries)
 				{
@@ -149,7 +149,7 @@ internal class AlphaVantageService : IAlphaVantageService
 				await Task.Delay(TimeSpan.FromSeconds(1 * attempt));
 			}
 		}
-		throw new NetFinanceException($"no daily records for {symbol} after {_options.Http_Retries} retries.");
+		throw new FinanceNetException($"no daily records for {symbol} after {_options.HttpRetries} retries.");
 	}
 
 	public async Task<IEnumerable<IntradayRecord>> GetIntradayRecordsAsync(string symbol, DateTime startDate, DateTime? endDate = null, EInterval interval = EInterval.Interval_15Min, CancellationToken token = default)
@@ -162,7 +162,7 @@ internal class AlphaVantageService : IAlphaVantageService
 		}
 		if (startDate > endDate)
 		{
-			throw new NetFinanceException("Startdate after Endate");
+			throw new FinanceNetException("Startdate after Endate");
 		}
 
 		for (var currentMonth = new DateTime(startDate.Year, startDate.Month, 1); currentMonth <= endDate; currentMonth = currentMonth.AddMonths(1))
@@ -181,21 +181,21 @@ internal class AlphaVantageService : IAlphaVantageService
 			result.AddRange(currentCourses);
 		}
 		return result.IsNullOrEmpty()
-			? throw new NetFinanceException($"Fail for {symbol}")
+			? throw new FinanceNetException($"Fail for {symbol}")
 			: result.Where(e => e.DateTime >= startDate).ToList();
 	}
 
 	private async Task<List<IntradayRecord>> GetIntradayRecordsByMonthAsync(string symbol, DateTime month, EInterval interval, CancellationToken token = default)
 	{
-		var httpClient = _httpClientFactory.CreateClient(_options.AlphaVantage_Http_ClientName);
-		var url = _options.AlphaVantage_ApiUrl + "/query?function=TIME_SERIES_INTRADAY" +
+		var httpClient = _httpClientFactory.CreateClient(_options.AlphaVantageHttpClientName);
+		var url = _options.AlphaVantageApiUrl + "/query?function=TIME_SERIES_INTRADAY" +
 			$"&symbol={symbol}" +
 			$"&interval={interval.Description()}" +
 			$"&month={month:yyyy-MM}" +
 			"&extended_hours=false" +      // no pre and post market trading
 			"&outputsize=full" +
 			$"&apikey={_options.AlphaVantageApiKey}";
-		for (int attempt = 1; attempt <= _options.Http_Retries; attempt++)
+		for (int attempt = 1; attempt <= _options.HttpRetries; attempt++)
 		{
 			try
 			{
@@ -206,7 +206,7 @@ internal class AlphaVantageService : IAlphaVantageService
 				string jsonResponse = await response.Content.ReadAsStringAsync();
 				if (jsonResponse.Contains("higher API call volume"))
 				{
-					throw new NetFinanceException($"higher API call volume for {symbol}");
+					throw new FinanceNetException($"higher API call volume for {symbol}");
 				}
 				var data = JsonConvert.DeserializeObject<IntradayRecordRoot>(jsonResponse);
 
@@ -222,7 +222,7 @@ internal class AlphaVantageService : IAlphaVantageService
 
 				if (timeseries == null)
 				{
-					throw new NetFinanceException($"no intraday records for {symbol}");
+					throw new FinanceNetException($"no intraday records for {symbol}");
 				}
 				foreach (var item in timeseries)
 				{
@@ -256,12 +256,12 @@ internal class AlphaVantageService : IAlphaVantageService
 				await Task.Delay(TimeSpan.FromSeconds(1 * attempt));
 			}
 		}
-		throw new NetFinanceException($"No intraday records found for {symbol} after {_options.Http_Retries} retries.");
+		throw new FinanceNetException($"No intraday records found for {symbol} after {_options.HttpRetries} retries.");
 	}
 
 	public async Task<IEnumerable<DailyForexRecord>> GetDailyForexRecordsAsync(string currency1, string currency2, DateTime startDate, DateTime? endDate = null, CancellationToken token = default)
 	{
-		var httpClient = _httpClientFactory.CreateClient(_options.AlphaVantage_Http_ClientName);
+		var httpClient = _httpClientFactory.CreateClient(_options.AlphaVantageHttpClientName);
 		Guard.Against.NullOrEmpty(currency1);
 		Guard.Against.NullOrEmpty(currency2);
 
@@ -271,12 +271,12 @@ internal class AlphaVantageService : IAlphaVantageService
 		}
 		if (startDate > endDate)
 		{
-			throw new NetFinanceException("Startdate after Endate");
+			throw new FinanceNetException("Startdate after Endate");
 		}
-		var url = _options.AlphaVantage_ApiUrl + "/query?function=FX_DAILY" +
+		var url = _options.AlphaVantageApiUrl + "/query?function=FX_DAILY" +
 			$"&from_symbol={currency1}&to_symbol={currency2}&outputsize=full&apikey={_options.AlphaVantageApiKey}";
 
-		for (int attempt = 1; attempt <= _options.Http_Retries; attempt++)
+		for (int attempt = 1; attempt <= _options.HttpRetries; attempt++)
 		{
 			try
 			{
@@ -288,13 +288,13 @@ internal class AlphaVantageService : IAlphaVantageService
 				string jsonResponse = await response.Content.ReadAsStringAsync();
 				if (jsonResponse.Contains("higher API call volume"))
 				{
-					throw new NetFinanceException($"higher API call volume for {currency1} /{currency2}");
+					throw new FinanceNetException($"higher API call volume for {currency1} /{currency2}");
 				}
 
 				var data = JsonConvert.DeserializeObject<DailyForexRecordRoot>(jsonResponse);
 				if (data?.TimeSeries == null)
 				{
-					throw new NetFinanceException($"no forex records for {currency1} /{currency2}");
+					throw new FinanceNetException($"no forex records for {currency1} /{currency2}");
 				}
 				foreach (var item in data.TimeSeries)
 				{
@@ -329,6 +329,6 @@ internal class AlphaVantageService : IAlphaVantageService
 				await Task.Delay(TimeSpan.FromSeconds(1 * attempt));
 			}
 		}
-		throw new NetFinanceException($"No forex records found for {currency1} /{currency2} after {_options.Http_Retries} retries.");
+		throw new FinanceNetException($"No forex records found for {currency1} /{currency2} after {_options.HttpRetries} retries.");
 	}
 }
