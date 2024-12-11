@@ -11,8 +11,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      Solution_Name: NetFinance.sln
-      NetFinance_Project_Path: NetFinance/NetFinance.csproj
+      Solution_Name: Finance.NET.sln
+      FinanceNet_Project_Path: src/Finance.NET.csproj
       Test_Project_Path: tests/Tests.csproj
 
     steps:
@@ -45,7 +45,7 @@ jobs:
     - name: Extract Version
       id: get_version
       run: |
-        VERSION=$(grep '<Version>' ${{ env.NetFinance_Project_Path }} | sed -E 's/.*<Version>(.*)<\/Version>.*/\1/')
+        VERSION=$(grep '<Version>' ${{ env.FinanceNet_Project_Path }} | sed -E 's/.*<Version>(.*)<\/Version>.*/\1/')
         echo "VERSION=$VERSION"
         echo "VERSION=$VERSION" >> $GITHUB_ENV
 
@@ -69,7 +69,7 @@ jobs:
         tag_name: "v${{ env.VERSION }}"
         release_name: "Release v${{ env.VERSION }}"
         body: |
-          - See [NuGet Gallery](https://www.nuget.org/packages/NetFinance)
+          - See [NuGet Gallery](https://www.nuget.org/packages/Finance.NET)
         draft: false
         prerelease: false
 
