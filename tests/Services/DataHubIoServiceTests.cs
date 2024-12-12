@@ -15,7 +15,7 @@ namespace Finance.Net.Tests.Services;
 
 [TestFixture]
 [Category("UnitTests")]
-public class DataHubIoServiceTests
+public class DatahubIoServiceTests
 {
 	private Mock<IHttpClientFactory> _mockHttpClientFactory;
 	private Mock<IOptions<FinanceNetConfiguration>> _mockOptions;

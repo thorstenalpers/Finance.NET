@@ -1,4 +1,4 @@
-name: "Alpha Vantage: Get Company Overview"
+name: "Xetra Nightly Tests"
 
 on:
   push:
@@ -12,5 +12,5 @@ jobs:
   run-test:
     uses: ./.github/workflows/template-tests.yml
     with:
-      TEST_METHOD_NAME: "AlphaVantageTests.GetCompanyOverviewAsync_ValidSymbols_ReturnsOverview"
+      FullyQualifiedName: "Finance.Net.Tests.IntegrationTests.XetraTests"
     secrets: inherit

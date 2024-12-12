@@ -1,4 +1,4 @@
-name: "Datahub.io: Get S&P 500 Instruments"
+name: "Datahub.io Nightly Tests"
 
 on:
   push:
@@ -12,5 +12,5 @@ jobs:
   run-test:
     uses: ./.github/workflows/template-tests.yml
     with:
-      TEST_METHOD_NAME: "DataHubIoTests.GetSP500InstrumentsAsync_ValidSymbols_ReturnsInstruments"
+      FullyQualifiedName: "Finance.Net.Tests.IntegrationTests.DatahubIoTests"
     secrets: inherit

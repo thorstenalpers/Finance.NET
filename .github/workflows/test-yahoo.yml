@@ -1,4 +1,4 @@
-name: "Yahoo! Finance: Get Summary"
+name: "Yahoo! Finance Nightly Tests"
 
 on:
   push:
@@ -12,5 +12,5 @@ jobs:
   run-test:
     uses: ./.github/workflows/template-tests.yml
     with:
-      TEST_METHOD_NAME: "YahooTests.GetSummaryAsync_ValidSymbols_ReturnsSummary"
+      FullyQualifiedName: "Finance.Net.Tests.IntegrationTests.YahooFinanceServiceTests"
     secrets: inherit

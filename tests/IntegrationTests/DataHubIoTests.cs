@@ -10,7 +10,7 @@ namespace Finance.Net.Tests.IntegrationTests;
 
 [TestFixture]
 [Category("IntegrationTests")]
-public class DataHubIoTests
+public class DatahubIoTests
 {
 	private static IServiceProvider _serviceProvider;
 	private IDatahubIoService _service;

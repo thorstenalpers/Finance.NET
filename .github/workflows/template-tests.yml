@@ -3,8 +3,8 @@ name: "Run Tests Template"
 on:
   workflow_call:
     inputs:
-      TEST_METHOD_NAME:
-        description: 'The test method to run'
+      FullyQualifiedName:
+        description: 'The test name to run'
         required: true
         type: string
 
@@ -17,7 +17,7 @@ jobs:
       Test_Project_Path: tests/Tests.csproj      
       FORCE_COLOR: "true"
       DOTNET_LOGGING__CONSOLE__COLORBEHAVIOR: Enabled
-      TEST_METHOD_NAME: ${{ inputs.TEST_METHOD_NAME }}
+      FullyQualifiedName: ${{ inputs.FullyQualifiedName }}
 
     steps:
     - name: Checkout
@@ -39,7 +39,7 @@ jobs:
 
     - name: Run test
       shell: pwsh
-      run: dotnet test ${{ env.Test_Project_Path }} --configuration Release --logger "console;verbosity=detailed" --filter "FullyQualifiedName~$env:TEST_METHOD_NAME"
+      run: dotnet test ${{ env.Test_Project_Path }} --configuration Release --logger "console;verbosity=detailed" --filter "FullyQualifiedName~$env:FullyQualifiedName"
       env:
           FinanceNet__AlphaVantageApiKey: ${{ secrets.ALPHAVANTAGEAPIKEY }}
       
