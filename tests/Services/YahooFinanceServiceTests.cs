@@ -19,9 +19,9 @@ namespace Finance.Net.Tests.Services;
 
 [TestFixture]
 [Category("UnitTests")]
-public class YahooServiceTests
+public class YahooFinanceServiceTests
 {
-	private Mock<ILogger<IYahooService>> _mockLogger;
+	private Mock<ILogger<IYahooFinanceService>> _mockLogger;
 	private Mock<IHttpClientFactory> _mockHttpClientFactory;
 	private Mock<IYahooSessionManager> _mockYahooSession;
 	private Mock<IOptions<FinanceNetConfiguration>> _mockOptions;
@@ -32,7 +32,7 @@ public class YahooServiceTests
 	{
 		_mockOptions = new Mock<IOptions<FinanceNetConfiguration>>();
 		_mockOptions.Setup(x => x.Value).Returns(new FinanceNetConfiguration { });
-		_mockLogger = new Mock<ILogger<IYahooService>>();
+		_mockLogger = new Mock<ILogger<IYahooFinanceService>>();
 		_mockHttpClientFactory = new Mock<IHttpClientFactory>();
 		_mockHandler = new Mock<HttpMessageHandler>();
 		_mockYahooSession = new Mock<IYahooSessionManager>();
@@ -58,7 +58,7 @@ public class YahooServiceTests
 		FinanceNetConfiguration cfg = null;
 
 		// Act
-		var service = YahooService.Create(cfg);
+		var service = YahooFinanceService.Create(cfg);
 
 		// Assert
 		Assert.That(service, Is.Not.Null);
@@ -71,7 +71,7 @@ public class YahooServiceTests
 		var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Yahoo", "quote.json");
 		SetupHttpJsonFileResponse(filePath);
 
-		var service = new YahooService(
+		var service = new YahooFinanceService(
 			_mockLogger.Object,
 			_mockHttpClientFactory.Object,
 			_mockYahooSession.Object,
@@ -96,7 +96,7 @@ public class YahooServiceTests
 		var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Yahoo", "quote.json");
 		SetupHttpJsonFileResponse(filePath);
 
-		var service = new YahooService(
+		var service = new YahooFinanceService(
 			_mockLogger.Object,
 			_mockHttpClientFactory.Object,
 			_mockYahooSession.Object,
@@ -122,7 +122,7 @@ public class YahooServiceTests
 		var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Yahoo", "profile.html");
 		SetupHttpHtmlFileResponse(filePath);
 
-		var service = new YahooService(
+		var service = new YahooFinanceService(
 			_mockLogger.Object,
 			_mockHttpClientFactory.Object,
 			_mockYahooSession.Object,
@@ -145,7 +145,7 @@ public class YahooServiceTests
 		// Arrange
 		var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Yahoo", "records.html");
 		SetupHttpHtmlFileResponse(filePath);
-		var service = new YahooService(
+		var service = new YahooFinanceService(
 			_mockLogger.Object,
 			_mockHttpClientFactory.Object,
 			_mockYahooSession.Object,
@@ -174,7 +174,7 @@ public class YahooServiceTests
 		var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Yahoo", "financial_eu.html");
 		SetupHttpHtmlFileResponse(filePath);
 
-		var service = new YahooService(
+		var service = new YahooFinanceService(
 			_mockLogger.Object,
 			_mockHttpClientFactory.Object,
 			_mockYahooSession.Object,
@@ -201,7 +201,7 @@ public class YahooServiceTests
 		var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Yahoo", "financial_us.html");
 		SetupHttpHtmlFileResponse(filePath);
 
-		var service = new YahooService(
+		var service = new YahooFinanceService(
 			_mockLogger.Object,
 			_mockHttpClientFactory.Object,
 			_mockYahooSession.Object,
@@ -228,7 +228,7 @@ public class YahooServiceTests
 		var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Yahoo", "summary.html");
 		SetupHttpHtmlFileResponse(filePath);
 
-		var service = new YahooService(
+		var service = new YahooFinanceService(
 			_mockLogger.Object,
 			_mockHttpClientFactory.Object,
 			_mockYahooSession.Object,

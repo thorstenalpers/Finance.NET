@@ -155,7 +155,7 @@ public class AlphaVantageServiceTests
 		DateTime? endDate = null;
 
 		// Act
-		var result = await service.GetDailyForexRecordsAsync(
+		var result = await service.GetHistoricalForexRecordsAsync(
 			currency1,
 			currency2,
 			startDate,

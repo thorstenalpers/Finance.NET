@@ -79,7 +79,7 @@ public class DataHubIoServiceTests
 			_mockOptions.Object);
 
 		// Act
-		var result = await service.GetSAndP500InstrumentsAsync();
+		var result = await service.GetSP500InstrumentsAsync();
 
 		// Assert
 

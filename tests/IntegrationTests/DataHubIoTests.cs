@@ -47,9 +47,9 @@ public class DataHubIoTests
 
 	[TestCase("MSFT")]      // Microsoft Corporation (Nasdaq)
 	[TestCase("GOOG")]      // Alphabet (Nasdaq)
-	public async Task GetSAndP500InstrumentsAsync_ValidSymbols_ReturnsInstruments(string symbol)
+	public async Task GetSP500InstrumentsAsync_ValidSymbols_ReturnsInstruments(string symbol)
 	{
-		var instruments = await _service.GetSAndP500InstrumentsAsync();
+		var instruments = await _service.GetSP500InstrumentsAsync();
 
 		Assert.That(instruments, Is.Not.Empty);
 

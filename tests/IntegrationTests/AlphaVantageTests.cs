@@ -77,7 +77,7 @@ public class AlphaVantageTests
 	[TestCase("EUR", "USD")]
 	public async Task GetDailyForexRecordsAsync_ValidCurrencies_ReturnsRecords(string currency1, string currency2)
 	{
-		var records = await _service.GetDailyForexRecordsAsync(currency1, currency2, DateTime.UtcNow.AddDays(-3));
+		var records = await _service.GetHistoricalForexRecordsAsync(currency1, currency2, DateTime.UtcNow.AddDays(-3));
 
 		Assert.That(records, Is.Not.Empty);
 	}

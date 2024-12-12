@@ -11,16 +11,16 @@ namespace Finance.Net.Tests.IntegrationTests;
 
 [TestFixture]
 [Category("IntegrationTests")]
-public class YahooTests
+public class YahooFinanceTests
 {
 	private static IServiceProvider _serviceProvider;
-	private IYahooService _service;
+	private IYahooFinanceService _service;
 
 	[SetUp]
 	public void SetUp()
 	{
 		_serviceProvider = TestHelper.SetUpServiceProvider();
-		_service = _serviceProvider.GetRequiredService<IYahooService>();
+		_service = _serviceProvider.GetRequiredService<IYahooFinanceService>();
 	}
 
 	[TearDown]
@@ -30,7 +30,7 @@ public class YahooTests
 	}
 
 	[Test]
-	public async Task GetRecordsAsync_WithDividend_Success()
+	public async Task GetHistoricalRecordsAsync_WithDividend_Success()
 	{
 		var startDate = new DateTime(2020, 01, 01);
 		var records = await _service.GetHistoricalRecordsAsync("SAP.DE", startDate);
@@ -75,7 +75,7 @@ public class YahooTests
 	[Test]
 	public async Task GetProfileAsync_WithoutIoC_ReturnsProfile()
 	{
-		var service = YahooService.Create();
+		var service = YahooFinanceService.Create();
 		var profile = await service.GetProfileAsync("SAP.DE");
 
 		Assert.That(profile, Is.Not.Null);
@@ -144,7 +144,7 @@ public class YahooTests
 	[TestCase("6758.T")]    // Sony Group Corporation (Tokyo)
 	[TestCase("VOO")]       // Vanguard S&P 500 ETF
 	[TestCase("EURUSD=X")]  // Euro to USD
-	public async Task GetRecordsAsync_ValidSymbols_ReturnsRecords(string symbol)
+	public async Task GetHistoricalRecordsAsync_ValidSymbols_ReturnsRecords(string symbol)
 	{
 		var startDate = DateTime.UtcNow.AddDays(-7);
 		var records = await _service.GetHistoricalRecordsAsync(symbol, startDate);

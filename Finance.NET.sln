@@ -23,16 +23,16 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{
 		.github\workflows\template-tests.yml = .github\workflows\template-tests.yml
 		.github\workflows\test-all.yml = .github\workflows\test-all.yml
 		.github\workflows\test-alphavantage-company.yml = .github\workflows\test-alphavantage-company.yml
-		.github\workflows\test-alphavantage-forex.yml = .github\workflows\test-alphavantage-forex.yml
+		.github\workflows\test-alphavantage-historical-forex.yml = .github\workflows\test-alphavantage-historical-forex.yml
+		.github\workflows\test-alphavantage-historical-intraday.yml = .github\workflows\test-alphavantage-historical-intraday.yml
 		.github\workflows\test-alphavantage-historical.yml = .github\workflows\test-alphavantage-historical.yml
-		.github\workflows\test-alphavantage-intraday.yml = .github\workflows\test-alphavantage-intraday.yml
 		.github\workflows\test-datahubio-nasdaq.yml = .github\workflows\test-datahubio-nasdaq.yml
 		.github\workflows\test-datahubio-sp500.yml = .github\workflows\test-datahubio-sp500.yml
 		.github\workflows\test-xetra-instruments.yml = .github\workflows\test-xetra-instruments.yml
 		.github\workflows\test-yahoo-financials.yml = .github\workflows\test-yahoo-financials.yml
 		.github\workflows\test-yahoo-profile.yml = .github\workflows\test-yahoo-profile.yml
 		.github\workflows\test-yahoo-quote.yml = .github\workflows\test-yahoo-quote.yml
-		.github\workflows\test-yahoo-records.yml = .github\workflows\test-yahoo-records.yml
+		.github\workflows\test-yahoo-historical.yml = .github\workflows\test-yahoo-historical.yml
 		.github\workflows\test-yahoo-summary.yml = .github\workflows\test-yahoo-summary.yml
 	EndProjectSection
 EndProject
