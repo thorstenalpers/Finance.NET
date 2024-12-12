@@ -56,14 +56,20 @@ jobs:
             Write-Host "Tests failed"
             exit 1
           }
-          reportgenerator -reports:./TestResults/UnitTests/**/coverage.cobertura.xml -targetdir:./TestResults/Coverage/Unit -reporttypes:Html
-          coveralls --lcov -i ./TestResults/UnitTests/coverage.info -o ./TestResults/Coverage/lcov.info
+          reportgenerator -reports:./TestResults/UnitTests/**/coverage.cobertura.xml -targetdir:./TestResults/Coverage/Unit -reporttypes:Html;lcov
 
-    
-    - name: Upload to Coveralls
+    - name: Generate LCOV and HTML reports
+      run: |
+        # Generate LCOV report
+        reportgenerator -reports:./TestResults/UnitTests/**/coverage.cobertura.xml -targetdir:./TestResults/Coverage/Unit -reporttypes:Html;lcov
+
+    - name: Upload coverage to Coveralls
+      uses: coverallsapp/github-action@v2
+      with:
+        coverage_file: ./TestResults/Coverage/lcov.info
       env:
         COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
-      run: coveralls --lcov -i ./TestResults/Coverage/lcov.info
+
 
 
     # - name: Run integration tests
