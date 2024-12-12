@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Finance.Net.Models.Yahoo;
+using DotNetFinance.Models.Yahoo;
 
-namespace Finance.Net.Interfaces;
+namespace DotNetFinance.Interfaces;
 
 /// <summary>
 /// Represents a service for interacting with the Yahoo Finance API.

@@ -1,13 +1,13 @@
 using System;
 using System.Threading.Tasks;
-using Finance.Net.Interfaces;
-using Finance.Net.Services;
+using DotNetFinance.Interfaces;
+using DotNetFinance.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using NUnit.Framework;
 
-namespace Finance.Net.Tests.IntegrationTests;
+namespace DotNetFinance.Tests.IntegrationTests;
 
 [TestFixture]
 [Category("IntegrationTests")]
@@ -26,10 +26,10 @@ public class AlphaVantageTests
 	[Test]
 	public async Task GetCompanyOverviewAsync_WithoutIoC_ValidSymbols_ReturnsOverview()
 	{
-		var cfg = _serviceProvider.GetRequiredService<IOptions<FinanceNetConfiguration>>();
+		var cfg = _serviceProvider.GetRequiredService<IOptions<DotNetFinanceConfiguration>>();
 		var configuration = _serviceProvider.GetService<IConfiguration>();
 
-		var service = AlphaVantageService.Create(new FinanceNetConfiguration
+		var service = AlphaVantageService.Create(new DotNetFinanceConfiguration
 		{
 			AlphaVantageApiKey = cfg.Value.AlphaVantageApiKey
 		});

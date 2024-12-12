@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
 
-namespace Finance.Net.Models.Yahoo.Dtos;
+namespace DotNetFinance.Models.Yahoo.Dtos;
 
 [ExcludeFromCodeCoverage]
 internal record QuoteResponse

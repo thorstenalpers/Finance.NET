@@ -1,4 +1,4 @@
-﻿namespace Finance.Net.Models.Yahoo;
+﻿namespace DotNetFinance.Models.Yahoo;
 
 public record FinancialReport
 {

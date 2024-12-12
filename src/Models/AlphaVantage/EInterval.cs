@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace Finance.Net.Models.AlphaVantage;
+namespace DotNetFinance.Models.AlphaVantage;
 
 public enum EInterval
 {

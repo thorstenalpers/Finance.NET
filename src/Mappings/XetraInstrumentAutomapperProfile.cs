@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Finance.Net.Models.Xetra;
-using Finance.Net.Models.Xetra.Dto;
+using DotNetFinance.Models.Xetra;
+using DotNetFinance.Models.Xetra.Dto;
 
-namespace Finance.Net.Mappings;
+namespace DotNetFinance.Mappings;
 
 [ExcludeFromCodeCoverage]
 internal class XetraInstrumentAutomapperProfile : AutoMapper.Profile

@@ -1,4 +1,4 @@
-﻿namespace Finance.Net.Models.Xetra.Dto;
+﻿namespace DotNetFinance.Models.Xetra.Dto;
 public record InstrumentItem
 {
 	public string? ProductStatus { get; set; }

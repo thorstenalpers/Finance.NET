@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Finance.Net.Models.AlphaVantage;
+using DotNetFinance.Models.AlphaVantage;
 
-namespace Finance.Net.Interfaces;
+namespace DotNetFinance.Interfaces;
 
 /// <summary>
 /// Represents a service for interacting with the AlphaVantage API.

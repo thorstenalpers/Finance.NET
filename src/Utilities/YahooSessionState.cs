@@ -2,14 +2,14 @@
 using System.Linq;
 using System.Net;
 using System.Reflection;
-using Finance.Net.Interfaces;
+using DotNetFinance.Interfaces;
 using Microsoft.Extensions.Options;
 
-namespace Finance.Net.Utilities;
+namespace DotNetFinance.Utilities;
 
-internal class YahooSessionState(IOptions<FinanceNetConfiguration> options) : IYahooSessionState
+internal class YahooSessionState(IOptions<DotNetFinanceConfiguration> options) : IYahooSessionState
 {
-	private readonly FinanceNetConfiguration _options = options.Value ?? throw new ArgumentNullException(nameof(options));
+	private readonly DotNetFinanceConfiguration _options = options.Value ?? throw new ArgumentNullException(nameof(options));
 	private string _userAgent = Helper.CreateRandomUserAgent();
 	private CookieContainer _cookieContainer = new();
 	private string? _crumb;

@@ -6,15 +6,16 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Finance.Net.Interfaces;
-using Finance.Net.Services;
+using DotNetFinance.Interfaces;
+using DotNetFinance.Models.AlphaVantage;
+using DotNetFinance.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using Moq.Protected;
 using NUnit.Framework;
 
-namespace Finance.Net.Tests.Services;
+namespace DotNetFinance.Tests.Services;
 
 [TestFixture]
 [Category("UnitTests")]
@@ -23,13 +24,13 @@ public class AlphaVantageServiceTests
 	private Mock<ILogger<IAlphaVantageService>> _mockLogger;
 	private Mock<IHttpClientFactory> _mockHttpClientFactory;
 	private Mock<HttpMessageHandler> _mockHandler;
-	private Mock<IOptions<FinanceNetConfiguration>> _mockOptions;
+	private Mock<IOptions<DotNetFinanceConfiguration>> _mockOptions;
 
 	[SetUp]
 	public void SetUp()
 	{
-		_mockOptions = new Mock<IOptions<FinanceNetConfiguration>>();
-		_mockOptions.Setup(x => x.Value).Returns(new FinanceNetConfiguration
+		_mockOptions = new Mock<IOptions<DotNetFinanceConfiguration>>();
+		_mockOptions.Setup(x => x.Value).Returns(new DotNetFinanceConfiguration
 		{
 			HttpRetries = 1
 		});
@@ -48,7 +49,7 @@ public class AlphaVantageServiceTests
 	public void Create_Static_ReturnsObject()
 	{
 		// Arrange
-		FinanceNetConfiguration cfg = null;
+		DotNetFinanceConfiguration cfg = null;
 
 		// Act
 		var service = AlphaVantageService.Create(cfg);
@@ -127,7 +128,7 @@ public class AlphaVantageServiceTests
 		var symbol = "IBM";
 		var startDate = new DateTime(2024, 01, 01);
 		DateTime? endDate = null;
-		var interval = Models.AlphaVantage.EInterval.Interval_5Min;
+		var interval = EInterval.Interval_5Min;
 
 		// Act
 		var result = await service.GetHistoricalIntradayRecordsAsync(symbol, startDate, endDate, interval);

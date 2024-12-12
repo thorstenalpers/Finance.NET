@@ -9,19 +9,19 @@ using System.Threading.Tasks;
 using AngleSharp.Dom;
 using AngleSharp.XPath;
 using AutoMapper;
-using Finance.Net.Exceptions;
-using Finance.Net.Extensions;
-using Finance.Net.Interfaces;
-using Finance.Net.Mappings;
-using Finance.Net.Models.Yahoo;
-using Finance.Net.Models.Yahoo.Dtos;
-using Finance.Net.Utilities;
+using DotNetFinance.Exceptions;
+using DotNetFinance.Extensions;
+using DotNetFinance.Interfaces;
+using DotNetFinance.Mappings;
+using DotNetFinance.Models.Yahoo;
+using DotNetFinance.Models.Yahoo.Dtos;
+using DotNetFinance.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
-namespace Finance.Net.Services;
+namespace DotNetFinance.Services;
 
 internal class YahooFinanceService : IYahooFinanceService
 {
@@ -29,10 +29,10 @@ internal class YahooFinanceService : IYahooFinanceService
 	private readonly IHttpClientFactory _httpClientFactory;
 	private readonly IYahooSessionManager _yahooSession;
 	private readonly IMapper _mapper;
-	private readonly FinanceNetConfiguration _options;
+	private readonly DotNetFinanceConfiguration _options;
 	private static ServiceProvider? _serviceProvider = null;
 
-	public YahooFinanceService(ILogger<IYahooFinanceService> logger, IHttpClientFactory httpClientFactory, IYahooSessionManager yahooSession, IOptions<FinanceNetConfiguration> options)
+	public YahooFinanceService(ILogger<IYahooFinanceService> logger, IHttpClientFactory httpClientFactory, IYahooSessionManager yahooSession, IOptions<DotNetFinanceConfiguration> options)
 	{
 		_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
@@ -48,8 +48,8 @@ internal class YahooFinanceService : IYahooFinanceService
 	/// Creates a service for interacting with the Yahoo Finance API.
 	/// Provides methods for retrieving historical data, company profiles, summaries, and financial reports from Yahoo Finance.
 	/// </summary>
-	/// <param name="cfg">Optional: Default values to configure .Net Finance. <see cref="FinanceNetConfiguration"/> ></param>
-	public static IYahooFinanceService Create(FinanceNetConfiguration? cfg = null)
+	/// <param name="cfg">Optional: Default values to configure .Net Finance. <see cref="DotNetFinanceConfiguration"/> ></param>
+	public static IYahooFinanceService Create(DotNetFinanceConfiguration? cfg = null)
 	{
 		if (_serviceProvider == null)
 		{
@@ -88,13 +88,13 @@ internal class YahooFinanceService : IYahooFinanceService
 
 				_logger.LogDebug(() => $"jsonContent={Regex.Replace(jsonContent, @"\s+", " ")}");
 
-				var parsedData = JsonConvert.DeserializeObject<QuoteResponseRoot>(jsonContent) ?? throw new FinanceNetException($"Invalid data returned by Yahoo");
-				var responseObj = parsedData.QuoteResponse ?? throw new FinanceNetException($"Unexpected response from Yahoo");
+				var parsedData = JsonConvert.DeserializeObject<QuoteResponseRoot>(jsonContent) ?? throw new DotNetFinanceException($"Invalid data returned by Yahoo");
+				var responseObj = parsedData.QuoteResponse ?? throw new DotNetFinanceException($"Unexpected response from Yahoo");
 
 				var error = responseObj.Error;
 				if (responseObj == null || error != null)
 				{
-					throw new FinanceNetException($"An error returned by Yahoo: {error}");
+					throw new DotNetFinanceException($"An error returned by Yahoo: {error}");
 				}
 				if (responseObj.Result == null)
 				{
@@ -105,7 +105,7 @@ internal class YahooFinanceService : IYahooFinanceService
 				{
 					if (quoteResponse.Symbol == null)
 					{
-						throw new FinanceNetException("Invalid quote field symbol");
+						throw new DotNetFinanceException("Invalid quote field symbol");
 					}
 					var quote = _mapper.Map<Quote>(quoteResponse);
 					quotes.Add(quote);
@@ -177,7 +177,7 @@ internal class YahooFinanceService : IYahooFinanceService
 				};
 				if (Helper.AreAllFieldsNull(result))
 				{
-					throw new FinanceNetException("All fields empty");
+					throw new DotNetFinanceException("All fields empty");
 				}
 				return result;
 			}
@@ -203,8 +203,8 @@ internal class YahooFinanceService : IYahooFinanceService
 		endDate ??= DateTime.UtcNow;
 		endDate = endDate.Value.AddDays(1).Date;
 
-		var period1 = Helper.ToUnixTimestamp(startDate.Date) ?? throw new FinanceNetException("Invalid startDate");
-		var period2 = Helper.ToUnixTimestamp(endDate.Value.Date) ?? throw new FinanceNetException("Invalid endDate");
+		var period1 = Helper.ToUnixTimestamp(startDate.Date) ?? throw new DotNetFinanceException("Invalid startDate");
+		var period2 = Helper.ToUnixTimestamp(endDate.Value.Date) ?? throw new DotNetFinanceException("Invalid endDate");
 
 		var url = $"{_options.YahooBaseUrlQuoteHtml}/{symbol}/history/?period1={period1}&period2={period2}".ToLower();
 		for (int attempt = 1; attempt <= _options.HttpRetries; attempt++)
@@ -227,7 +227,7 @@ internal class YahooFinanceService : IYahooFinanceService
 				var table = document.QuerySelector("table.table");
 				if (table == null)
 				{
-					throw new FinanceNetException("No records found");
+					throw new DotNetFinanceException("No records found");
 				}
 
 				var headers = table.QuerySelectorAll("thead th")
@@ -243,7 +243,7 @@ internal class YahooFinanceService : IYahooFinanceService
 				}
 				if (!expectedHeaderSet.IsSubsetOf(headerMap.Keys))
 				{
-					throw new FinanceNetException("Headers are missing");
+					throw new DotNetFinanceException("Headers are missing");
 				}
 
 				var rows = table.QuerySelectorAll("tbody tr");
@@ -347,7 +347,7 @@ internal class YahooFinanceService : IYahooFinanceService
 
 					if (columns.Count != headers.Count + 1)
 					{
-						throw new FinanceNetException($"Unknown table format of {url} html");
+						throw new DotNetFinanceException($"Unknown table format of {url} html");
 					}
 
 					var rowTitle = columns.FirstOrDefault();
@@ -373,7 +373,7 @@ internal class YahooFinanceService : IYahooFinanceService
 				}
 				if (result == null || result.Count == 0)
 				{
-					throw new FinanceNetException("no reports");
+					throw new DotNetFinanceException("no reports");
 				}
 
 				return result;
@@ -498,7 +498,7 @@ internal class YahooFinanceService : IYahooFinanceService
 				};
 				if (Helper.AreAllFieldsNull(result))
 				{
-					throw new FinanceNetException("All fields empty");
+					throw new DotNetFinanceException("All fields empty");
 				}
 				return result;
 			}

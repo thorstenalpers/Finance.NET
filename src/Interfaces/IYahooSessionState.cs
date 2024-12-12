@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace Finance.Net.Interfaces
+namespace DotNetFinance.Interfaces
 {
 	internal interface IYahooSessionState
 	{

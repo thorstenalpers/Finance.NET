@@ -8,23 +8,23 @@ using System.Threading;
 using System.Threading.Tasks;
 using CsvHelper;
 using CsvHelper.Configuration;
-using Finance.Net.Exceptions;
-using Finance.Net.Extensions;
-using Finance.Net.Interfaces;
-using Finance.Net.Mappings;
-using Finance.Net.Models.DatahubIo;
+using DotNetFinance.Exceptions;
+using DotNetFinance.Extensions;
+using DotNetFinance.Interfaces;
+using DotNetFinance.Mappings;
+using DotNetFinance.Models.DatahubIo;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace Finance.Net.Services;
+namespace DotNetFinance.Services;
 
 internal class DatahubIoService : IDatahubIoService
 {
 	private readonly IHttpClientFactory _httpClientFactory;
-	private readonly FinanceNetConfiguration _options;
+	private readonly DotNetFinanceConfiguration _options;
 	private static ServiceProvider? _serviceProvider = null;
 
-	public DatahubIoService(IHttpClientFactory httpClientFactory, IOptions<FinanceNetConfiguration> options)
+	public DatahubIoService(IHttpClientFactory httpClientFactory, IOptions<DotNetFinanceConfiguration> options)
 	{
 		_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
 		_options = options?.Value ?? throw new ArgumentNullException(nameof(options));
@@ -34,8 +34,8 @@ internal class DatahubIoService : IDatahubIoService
 	/// Creates a service for interacting with the OpenData API.
 	/// Provides methods for retrieving financial instruments, market data, and other relevant information from OpenData.
 	/// </summary>
-	/// <param name="cfg">Optional: Default values to configure .Net Finance. <see cref="FinanceNetConfiguration"/> ></param>
-	public static IDatahubIoService Create(FinanceNetConfiguration? cfg = null)
+	/// <param name="cfg">Optional: Default values to configure .Net Finance. <see cref="DotNetFinanceConfiguration"/> ></param>
+	public static IDatahubIoService Create(DotNetFinanceConfiguration? cfg = null)
 	{
 		if (_serviceProvider == null)
 		{
@@ -62,7 +62,7 @@ internal class DatahubIoService : IDatahubIoService
 		}
 		catch (Exception ex)
 		{
-			throw new FinanceNetException($"Unable to download from {_options.DatahubIoDownloadUrlNasdaqListedSymbols}", ex);
+			throw new DotNetFinanceException($"Unable to download from {_options.DatahubIoDownloadUrlNasdaqListedSymbols}", ex);
 		}
 	}
 
@@ -83,7 +83,7 @@ internal class DatahubIoService : IDatahubIoService
 		}
 		catch (Exception ex)
 		{
-			throw new FinanceNetException($"Unable to download from {_options.DatahubIoDownloadUrlSP500Symbols}", ex);
+			throw new DotNetFinanceException($"Unable to download from {_options.DatahubIoDownloadUrlSP500Symbols}", ex);
 		}
 	}
 }

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Finance.Net;
-public class FinanceNetConfiguration
+namespace DotNetFinance;
+public class DotNetFinanceConfiguration
 {
 	/// <summary> Alpha Vantage API Key </summary>
 	public string? AlphaVantageApiKey { get; set; }

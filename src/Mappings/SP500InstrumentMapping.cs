@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using CsvHelper.Configuration;
-using Finance.Net.Models.DatahubIo;
+using DotNetFinance.Models.DatahubIo;
 
-namespace Finance.Net.Mappings;
+namespace DotNetFinance.Mappings;
 
 [ExcludeFromCodeCoverage]
 public class SP500InstrumentMapping : ClassMap<SP500Instrument>

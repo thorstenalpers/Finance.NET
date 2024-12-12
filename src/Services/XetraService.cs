@@ -9,25 +9,25 @@ using System.Threading.Tasks;
 using AutoMapper;
 using CsvHelper;
 using CsvHelper.Configuration;
-using Finance.Net.Exceptions;
-using Finance.Net.Extensions;
-using Finance.Net.Interfaces;
-using Finance.Net.Mappings;
-using Finance.Net.Models.Xetra;
-using Finance.Net.Models.Xetra.Dto;
+using DotNetFinance.Exceptions;
+using DotNetFinance.Extensions;
+using DotNetFinance.Interfaces;
+using DotNetFinance.Mappings;
+using DotNetFinance.Models.Xetra;
+using DotNetFinance.Models.Xetra.Dto;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace Finance.Net.Services;
+namespace DotNetFinance.Services;
 
 internal class XetraService : IXetraService
 {
 	private readonly IHttpClientFactory _httpClientFactory;
-	private readonly FinanceNetConfiguration _options;
+	private readonly DotNetFinanceConfiguration _options;
 	private readonly IMapper _mapper;
 	private static ServiceProvider? _serviceProvider = null;
 
-	public XetraService(IHttpClientFactory httpClientFactory, IOptions<FinanceNetConfiguration> options)
+	public XetraService(IHttpClientFactory httpClientFactory, IOptions<DotNetFinanceConfiguration> options)
 	{
 		_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
 		_options = options?.Value ?? throw new ArgumentNullException(nameof(options));
@@ -41,8 +41,8 @@ internal class XetraService : IXetraService
 	/// Creates a service for interacting with the Xetra API.
 	/// Provides methods for retrieving tradable instruments, market data, and other relevant information from Xetra.
 	/// </summary>
-	/// <param name="cfg">Optional: Default values to configure .Net Finance. <see cref="FinanceNetConfiguration"/> ></param>
-	public static IXetraService Create(FinanceNetConfiguration? cfg = null)
+	/// <param name="cfg">Optional: Default values to configure .Net Finance. <see cref="DotNetFinanceConfiguration"/> ></param>
+	public static IXetraService Create(DotNetFinanceConfiguration? cfg = null)
 	{
 		if (_serviceProvider == null)
 		{
@@ -77,7 +77,7 @@ internal class XetraService : IXetraService
 		}
 		catch (Exception ex)
 		{
-			throw new FinanceNetException($"Unable to download from {_options.XetraDownloadUrlInstruments}", ex);
+			throw new DotNetFinanceException($"Unable to download from {_options.XetraDownloadUrlInstruments}", ex);
 		}
 	}
 }

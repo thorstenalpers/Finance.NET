@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using CsvHelper.Configuration;
-using Finance.Net.Models.Xetra.Dto;
+using DotNetFinance.Models.Xetra.Dto;
 
-namespace Finance.Net.Mappings;
+namespace DotNetFinance.Mappings;
 
 [ExcludeFromCodeCoverage]
 public class XetraInstrumentsMapping : ClassMap<InstrumentItem>

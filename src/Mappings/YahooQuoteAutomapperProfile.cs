@@ -1,9 +1,9 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Finance.Net.Models.Yahoo;
-using Finance.Net.Models.Yahoo.Dtos;
-using Finance.Net.Utilities;
+using DotNetFinance.Models.Yahoo;
+using DotNetFinance.Models.Yahoo.Dtos;
+using DotNetFinance.Utilities;
 
-namespace Finance.Net.Mappings;
+namespace DotNetFinance.Mappings;
 
 [ExcludeFromCodeCoverage]
 internal class YahooQuoteAutomapperProfile : AutoMapper.Profile

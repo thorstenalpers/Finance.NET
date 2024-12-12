@@ -1,4 +1,4 @@
-﻿namespace Finance.Net.Models.DatahubIo;
+﻿namespace DotNetFinance.Models.DatahubIo;
 
 public record NasdaqInstrument
 {
