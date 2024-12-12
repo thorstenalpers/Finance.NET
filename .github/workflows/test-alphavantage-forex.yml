@@ -1,0 +1,15 @@
+name: "Test"
+
+on:
+  push:
+    branches: [ "develop" ]
+  pull_request:
+    branches: [ "main" ]
+  # schedule:
+    # - cron: '0 2 * * *'  # Runs nightly at 2 AM UTC
+
+jobs:
+  run-test:
+    uses: ./.github/workflows/template-tests.yml
+    with:
+      TEST_METHOD_NAME: "AlphaVantageTests.GetDailyForexRecordsAsync_ValidCurrencies_ReturnsRecords"

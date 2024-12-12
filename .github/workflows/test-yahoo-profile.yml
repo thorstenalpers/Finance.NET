@@ -1,4 +1,4 @@
-name: "Run Test: YahooTests.GetProfileAsync_WithoutIoC_ReturnsProfile"
+name: "Test"
 
 on:
   push:
@@ -10,6 +10,6 @@ on:
 
 jobs:
   run-test:
-    uses: ./.github/workflows/test-template.yml
+    uses: ./.github/workflows/template-tests.yml
     with:
       TEST_METHOD_NAME: "YahooTests.GetProfileAsync_WithoutIoC_ReturnsProfile"
