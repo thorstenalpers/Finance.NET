@@ -1,13 +1,7 @@
-name: "CI deploy NuGet"
+name: "Deploy NuGet"
 
 on:  
   workflow_dispatch:    # Trigger workflow manually
-
-# on:
-#   push:
-#     branches: [ "main" ]
-#   pull_request:
-#     branches: [ "main" ]
 
 jobs:
   build:

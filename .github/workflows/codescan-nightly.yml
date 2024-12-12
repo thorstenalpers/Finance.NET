@@ -1,4 +1,4 @@
-name: "CI CodeQL Nightly"
+name: "CodeQL Nightly"
 
 on:
   push:
