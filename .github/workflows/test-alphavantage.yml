@@ -1,6 +1,7 @@
 name: "Nightly Tests"
 
 on:
+  workflow_dispatch: # Manual trigger
   schedule:
     - cron: '0 2 * * *'  # Runs nightly at 2 AM UTC
 

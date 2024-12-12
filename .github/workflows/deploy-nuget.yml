@@ -1,7 +1,7 @@
 name: "Deploy NuGet"
 
 on:  
-  workflow_dispatch:    # Trigger workflow manually
+  workflow_dispatch: # Manual trigger
 
 jobs:
   build:

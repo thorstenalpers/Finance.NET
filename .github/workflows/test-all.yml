@@ -1,6 +1,7 @@
 name: "All Tests"
 
 on:
+  workflow_dispatch: # Manual trigger
   push:
     branches: [ develop ]
 
