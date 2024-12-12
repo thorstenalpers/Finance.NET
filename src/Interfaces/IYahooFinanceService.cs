@@ -10,7 +10,7 @@ namespace Finance.Net.Interfaces;
 /// Represents a service for interacting with the Yahoo Finance API.
 /// Provides methods for retrieving historical data, company profiles, summaries, and financial reports from Yahoo Finance.
 /// </summary>
-public interface IYahooService
+public interface IYahooFinanceService
 {
 	/// <summary>
 	/// Retrieves a single quote's data from Yahoo Finance.

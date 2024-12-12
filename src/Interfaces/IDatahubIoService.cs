@@ -23,5 +23,5 @@ public interface IDatahubIoService
 	/// </summary>
 	/// <param name="token">A <see cref="CancellationToken"/> to allow cancellation of the operation.</param>
 	/// <returns>A task that represents the asynchronous operation. The task result contains an enumerable collection of <see cref="SP500Instrument"/> objects representing S&P 500 instruments.</returns>
-	Task<IEnumerable<SP500Instrument>> GetSAndP500InstrumentsAsync(CancellationToken token = default);
+	Task<IEnumerable<SP500Instrument>> GetSP500InstrumentsAsync(CancellationToken token = default);
 }

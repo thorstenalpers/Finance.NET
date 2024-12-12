@@ -39,7 +39,7 @@ public static class ServiceCollectionExtensions
 		services.AddSingleton<IYahooSessionState, YahooSessionState>();
 		services.AddSingleton<IYahooSessionManager, YahooSessionManager>();
 
-		services.AddScoped<IYahooService, YahooService>();
+		services.AddScoped<IYahooFinanceService, YahooFinanceService>();
 		services.AddScoped<IXetraService, XetraService>();
 		services.AddScoped<IAlphaVantageService, AlphaVantageService>();
 		services.AddScoped<IDatahubIoService, DatahubIoService>();

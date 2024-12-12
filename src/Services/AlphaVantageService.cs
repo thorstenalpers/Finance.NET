@@ -259,7 +259,7 @@ internal class AlphaVantageService : IAlphaVantageService
 		throw new FinanceNetException($"No intraday records found for {symbol} after {_options.HttpRetries} retries.");
 	}
 
-	public async Task<IEnumerable<DailyForexRecord>> GetDailyForexRecordsAsync(string currency1, string currency2, DateTime startDate, DateTime? endDate = null, CancellationToken token = default)
+	public async Task<IEnumerable<DailyForexRecord>> GetHistoricalForexRecordsAsync(string currency1, string currency2, DateTime startDate, DateTime? endDate = null, CancellationToken token = default)
 	{
 		var httpClient = _httpClientFactory.CreateClient(_options.AlphaVantageHttpClientName);
 		Guard.Against.NullOrEmpty(currency1);

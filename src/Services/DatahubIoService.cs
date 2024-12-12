@@ -66,7 +66,7 @@ internal class DatahubIoService : IDatahubIoService
 		}
 	}
 
-	public async Task<IEnumerable<SP500Instrument>> GetSAndP500InstrumentsAsync(CancellationToken token = default)
+	public async Task<IEnumerable<SP500Instrument>> GetSP500InstrumentsAsync(CancellationToken token = default)
 	{
 		var httpClient = _httpClientFactory.CreateClient(_options.DatahubIoHttpClientName);
 		try

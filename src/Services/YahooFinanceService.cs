@@ -23,16 +23,16 @@ using Newtonsoft.Json;
 
 namespace Finance.Net.Services;
 
-internal class YahooService : IYahooService
+internal class YahooFinanceService : IYahooFinanceService
 {
-	private readonly ILogger<IYahooService> _logger;
+	private readonly ILogger<IYahooFinanceService> _logger;
 	private readonly IHttpClientFactory _httpClientFactory;
 	private readonly IYahooSessionManager _yahooSession;
 	private readonly IMapper _mapper;
 	private readonly FinanceNetConfiguration _options;
 	private static ServiceProvider? _serviceProvider = null;
 
-	public YahooService(ILogger<IYahooService> logger, IHttpClientFactory httpClientFactory, IYahooSessionManager yahooSession, IOptions<FinanceNetConfiguration> options)
+	public YahooFinanceService(ILogger<IYahooFinanceService> logger, IHttpClientFactory httpClientFactory, IYahooSessionManager yahooSession, IOptions<FinanceNetConfiguration> options)
 	{
 		_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
@@ -49,7 +49,7 @@ internal class YahooService : IYahooService
 	/// Provides methods for retrieving historical data, company profiles, summaries, and financial reports from Yahoo Finance.
 	/// </summary>
 	/// <param name="cfg">Optional: Default values to configure .Net Finance. <see cref="FinanceNetConfiguration"/> ></param>
-	public static IYahooService Create(FinanceNetConfiguration? cfg = null)
+	public static IYahooFinanceService Create(FinanceNetConfiguration? cfg = null)
 	{
 		if (_serviceProvider == null)
 		{
@@ -57,7 +57,7 @@ internal class YahooService : IYahooService
 			services.AddFinanceServices(cfg);
 			_serviceProvider = services.BuildServiceProvider();
 		}
-		return _serviceProvider.GetRequiredService<IYahooService>();
+		return _serviceProvider.GetRequiredService<IYahooFinanceService>();
 	}
 
 	public async Task<Quote> GetQuoteAsync(string symbol, CancellationToken token = default)
