@@ -1,4 +1,4 @@
-name: "Xetra Nightly Tests"
+name: "Nightly Tests"
 
 on:
   push:
