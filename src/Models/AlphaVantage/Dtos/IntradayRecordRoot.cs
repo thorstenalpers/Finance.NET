@@ -1,10 +1,9 @@
 ﻿
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
 
 namespace Finance.Net.Models.AlphaVantage.Dtos;
-[ExcludeFromCodeCoverage]
+
 internal record IntradayRecordRoot
 {
 	[JsonProperty("Meta Data")]

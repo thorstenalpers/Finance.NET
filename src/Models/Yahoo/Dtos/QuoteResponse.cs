@@ -1,9 +1,7 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace Finance.Net.Models.Yahoo.Dtos;
 
-[ExcludeFromCodeCoverage]
 internal record QuoteResponse
 {
 	[JsonProperty("language")]

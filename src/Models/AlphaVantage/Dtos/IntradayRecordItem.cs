@@ -1,8 +1,7 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace Finance.Net.Models.AlphaVantage.Dtos;
-[ExcludeFromCodeCoverage]
+
 internal record IntradayRecordItem
 {
 	[JsonProperty("1. open")]
