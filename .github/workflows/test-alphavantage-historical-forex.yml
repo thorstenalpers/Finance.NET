@@ -13,5 +13,3 @@ jobs:
     uses: ./.github/workflows/template-tests.yml
     with:
       TEST_METHOD_NAME: "AlphaVantageTests.GetHistoricalForexRecordsAsync_ValidCurrencies_ReturnsRecords"
-    secrets:
-      ALPHAVANTAGEAPIKEY: ${{ secrets.ALPHAVANTAGEAPIKEY }}
