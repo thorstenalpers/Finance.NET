@@ -1,0 +1,37 @@
+name: "CI CodeQL Nightly"
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    - cron: '0 2 * * *'  # Runs nightly at 2 AM UTC
+
+jobs:
+  analyze:
+    name: Analyze C# Code
+    runs-on: 'ubuntu-latest'
+    
+    permissions:
+      security-events: write 
+      packages: read    
+      actions: read        
+      contents: read 
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: 'csharp' 
+        build-mode: 'none' 
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: '/language:csharp'
