@@ -1,4 +1,4 @@
-name: "Test: Get Historical Records"
+name: "Alpha Vantage: Get Historical Records"
 
 on:
   push:

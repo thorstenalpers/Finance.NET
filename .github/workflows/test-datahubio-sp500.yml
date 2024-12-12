@@ -1,4 +1,4 @@
-name: "Test: Get S&P 500 Instruments"
+name: "Datahub.io: Get S&P 500 Instruments"
 
 on:
   push:

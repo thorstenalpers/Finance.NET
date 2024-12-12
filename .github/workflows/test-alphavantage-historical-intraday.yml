@@ -1,4 +1,4 @@
-name: "Test: Get Historical Intraday Records"
+name: "Alpha Vantage: Get Historical Intraday Records"
 
 on:
   push:

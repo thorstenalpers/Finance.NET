@@ -1,4 +1,4 @@
-name: "Test: Get Profile"
+name: "Yahoo! Finance: Get Profile"
 
 on:
   push:

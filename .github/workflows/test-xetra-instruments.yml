@@ -1,4 +1,4 @@
-name: "Test: Get Instruments"
+name: "Xetra: Get Instruments"
 
 on:
   push:

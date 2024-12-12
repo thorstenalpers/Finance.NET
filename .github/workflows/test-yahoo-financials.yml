@@ -1,4 +1,4 @@
-name: "Test: Get Financial Reports"
+name: "Yahoo! Finance: Get Financial Reports"
 
 on:
   push:

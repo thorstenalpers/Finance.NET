@@ -1,4 +1,4 @@
-name: "Test: Get Historical Forex Records"
+name: "Alpha Vantage: Get Historical Forex Records"
 
 on:
   push:

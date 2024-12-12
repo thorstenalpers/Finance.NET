@@ -1,4 +1,4 @@
-name: "Test: Get Historical Records"
+name: "Yahoo! Finance: Get Historical Records"
 
 on:
   push:
