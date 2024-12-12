@@ -13,3 +13,4 @@ jobs:
     uses: ./.github/workflows/template-tests.yml
     with:
       TEST_METHOD_NAME: "YahooTests.GetHistoricalRecordsAsync_ValidSymbols_ReturnsRecords"
+    secrets: inherit

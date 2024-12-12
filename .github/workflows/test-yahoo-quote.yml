@@ -13,3 +13,4 @@ jobs:
     uses: ./.github/workflows/template-tests.yml
     with:
       TEST_METHOD_NAME: "YahooTests.GetQuoteAsync_ValidSymbols_ReturnsQuote"
+    secrets: inherit
