@@ -1,0 +1,45 @@
+name: "Run Tests Template"
+
+on:
+  workflow_call:
+    inputs:
+      TEST_METHOD_NAME:
+        description: 'The test method to run'
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    env:
+      Solution_Name: Finance.NET.sln
+      Test_Project_Path: tests/Tests.csproj      
+      FORCE_COLOR: "true"
+      DOTNET_LOGGING__CONSOLE__COLORBEHAVIOR: Enabled
+      TEST_METHOD_NAME: ${{ inputs.TEST_METHOD_NAME }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        ref: develop
+        fetch-depth: 0 
+
+    - name: Install .Net
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.x
+
+    - name: Restore
+      run: dotnet restore ${{ env.Solution_Name }}
+
+    - name: Build
+      run: dotnet build ${{ env.Solution_Name }} --configuration Release --no-restore
+
+    - name: Run test
+      shell: pwsh
+      run: dotnet test ${{ env.Test_Project_Path }} --configuration Release --logger "console;verbosity=detailed" --filter "FullyQualifiedName~$env:TEST_METHOD_NAME"
+      env:
+          FinanceNet__AlphaVantageApiKey: ${{ secrets.ALPHAVANTAGEAPIKEY }}
+      

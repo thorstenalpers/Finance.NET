@@ -1,0 +1,15 @@
+name: "Run Tests Template"
+
+on:
+  push:
+    branches: [ "develop" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    - cron: '0 2 * * *'  # Runs nightly at 2 AM UTC
+
+jobs:
+  run-test:
+    uses: ./.github/workflows/single-tests/test-template.yml
+    with:
+      TEST_METHOD_NAME: "YahooTests.GetProfileAsync_WithoutIoC_ReturnsProfile"
