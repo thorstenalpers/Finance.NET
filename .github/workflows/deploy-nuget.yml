@@ -15,7 +15,7 @@ jobs:
 
     env:
       Solution_Name: ".NET Finance.sln"
-      FinanceNet_Project_Path: "src/.NET Finance.csproj"
+      DotNetFinance_Project_Path: "src/.NET Finance.csproj"
       Test_Project_Path: "tests/Tests.csproj"
 
     steps:
@@ -36,7 +36,7 @@ jobs:
     - name: Run tests
       run: dotnet test ${{ env.Test_Project_Path }} --configuration Release --logger "console;verbosity=detailed"
       env:
-          FinanceNet__AlphaVantageApiKey: ${{ secrets.ALPHAVANTAGEAPIKEY }}      
+          DotNetFinance__AlphaVantageApiKey: ${{ secrets.ALPHAVANTAGEAPIKEY }}      
           
     - name: Pack NuGet Package
       run: dotnet pack ${{ env.Solution_Name }} --configuration Release --no-build --output ./nupkg
@@ -50,7 +50,7 @@ jobs:
     - name: Extract Version
       id: get_version
       run: |
-        VERSION=$(grep '<Version>' ${{ env.FinanceNet_Project_Path }} | sed -E 's/.*<Version>(.*)<\/Version>.*/\1/')
+        VERSION=$(grep '<Version>' ${{ env.DotNetFinance_Project_Path }} | sed -E 's/.*<Version>(.*)<\/Version>.*/\1/')
         echo "VERSION=$VERSION"
         echo "VERSION=$VERSION" >> $GITHUB_ENV
 

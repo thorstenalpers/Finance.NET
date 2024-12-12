@@ -41,5 +41,5 @@ jobs:
       shell: pwsh
       run: dotnet test ${{ env.Test_Project_Path }} --configuration Release --logger "console;verbosity=detailed" --filter "FullyQualifiedName~$env:FullyQualifiedName"
       env:
-          FinanceNet__AlphaVantageApiKey: ${{ secrets.ALPHAVANTAGEAPIKEY }}
+          DotNetFinance__AlphaVantageApiKey: ${{ secrets.ALPHAVANTAGEAPIKEY }}
       
