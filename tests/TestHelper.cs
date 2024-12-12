@@ -1,10 +1,10 @@
-﻿using DotNetFinance.Extensions;
-using DotNetFinance.Tests.IntegrationTests;
+﻿using Finance.Net.Extensions;
+using Finance.Net.Tests.IntegrationTests;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace DotNetFinance.Tests;
+namespace Finance.Net.Tests;
 
 internal static class TestHelper
 {
@@ -18,7 +18,7 @@ internal static class TestHelper
 		var cfg = cfgBuilder.Build();
 
 		services.AddSingleton<IConfiguration>(cfg);
-		services.AddFinanceServices(new DotNetFinanceConfiguration
+		services.AddFinanceServices(new FinanceNetConfiguration
 		{
 			HttpTimeout = 20,
 			HttpRetries = 3,

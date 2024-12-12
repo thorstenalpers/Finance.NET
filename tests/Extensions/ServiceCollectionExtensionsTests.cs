@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Linq;
 using System.Net.Http;
-using DotNetFinance.Extensions;
+using Finance.Net.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using NUnit.Framework;
 
-namespace DotNetFinance.Tests.Extensions;
+namespace Finance.Net.Tests.Extensions;
 
 [TestFixture]
 [Category("UnitTests")]
@@ -25,7 +25,7 @@ public class ServiceCollectionExtensionsTests
 	{
 		// Arrange
 		var services = new ServiceCollection();
-		var cfg = new DotNetFinanceConfiguration()
+		var cfg = new FinanceNetConfiguration()
 		{
 			AlphaVantageApiKey = "xxx",
 			AlphaVantageApiUrl = "https://www.google1.de",
@@ -48,7 +48,7 @@ public class ServiceCollectionExtensionsTests
 		var provider = services.BuildServiceProvider();
 
 		using var scope = provider.CreateScope();
-		var resolvedCfg = scope.ServiceProvider.GetService<IOptions<DotNetFinanceConfiguration>>().Value;
+		var resolvedCfg = scope.ServiceProvider.GetService<IOptions<FinanceNetConfiguration>>().Value;
 		var clientFactory = scope.ServiceProvider.GetService<IHttpClientFactory>();
 
 		// Assert

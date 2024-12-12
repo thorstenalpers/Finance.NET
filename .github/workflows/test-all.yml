@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     
     env:
-      Solution_Name: ".NET Finance.sln"
+      Solution_Name: "Finance.NET.sln"
       Test_Project_Path: "tests/Tests.csproj"       
       FORCE_COLOR: "true"
       DOTNET_LOGGING__CONSOLE__COLORBEHAVIOR: Enabled

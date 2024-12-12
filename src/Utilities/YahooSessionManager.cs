@@ -5,22 +5,22 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using DotNetFinance.Exceptions;
-using DotNetFinance.Interfaces;
-using DotNetFinance.Utilities;
+using Finance.Net.Exceptions;
+using Finance.Net.Interfaces;
+using Finance.Net.Utilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace DotNetFinance.Utilities;
+namespace Finance.Net.Utilities;
 
 internal class YahooSessionManager(IHttpClientFactory httpClientFactory,
 	ILogger<IYahooSessionManager> logger,
-								   IOptions<DotNetFinanceConfiguration> options,
+								   IOptions<FinanceNetConfiguration> options,
 								   IYahooSessionState sessionState) : IYahooSessionManager
 {
 	private readonly ILogger<IYahooSessionManager> _logger = logger;
 	private readonly IYahooSessionState _sessionState = sessionState ?? throw new ArgumentNullException(nameof(sessionState));
-	private readonly DotNetFinanceConfiguration _options = options.Value ?? throw new ArgumentNullException(nameof(options));
+	private readonly FinanceNetConfiguration _options = options.Value ?? throw new ArgumentNullException(nameof(options));
 	private static readonly SemaphoreSlim _semaphore = new(1, 1);
 	private readonly IHttpClientFactory _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
 
@@ -73,7 +73,7 @@ internal class YahooSessionManager(IHttpClientFactory httpClientFactory,
 					await CreateUiCookies(token).ConfigureAwait(false);
 					if (!_sessionState.IsValid())
 					{
-						throw new DotNetFinanceException("cannot fetch Yahoo credentials");
+						throw new FinanceNetException("cannot fetch Yahoo credentials");
 					}
 					return;
 				}
@@ -107,12 +107,12 @@ internal class YahooSessionManager(IHttpClientFactory httpClientFactory,
 		crumb = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 		if (string.IsNullOrEmpty(crumb) || crumb.Contains("Too Many Requests"))
 		{
-			throw new DotNetFinanceException("Unable to retrieve Yahoo crumb.");
+			throw new FinanceNetException("Unable to retrieve Yahoo crumb.");
 		}
 
 		if (_sessionState?.GetCookieContainer().Count < 3)
 		{
-			throw new DotNetFinanceException("Unable to get api cookies.");
+			throw new FinanceNetException("Unable to get api cookies.");
 		}
 		var cookieString = _sessionState?.GetCookieContainer()?.GetCookies(new Uri(_options.YahooBaseUrlHtml)).Cast<Cookie>().Select(cookie => cookie.Name);
 		_logger.LogDebug(() => $"cookieNames= {cookieString}");
@@ -147,14 +147,14 @@ internal class YahooSessionManager(IHttpClientFactory httpClientFactory,
 				return;
 			}
 			var cookieNames = string.Join(", ", _sessionState?.GetCookieContainer()?.GetCookies(new Uri(_options.YahooBaseUrlHtml)).Cast<Cookie>().Select(cookie => cookie.Name));
-			throw new DotNetFinanceException($"Unable to retrieve csrfTokenNode and sessionIdNode, cnt={_sessionState?.GetCookieContainer()?.Count},names={cookieNames}");
+			throw new FinanceNetException($"Unable to retrieve csrfTokenNode and sessionIdNode, cnt={_sessionState?.GetCookieContainer()?.Count},names={cookieNames}");
 		}
 		var csrfToken = csrfTokenNode.GetAttribute("value");
 		var sessionId = sessionIdNode.GetAttribute("value");
 		if (string.IsNullOrEmpty(csrfToken) || string.IsNullOrEmpty(sessionId))
 		{
 			var cookieNames = string.Join(", ", _sessionState?.GetCookieContainer()?.GetCookies(new Uri(_options.YahooBaseUrlHtml)).Cast<Cookie>().Select(cookie => cookie.Name));
-			throw new DotNetFinanceException($"Unable to retrieve csrfToken and sessionId, cnt={_sessionState?.GetCookieContainer()?.Count},names={cookieNames}");
+			throw new FinanceNetException($"Unable to retrieve csrfToken and sessionId, cnt={_sessionState?.GetCookieContainer()?.Count},names={cookieNames}");
 		}
 		await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
 
@@ -185,7 +185,7 @@ internal class YahooSessionManager(IHttpClientFactory httpClientFactory,
 		if (_sessionState.GetCookieContainer()?.Count < 3)
 		{
 			var cookieNames = string.Join(", ", GetCookies().Select(cookie => cookie.Name));
-			throw new DotNetFinanceException($"Unable to get ui cookies, cnt={_sessionState.GetCookieContainer()?.Count},names={cookieNames}");
+			throw new FinanceNetException($"Unable to get ui cookies, cnt={_sessionState.GetCookieContainer()?.Count},names={cookieNames}");
 		}
 		if (_sessionState?.GetCookieContainer() != null && _sessionState?.GetCookieContainer()?.Count >= 3)
 		{

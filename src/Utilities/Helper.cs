@@ -6,11 +6,11 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
-using DotNetFinance.Models.AlphaVantage;
-using DotNetFinance.Utilities;
+using Finance.Net.Models.AlphaVantage;
+using Finance.Net.Utilities;
 using Microsoft.Extensions.Logging;
 
-namespace DotNetFinance.Utilities;
+namespace Finance.Net.Utilities;
 
 public static class Helper
 {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DotNetFinance.Models.AlphaVantage;
+namespace Finance.Net.Models.AlphaVantage;
 public record IntradayRecord
 {
 	public DateTime DateTime { get; set; }

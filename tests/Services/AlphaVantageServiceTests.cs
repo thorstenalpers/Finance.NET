@@ -6,16 +6,16 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using DotNetFinance.Interfaces;
-using DotNetFinance.Models.AlphaVantage;
-using DotNetFinance.Services;
+using Finance.Net.Interfaces;
+using Finance.Net.Models.AlphaVantage;
+using Finance.Net.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using Moq.Protected;
 using NUnit.Framework;
 
-namespace DotNetFinance.Tests.Services;
+namespace Finance.Net.Tests.Services;
 
 [TestFixture]
 [Category("UnitTests")]
@@ -24,13 +24,13 @@ public class AlphaVantageServiceTests
 	private Mock<ILogger<IAlphaVantageService>> _mockLogger;
 	private Mock<IHttpClientFactory> _mockHttpClientFactory;
 	private Mock<HttpMessageHandler> _mockHandler;
-	private Mock<IOptions<DotNetFinanceConfiguration>> _mockOptions;
+	private Mock<IOptions<FinanceNetConfiguration>> _mockOptions;
 
 	[SetUp]
 	public void SetUp()
 	{
-		_mockOptions = new Mock<IOptions<DotNetFinanceConfiguration>>();
-		_mockOptions.Setup(x => x.Value).Returns(new DotNetFinanceConfiguration
+		_mockOptions = new Mock<IOptions<FinanceNetConfiguration>>();
+		_mockOptions.Setup(x => x.Value).Returns(new FinanceNetConfiguration
 		{
 			HttpRetries = 1
 		});
@@ -49,7 +49,7 @@ public class AlphaVantageServiceTests
 	public void Create_Static_ReturnsObject()
 	{
 		// Arrange
-		DotNetFinanceConfiguration cfg = null;
+		FinanceNetConfiguration cfg = null;
 
 		// Act
 		var service = AlphaVantageService.Create(cfg);

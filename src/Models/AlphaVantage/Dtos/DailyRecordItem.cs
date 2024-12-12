@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
 
-namespace DotNetFinance.Models.AlphaVantage.Dtos;
+namespace Finance.Net.Models.AlphaVantage.Dtos;
 [ExcludeFromCodeCoverage]
 internal record DailyRecordItem
 {

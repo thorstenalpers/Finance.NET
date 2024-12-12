@@ -1,12 +1,12 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using DotNetFinance.Interfaces;
-using DotNetFinance.Services;
+using Finance.Net.Interfaces;
+using Finance.Net.Services;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
-namespace DotNetFinance.Tests.IntegrationTests;
+namespace Finance.Net.Tests.IntegrationTests;
 
 [TestFixture]
 [Category("IntegrationTests")]

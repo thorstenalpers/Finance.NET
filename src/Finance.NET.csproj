@@ -1,17 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
   <PropertyGroup>
-	<AssemblyTitle>DotNetFinance</AssemblyTitle>
+	<AssemblyTitle>Finance.Net</AssemblyTitle>
 	<TargetFramework>netstandard2.1</TargetFramework>
-	<AssemblyName>DotNetFinance</AssemblyName>
+	<AssemblyName>Finance.Net</AssemblyName>
 	<Nullable>enable</Nullable>
-	<RootNamespace>DotNetFinance</RootNamespace>
+	<RootNamespace>Finance.Net</RootNamespace>
 	<AnalysisLevel>latest</AnalysisLevel>
 	<EnableNETAnalyzers>True</EnableNETAnalyzers>
 	<EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
 	<LangVersion>latest</LangVersion>
 	<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 
-	<PackageId>.NET-Finance</PackageId>
+	<PackageId>Finance.NET</PackageId>
 	<Version>0.0.1</Version>
 	<Authors>Thorsten Alpers</Authors>
 	<Owners>Thorsten Alpers</Owners>
@@ -37,6 +37,10 @@
   </ItemGroup>
 
   <ItemGroup>
+	<None Include="./banner.png" Visible="false">
+	  <Pack>true</Pack>
+	  <PackagePath>/banner.png</PackagePath>
+	</None>
 	<None Include="./logo.png" Visible="false">
 	  <Pack>true</Pack>
 	  <PackagePath>/logo.png</PackagePath>

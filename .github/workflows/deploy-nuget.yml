@@ -14,8 +14,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      Solution_Name: ".NET Finance.sln"
-      DotNetFinance_Project_Path: "src/.NET Finance.csproj"
+      Solution_Name: "Finance.NET.sln"
+      DotNetFinance_Project_Path: "src/Finance.NET.csproj"
       Test_Project_Path: "tests/Tests.csproj"
 
     steps:

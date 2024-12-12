@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using DotNetFinance.Models.DatahubIo;
+using Finance.Net.Models.DatahubIo;
 
-namespace DotNetFinance.Interfaces;
+namespace Finance.Net.Interfaces;
 
 /// <summary>
 /// Represents a service for interacting with the DataHubIo API.

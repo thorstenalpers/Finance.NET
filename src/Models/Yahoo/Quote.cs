@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DotNetFinance.Models.Yahoo;
+namespace Finance.Net.Models.Yahoo;
 
 public record Quote
 {

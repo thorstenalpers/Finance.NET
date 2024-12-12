@@ -1,9 +1,9 @@
 ﻿using System;
-using DotNetFinance.Models.AlphaVantage;
-using DotNetFinance.Utilities;
+using Finance.Net.Models.AlphaVantage;
+using Finance.Net.Utilities;
 using NUnit.Framework;
 
-namespace DotNetFinance.Tests.Utilities;
+namespace Finance.Net.Tests.Utilities;
 
 [TestFixture]
 [Category("UnitTests")]

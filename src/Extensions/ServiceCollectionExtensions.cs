@@ -1,11 +1,11 @@
 using System;
 using System.Net.Http;
-using DotNetFinance.Interfaces;
-using DotNetFinance.Services;
-using DotNetFinance.Utilities;
+using Finance.Net.Interfaces;
+using Finance.Net.Services;
+using Finance.Net.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace DotNetFinance.Extensions;
+namespace Finance.Net.Extensions;
 
 public static class ServiceCollectionExtensions
 {
@@ -13,12 +13,12 @@ public static class ServiceCollectionExtensions
 	/// Configures Finance.NET Service
 	/// </summary>
 	/// <param name="services">The service collection to configure.</param>
-	/// <param name="configuration">Optional: Default values to configure Finance.NET. <see cref="DotNetFinanceConfiguration"/> ></param>
-	public static void AddFinanceServices(this IServiceCollection services, DotNetFinanceConfiguration? cfg = null)
+	/// <param name="configuration">Optional: Default values to configure Finance.NET. <see cref="FinanceNetConfiguration"/> ></param>
+	public static void AddFinanceServices(this IServiceCollection services, FinanceNetConfiguration? cfg = null)
 	{
-		cfg ??= new DotNetFinanceConfiguration();
+		cfg ??= new FinanceNetConfiguration();
 
-		services.Configure<DotNetFinanceConfiguration>(opt =>
+		services.Configure<FinanceNetConfiguration>(opt =>
 		{
 			opt.HttpRetries = cfg.HttpRetries;
 			opt.HttpTimeout = cfg.HttpTimeout;
