@@ -9,7 +9,6 @@ jobs:
 
     env:
       Solution_Name: "Finance.NET.sln"
-      DotNetFinance_Project_Path: "src/Finance.NET.csproj"
       Test_Project_Path: "tests/Tests.csproj"
 
     steps:
@@ -30,7 +29,7 @@ jobs:
     - name: Run tests
       run: dotnet test "${{ env.Test_Project_Path }}" --configuration Release --logger "console;verbosity=detailed"
       env:
-          DotNetFinance__AlphaVantageApiKey: ${{ secrets.ALPHAVANTAGEAPIKEY }}      
+          FinanceNet__AlphaVantageApiKey: ${{ secrets.ALPHAVANTAGEAPIKEY }}      
           
     - name: Pack NuGet Package
       run: dotnet pack "${{ env.Solution_Name }}" --configuration Release --no-build --output ./nupkg

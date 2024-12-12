@@ -50,13 +50,13 @@ public class FinanceNetConfiguration
 	internal readonly string YahooBaseUrlHtml = "https://finance.yahoo.com";
 
 	/// <summary> Name of the Yahoo HttpClient used from HttpClientFactory </summary>
-	internal readonly string YahooHttpClientName = "DotNetFinanceYahooClient";
+	internal readonly string YahooHttpClientName = "FinanceNetYahooClient";
 
 	/// <summary> Name of the Xetra HttpClient used from HttpClientFactory </summary>
-	internal readonly string XetraHttpClientName = "DotNetFinanceXetraClient";
+	internal readonly string XetraHttpClientName = "FinanceNetXetraClient";
 
 	/// <summary> Name of the AlphaVantage HttpClient used from HttpClientFactory </summary>
-	internal readonly string AlphaVantageHttpClientName = "DotNetFinanceAlphaVantageClient";
+	internal readonly string AlphaVantageHttpClientName = "FinanceNetAlphaVantageClient";
 
 	/// <summary> Name of the DatahubIo HttpClient used from HttpClientFactory </summary>
 	internal readonly string DatahubIoHttpClientName = "DotNetFinanceDatahubIoClient";
