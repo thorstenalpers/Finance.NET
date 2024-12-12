@@ -75,7 +75,7 @@ public class AlphaVantageServiceTests
 		var symbol = "IBM";
 
 		// Act
-		var result = await service.GetCompanyInfoAsync(symbol);
+		var result = await service.GetCompanyOverviewAsync(symbol);
 
 		// Assert
 		Assert.That(result, Is.Not.Null);
@@ -130,7 +130,7 @@ public class AlphaVantageServiceTests
 		var interval = Models.AlphaVantage.EInterval.Interval_5Min;
 
 		// Act
-		var result = await service.GetIntradayRecordsAsync(symbol, startDate, endDate, interval);
+		var result = await service.GetHistoricalIntradayRecordsAsync(symbol, startDate, endDate, interval);
 
 		// Assert
 		Assert.That(result, Is.Not.Empty);

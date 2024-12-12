@@ -25,7 +25,7 @@ public class XetraTests
 	[TestCase("MSF.DE")]    // Microsoft Corporation (Xetra)
 	[TestCase("SAP.DE")]    // SAP SE (Xetra)
 	[TestCase("VUSA.DE")]   // Vanguard S&P 500 ETF
-	public async Task GetTradableInstruments_ValidSymbols_ReturnsIntsruments(string symbol)
+	public async Task GetInstruments_ValidSymbols_ReturnsIntsruments(string symbol)
 	{
 		var instruments = await _service.GetInstruments();
 

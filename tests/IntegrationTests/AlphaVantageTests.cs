@@ -34,7 +34,7 @@ public class AlphaVantageTests
 			AlphaVantageApiKey = cfg.Value.AlphaVantageApiKey
 		});
 
-		var overview = await service.GetCompanyInfoAsync("SAP");
+		var overview = await service.GetCompanyOverviewAsync("SAP");
 
 		Assert.That(overview, Is.Not.Null);
 		Assert.That(overview.Symbol, Is.EqualTo("SAP"));
@@ -46,7 +46,7 @@ public class AlphaVantageTests
 	public async Task GetCompanyOverviewAsync_ValidSymbols_ReturnsOverview(string symbol)
 	{
 
-		var overview = await _service.GetCompanyInfoAsync(symbol);
+		var overview = await _service.GetCompanyOverviewAsync(symbol);
 
 		Assert.That(overview, Is.Not.Null);
 		Assert.That(overview.Symbol, Is.EqualTo(symbol));
@@ -65,17 +65,17 @@ public class AlphaVantageTests
 
 	[TestCase("MSFT")]      // Microsoft Corporation (Nasdaq)
 	[TestCase("SAP")]       // SAP SE (Nasdaq)
-	public async Task GetIntradayRecordsAsync_ValidSymbols_ReturnsRecords(string symbol)
+	public async Task GetHistoricalIntradayRecordsAsync_ValidSymbols_ReturnsRecords(string symbol)
 	{
 		var startDay = new DateTime(2024, 12, 02);
 		var endDay = new DateTime(2024, 12, 02);
-		var records = await _service.GetIntradayRecordsAsync(symbol, startDay, endDay);
+		var records = await _service.GetHistoricalIntradayRecordsAsync(symbol, startDay, endDay);
 
 		Assert.That(records, Is.Not.Empty);
 	}
 
 	[TestCase("EUR", "USD")]
-	public async Task GetDailyForexRecordsAsync_ValidCurrencies_ReturnsRecords(string currency1, string currency2)
+	public async Task GetHistoricalForexRecordsAsync_ValidCurrencies_ReturnsRecords(string currency1, string currency2)
 	{
 		var records = await _service.GetHistoricalForexRecordsAsync(currency1, currency2, DateTime.UtcNow.AddDays(-3));
 
