@@ -27,8 +27,9 @@ jobs:
         dotnet-version: 8.x
 
     - name: Install reportgenerator
-      run: dotnet tool install --global dotnet-reportgenerator-globaltool
-           dotnet tool install --global coveralls.net
+      run: |
+        dotnet tool install --global dotnet-reportgenerator-globaltool
+        dotnet tool install --global coveralls.net
 
     - name: Restore dependencies
       run: dotnet restore ${{ env.Solution_Name }}
