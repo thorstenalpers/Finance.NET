@@ -32,15 +32,15 @@ jobs:
       run: dotnet tool install --global dotnet-reportgenerator-globaltool
 
     - name: Restore
-      run: dotnet restore ${{ env.Solution_Name }}
+      run: dotnet restore "${{ env.Solution_Name }}"
 
     - name: Build
-      run: dotnet build ${{ env.Solution_Name }} --configuration Release --no-restore
+      run: dotnet build "${{ env.Solution_Name }}" --configuration Release --no-restore
 
     - name: Run unit tests
       shell: pwsh
       run: |
-          dotnet test ${{ env.Test_Project_Path }} --collect:"XPlat Code Coverage" --results-directory ./TestResults/UnitTests --configuration Release --filter Category=UnitTests --logger "console;verbosity=detailed"
+          dotnet test "${{ env.Test_Project_Path }}" --collect:"XPlat Code Coverage" --results-directory ./TestResults/UnitTests --configuration Release --filter Category=UnitTests --logger "console;verbosity=detailed"
           if ($LASTEXITCODE -ne 0) {
             Write-Host "Tests failed"
             exit 1
@@ -61,7 +61,7 @@ jobs:
     - name: Run integration tests
       shell: pwsh
       run: |
-          dotnet test ${{ env.Test_Project_Path }} --collect:"XPlat Code Coverage" --results-directory ./TestResults/IntegrationTests --configuration Release --filter Category=IntegrationTests --logger "console;verbosity=detailed"
+          dotnet test "${{ env.Test_Project_Path }}" --collect:"XPlat Code Coverage" --results-directory ./TestResults/IntegrationTests --configuration Release --filter Category=IntegrationTests --logger "console;verbosity=detailed"
           if ($LASTEXITCODE -ne 0) {
             Write-Host "Tests failed, marking job as failed"
             exit 1
