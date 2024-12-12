@@ -1,4 +1,4 @@
-name: "Test"
+name: "Test: Get S&P 500 Instruments"
 
 on:
   push:
