@@ -18,7 +18,7 @@
 	<Description>Access publicly available financial data from Yahoo Finance and other sources.</Description>
 	<PackageProjectUrl>https://github.com/thorstenalpers/Finance.NET</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/thorstenalpers/Finance.NET</RepositoryUrl>
-	<PackageTags>.NET Finance;Nasdaq;Xetra;Yahoo;DataHubIo;Finance;Trading</PackageTags>
+	<PackageTags>Finance.NET;Nasdaq;Xetra;Yahoo;DataHubIo;Finance;Trading</PackageTags>
 	<Copyright>Copyright 2024</Copyright>
 	<RepositoryType>git</RepositoryType>
 	<PackageLicenseExpression>MIT</PackageLicenseExpression>

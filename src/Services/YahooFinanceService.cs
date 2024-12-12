@@ -183,7 +183,7 @@ internal class YahooFinanceService : IYahooFinanceService
 			}
 			catch (Exception ex)
 			{
-				_logger.LogInformation($"Retry for {symbol}");
+				_logger.LogInformation($"{attempt} retry for {symbol}");
 				_logger.LogDebug(() => $"url={url}, ex={ex}");
 				await Task.Delay(TimeSpan.FromSeconds(1 * attempt));
 
@@ -295,7 +295,7 @@ internal class YahooFinanceService : IYahooFinanceService
 			}
 			catch (Exception ex)
 			{
-				_logger.LogInformation($"Retry for {symbol}");
+				_logger.LogInformation($"{attempt} retry for {symbol}");
 				_logger.LogDebug(() => $"url={url}, ex={ex}");
 				await Task.Delay(TimeSpan.FromSeconds(1 * attempt));
 
@@ -380,7 +380,7 @@ internal class YahooFinanceService : IYahooFinanceService
 			}
 			catch (Exception ex)
 			{
-				_logger.LogInformation($"Retry for {symbol}");
+				_logger.LogInformation($"{attempt} retry for {symbol}");
 				_logger.LogDebug(() => $"url={url}, ex={ex}");
 				await Task.Delay(TimeSpan.FromSeconds(1 * attempt));
 
@@ -504,7 +504,7 @@ internal class YahooFinanceService : IYahooFinanceService
 			}
 			catch (Exception ex)
 			{
-				_logger.LogInformation($"Retry for {symbol}");
+				_logger.LogInformation($"{attempt} retry for {symbol}");
 				_logger.LogDebug(() => $"url={url}, ex={ex}");
 				await Task.Delay(TimeSpan.FromSeconds(1 * attempt));
 

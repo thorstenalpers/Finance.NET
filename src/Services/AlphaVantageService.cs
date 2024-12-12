@@ -71,8 +71,8 @@ internal class AlphaVantageService : IAlphaVantageService
 			}
 			catch (Exception ex)
 			{
-				_logger.LogInformation($"Retry for {symbol}");
-				_logger.LogDebug(() => $"url={url}, ex={ex}");
+				_logger.LogInformation($"{attempt} retry for {symbol}");
+				_logger.LogDebug(() => $"ex={ex}");
 				await Task.Delay(TimeSpan.FromSeconds(1 * attempt));
 			}
 		}
@@ -144,8 +144,8 @@ internal class AlphaVantageService : IAlphaVantageService
 			}
 			catch (Exception ex)
 			{
-				_logger.LogInformation($"Retry for {symbol}");
-				_logger.LogDebug(() => $"url={url}, ex={ex}");
+				_logger.LogInformation($"{attempt} retry for {symbol}");
+				_logger.LogDebug(() => $"ex={ex}");
 				await Task.Delay(TimeSpan.FromSeconds(1 * attempt));
 			}
 		}
@@ -251,8 +251,8 @@ internal class AlphaVantageService : IAlphaVantageService
 			}
 			catch (Exception ex)
 			{
-				_logger.LogInformation($"Retry for {symbol}");
-				_logger.LogDebug(() => $"url={url}, ex={ex}");
+				_logger.LogInformation($"{attempt} retry for {symbol}");
+				_logger.LogDebug(() => $"ex={ex}");
 				await Task.Delay(TimeSpan.FromSeconds(1 * attempt));
 			}
 		}
@@ -325,7 +325,7 @@ internal class AlphaVantageService : IAlphaVantageService
 			catch (Exception ex)
 			{
 				_logger.LogInformation($"Retry for {currency1} /{currency2}");
-				_logger.LogDebug(() => $"url={url}, ex={ex}");
+				_logger.LogDebug(() => $"ex={ex}");
 				await Task.Delay(TimeSpan.FromSeconds(1 * attempt));
 			}
 		}
