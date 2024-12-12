@@ -10,6 +10,6 @@ on:
 
 jobs:
   run-test:
-    uses: ./.github/workflows/single-tests/test-template.yml
+    uses: ./.github/workflows/test-template.yml
     with:
       TEST_METHOD_NAME: "YahooTests.GetProfileAsync_WithoutIoC_ReturnsProfile"
