@@ -1,81 +1,83 @@
-# name: "Tests"
+name: "Tests"
 
 # on:
 #   push:
 #     branches: [ develop ]
+on:  
+  workflow_dispatch:    # Trigger workflow manually
 
-# jobs:
-#   build:
-#     runs-on: ubuntu-latest
+jobs:
+  build:
+    runs-on: ubuntu-latest
     
-#     env:
-#       Solution_Name: Finance.NET.sln
-#       Test_Project_Path: tests/Tests.csproj      
-#       FORCE_COLOR: "true"
-#       DOTNET_LOGGING__CONSOLE__COLORBEHAVIOR: Enabled
+    env:
+      Solution_Name: Finance.NET.sln
+      Test_Project_Path: tests/Tests.csproj      
+      FORCE_COLOR: "true"
+      DOTNET_LOGGING__CONSOLE__COLORBEHAVIOR: Enabled
 
-#     steps:
-#     - name: Checkout
-#       uses: actions/checkout@v4
-#       with:
-#         ref: develop
-#         fetch-depth: 0 
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        ref: develop
+        fetch-depth: 0 
 
-#     - name: Install .Net
-#       uses: actions/setup-dotnet@v4
-#       with:
-#         dotnet-version: 8.x
+    - name: Install .Net
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.x
 
-#     - name: Set up dotnet
-#       run: dotnet tool install --global dotnet-reportgenerator-globaltool
+    - name: Set up dotnet
+      run: dotnet tool install --global dotnet-reportgenerator-globaltool
 
-#     - name: Restore
-#       run: dotnet restore ${{ env.Solution_Name }}
+    - name: Restore
+      run: dotnet restore ${{ env.Solution_Name }}
 
-#     - name: Build
-#       run: dotnet build ${{ env.Solution_Name }} --configuration Release --no-restore
+    - name: Build
+      run: dotnet build ${{ env.Solution_Name }} --configuration Release --no-restore
 
-#     - name: Run unit tests
-#       shell: pwsh
-#       run: |
-#           dotnet test ${{ env.Test_Project_Path }} --collect:"XPlat Code Coverage" --results-directory ./TestResults/UnitTests --configuration Release --filter Category=UnitTests --logger "console;verbosity=detailed"
-#           if ($LASTEXITCODE -ne 0) {
-#             Write-Host "Tests failed"
-#             exit 1
-#           }
-#           reportgenerator -reports:./TestResults/UnitTests/**/coverage.cobertura.xml -targetdir:./TestResults/Coverage/Unit -reporttypes:"Html;lcov"
+    - name: Run unit tests
+      shell: pwsh
+      run: |
+          dotnet test ${{ env.Test_Project_Path }} --collect:"XPlat Code Coverage" --results-directory ./TestResults/UnitTests --configuration Release --filter Category=UnitTests --logger "console;verbosity=detailed"
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "Tests failed"
+            exit 1
+          }
+          reportgenerator -reports:./TestResults/UnitTests/**/coverage.cobertura.xml -targetdir:./TestResults/Coverage/Unit -reporttypes:"Html;lcov"
 
-#     - name: Generate reports
-#       run: |
-#         reportgenerator -reports:./TestResults/UnitTests/**/coverage.cobertura.xml -targetdir:./TestResults/Coverage/Unit -reporttypes:"Html;lcov"
+    - name: Generate reports
+      run: |
+        reportgenerator -reports:./TestResults/UnitTests/**/coverage.cobertura.xml -targetdir:./TestResults/Coverage/Unit -reporttypes:"Html;lcov"
 
-#     - name: Upload coverage to Coveralls
-#       uses: coverallsapp/github-action@v2
-#       with:
-#         coverage_file: ./TestResults/Coverage/Unit/lcov.info
-#       env:
-#         COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+    - name: Upload coverage to Coveralls
+      uses: coverallsapp/github-action@v2
+      with:
+        coverage_file: ./TestResults/Coverage/Unit/lcov.info
+      env:
+        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
 
-#     - name: Run integration tests
-#       shell: pwsh
-#       run: |
-#           dotnet test ${{ env.Test_Project_Path }} --collect:"XPlat Code Coverage" --results-directory ./TestResults/IntegrationTests --configuration Release --filter Category=IntegrationTests --logger "console;verbosity=detailed"
-#           if ($LASTEXITCODE -ne 0) {
-#             Write-Host "Tests failed, marking job as failed"
-#             exit 1
-#           }
-#           reportgenerator -reports:./TestResults/IntegrationTests/**/coverage.cobertura.xml -targetdir:./TestResults/Coverage/Integration -reporttypes:Html
-#       env:
-#           FinanceNet__AlphaVantageApiKey: ${{ secrets.ALPHAVANTAGEAPIKEY }}
+    - name: Run integration tests
+      shell: pwsh
+      run: |
+          dotnet test ${{ env.Test_Project_Path }} --collect:"XPlat Code Coverage" --results-directory ./TestResults/IntegrationTests --configuration Release --filter Category=IntegrationTests --logger "console;verbosity=detailed"
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "Tests failed, marking job as failed"
+            exit 1
+          }
+          reportgenerator -reports:./TestResults/IntegrationTests/**/coverage.cobertura.xml -targetdir:./TestResults/Coverage/Integration -reporttypes:Html
+      env:
+          FinanceNet__AlphaVantageApiKey: ${{ secrets.ALPHAVANTAGEAPIKEY }}
       
-#     - name: Upload unit test coverage report
-#       uses: actions/upload-artifact@v4.4.3
-#       with:
-#         name: unit-test-coverage-report
-#         path: ./TestResults/Coverage/Unit
+    - name: Upload unit test coverage report
+      uses: actions/upload-artifact@v4.4.3
+      with:
+        name: unit-test-coverage-report
+        path: ./TestResults/Coverage/Unit
 
-#     - name: Upload integration test coverage report
-#       uses: actions/upload-artifact@v4.4.3
-#       with:
-#         name: integration-test-coverage-report
-#         path: ./TestResults/Coverage/Integration
+    - name: Upload integration test coverage report
+      uses: actions/upload-artifact@v4.4.3
+      with:
+        name: integration-test-coverage-report
+        path: ./TestResults/Coverage/Integration
