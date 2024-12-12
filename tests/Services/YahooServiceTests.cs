@@ -156,7 +156,7 @@ public class YahooServiceTests
 		DateTime? endDate = null;
 
 		// Act
-		var result = await service.GetDailyRecordsAsync(symbol, startDate, endDate);
+		var result = await service.GetHistoricalRecordsAsync(symbol, startDate, endDate);
 
 		// Assert
 		Assert.That(result, Is.Not.Empty);

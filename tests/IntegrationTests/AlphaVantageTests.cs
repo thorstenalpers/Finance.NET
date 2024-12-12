@@ -56,9 +56,9 @@ public class AlphaVantageTests
 	[TestCase("SAP")]       // SAP SE (Nasdaq)
 	[TestCase("SAP.DE")]    // SAP SE (Xetra)
 	[TestCase("VOO")]       // Vanguard S&P 500 ETF
-	public async Task GetDailyRecordsAsync_ValidSymbols_ReturnsRecords(string symbol)
+	public async Task GetHistoricalRecordsAsync_ValidSymbols_ReturnsRecords(string symbol)
 	{
-		var records = await _service.GetDailyRecordsAsync(symbol, DateTime.UtcNow.AddDays(-7));
+		var records = await _service.GetHistoricalRecordsAsync(symbol, DateTime.UtcNow.AddDays(-7));
 
 		Assert.That(records, Is.Not.Empty);
 	}

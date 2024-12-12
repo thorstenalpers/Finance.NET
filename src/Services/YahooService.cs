@@ -195,7 +195,7 @@ internal class YahooService : IYahooService
 		return new Models.Yahoo.Profile();
 	}
 
-	public async Task<IEnumerable<DailyRecord>> GetDailyRecordsAsync(string symbol, DateTime startDate, DateTime? endDate = null, CancellationToken token = default)
+	public async Task<IEnumerable<DailyRecord>> GetHistoricalRecordsAsync(string symbol, DateTime startDate, DateTime? endDate = null, CancellationToken token = default)
 	{
 		await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
 		var httpClient = _httpClientFactory.CreateClient(_options.YahooHttpClientName);

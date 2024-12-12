@@ -79,7 +79,7 @@ internal class AlphaVantageService : IAlphaVantageService
 		throw new FinanceNetException($"No company overview found for {symbol} after {_options.HttpRetries} retries");
 	}
 
-	public async Task<IEnumerable<DailyRecord>> GetDailyRecordsAsync(string symbol, DateTime startDate, DateTime? endDate = null, CancellationToken token = default)
+	public async Task<IEnumerable<DailyRecord>> GetHistoricalRecordsAsync(string symbol, DateTime startDate, DateTime? endDate = null, CancellationToken token = default)
 	{
 		var httpClient = _httpClientFactory.CreateClient(_options.AlphaVantageHttpClientName);
 		var url = _options.AlphaVantageApiUrl + "/query?function=TIME_SERIES_DAILY_ADJUSTED" +

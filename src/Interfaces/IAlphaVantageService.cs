@@ -28,7 +28,7 @@ public interface IAlphaVantageService
 	/// <param name="endDate">Optional end date for retrieving daily records. If not provided, the current date will be used.</param>
 	/// <param name="token">A <see cref="CancellationToken"/> to allow cancellation of the operation.</param>
 	/// <returns>A task that represents the asynchronous operation. The task result contains an enumerable collection of <see cref="DailyRecord"/> objects for the given symbol and date range.</returns>
-	Task<IEnumerable<DailyRecord>> GetDailyRecordsAsync(string symbol, DateTime startDate, DateTime? endDate = null, CancellationToken token = default);
+	Task<IEnumerable<DailyRecord>> GetHistoricalRecordsAsync(string symbol, DateTime startDate, DateTime? endDate = null, CancellationToken token = default);
 
 	/// <summary>
 	/// Asynchronously retrieves historical daily forex records for a currency pair from AlphaVantage.

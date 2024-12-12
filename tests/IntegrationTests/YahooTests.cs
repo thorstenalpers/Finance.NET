@@ -33,7 +33,7 @@ public class YahooTests
 	public async Task GetRecordsAsync_WithDividend_Success()
 	{
 		var startDate = new DateTime(2020, 01, 01);
-		var records = await _service.GetDailyRecordsAsync("SAP.DE", startDate);
+		var records = await _service.GetHistoricalRecordsAsync("SAP.DE", startDate);
 
 		Assert.That(records, Is.Not.Empty);
 
@@ -43,11 +43,11 @@ public class YahooTests
 	}
 
 	[Test]
-	public async Task GetRecordsAsync_ValidSymbols_ReturnsRecords()
+	public async Task GetHistoricalRecordsAsync_ValidSymbols_ReturnsRecords()
 	{
 		var startDate = new DateTime(2024, 01, 04);
 		var endDate = new DateTime(2024, 01, 05);
-		var records = await _service.GetDailyRecordsAsync("SAP.DE", startDate, endDate);
+		var records = await _service.GetHistoricalRecordsAsync("SAP.DE", startDate, endDate);
 
 		Assert.That(records, Is.Not.Empty);
 		Assert.That(records.Count(), Is.EqualTo(2));
@@ -147,7 +147,7 @@ public class YahooTests
 	public async Task GetRecordsAsync_ValidSymbols_ReturnsRecords(string symbol)
 	{
 		var startDate = DateTime.UtcNow.AddDays(-7);
-		var records = await _service.GetDailyRecordsAsync(symbol, startDate);
+		var records = await _service.GetHistoricalRecordsAsync(symbol, startDate);
 
 		Assert.That(records, Is.Not.Empty);
 
@@ -179,10 +179,10 @@ public class YahooTests
 
 	[TestCase("MSFT", true)]      // Microsoft Corporation (Nasdaq)
 	[TestCase("IBM", true)]       // IBM (Nasdaq)
-								  //[TestCase("SAP.DE", true)]    // SAP SE (Xetra)
-								  //[TestCase("6758.T", true)]    // Sony Group Corporation (Tokyo)
-								  //[TestCase("VOO", false)]       // Vanguard S&P 500 ETF
-								  //[TestCase("EURUSD=X", false)]  // Euro to USD
+	[TestCase("SAP.DE", true)]    // SAP SE (Xetra)
+	[TestCase("6758.T", true)]    // Sony Group Corporation (Tokyo)
+	[TestCase("VOO", false)]       // Vanguard S&P 500 ETF
+	[TestCase("EURUSD=X", false)]  // Euro to USD
 	public async Task GetFinancialReportsAsync_ValidSymbols_ReturnsReports(string symbol, bool shouldHaveReport)
 	{
 		var reports = await _service.GetFinancialReportsAsync(symbol);

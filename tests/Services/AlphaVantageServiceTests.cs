@@ -98,7 +98,7 @@ public class AlphaVantageServiceTests
 		DateTime? endDate = null;
 
 		// Act
-		var result = await service.GetDailyRecordsAsync(
+		var result = await service.GetHistoricalRecordsAsync(
 			symbol,
 			startDate,
 			endDate);
