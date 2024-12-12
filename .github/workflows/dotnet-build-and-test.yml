@@ -56,7 +56,9 @@ jobs:
             Write-Host "Tests failed"
             exit 1
           }
-          reportgenerator -reports:./TestResults/UnitTests/**/coverage.cobertura.xml -targetdir:./TestResults/Coverage/Unit -reporttypes:Html;lcov
+          reportgenerator -reports:./TestResults/UnitTests/**/coverage.cobertura.xml -targetdir:./TestResults/Coverage/Unit -reporttypes:Html
+          coveralls --lcov -i ./TestResults/UnitTests/coverage.info -o ./TestResults/Coverage/lcov.info
+
     
     - name: Upload to Coveralls
       env:
