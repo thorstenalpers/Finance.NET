@@ -13,3 +13,5 @@ jobs:
     uses: ./.github/workflows/template-tests.yml
     with:
       TEST_METHOD_NAME: "AlphaVantageTests.GetCompanyOverviewAsync_ValidSymbols_ReturnsOverview"
+    secrets:
+      ALPHAVANTAGEAPIKEY: ${{ secrets.ALPHAVANTAGEAPIKEY }}
