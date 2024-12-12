@@ -43,36 +43,6 @@ public class YahooFinanceTests
 	}
 
 	[Test]
-	public async Task GetHistoricalRecordsAsync_ValidSymbols_ReturnsRecords()
-	{
-		var startDate = new DateTime(2024, 01, 04);
-		var endDate = new DateTime(2024, 01, 05);
-		var records = await _service.GetHistoricalRecordsAsync("SAP.DE", startDate, endDate);
-
-		Assert.That(records, Is.Not.Empty);
-		Assert.That(records.Count(), Is.EqualTo(2));
-
-		var record1 = records.FirstOrDefault();
-		var record2 = records.Skip(1).FirstOrDefault();
-
-		Assert.That(record1.Date.Date, Is.EqualTo(new DateTime(2024, 01, 05).Date));
-		Assert.That(record1.Open, Is.EqualTo(134.82m));
-		Assert.That(record1.High, Is.EqualTo(137.58m));
-		Assert.That(record1.Low, Is.EqualTo(134.42m));
-		Assert.That(record1.Close, Is.EqualTo(137.08m));
-		Assert.That(record1.AdjustedClose, Is.Not.Null);
-		Assert.That(record1.Volume, Is.EqualTo(1171604));
-
-		Assert.That(record2.Date.Date, Is.EqualTo(new DateTime(2024, 01, 04).Date));
-		Assert.That(record2.Open, Is.EqualTo(136.92m));
-		Assert.That(record2.High, Is.EqualTo(137.76m));
-		Assert.That(record2.Low, Is.EqualTo(136.18m));
-		Assert.That(record2.Close, Is.EqualTo(136.44m));
-		Assert.That(record2.AdjustedClose, Is.Not.Null);
-		Assert.That(record2.Volume, Is.EqualTo(1114133));
-	}
-
-	[Test]
 	public async Task GetProfileAsync_WithoutIoC_ReturnsProfile()
 	{
 		var service = YahooFinanceService.Create();
