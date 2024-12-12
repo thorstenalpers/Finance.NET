@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 
 namespace Finance.Net.Models.AlphaVantage;
-public class CompanyInfo
+public class CompanyOverview
 {
 	public string? Symbol { get; set; }
 	public string? AssetType { get; set; }

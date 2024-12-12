@@ -13,12 +13,12 @@ namespace Finance.Net.Interfaces;
 public interface IAlphaVantageService
 {
 	/// <summary>
-	/// Asynchronously retrieves the company info for a specific symbol from AlphaVantage.
+	/// Asynchronously retrieves the company overview for a specific symbol from AlphaVantage.
 	/// </summary>
 	/// <param name="symbol">The symbol of the company (e.g., "AAPL" for Apple).</param>
 	/// <param name="token">A <see cref="CancellationToken"/> to allow cancellation of the operation.</param>
 	/// <returns>A task that represents the asynchronous operation. The task result contains the company info data for the given symbol, or null if the data is unavailable.</returns>
-	Task<CompanyInfo?> GetCompanyInfoAsync(string symbol, CancellationToken token = default);
+	Task<CompanyOverview?> GetCompanyOverviewAsync(string symbol, CancellationToken token = default);
 
 	/// <summary>
 	/// Asynchronously retrieves the historical daily stock records for a specific symbol from AlphaVantage.
@@ -50,6 +50,6 @@ public interface IAlphaVantageService
 	/// <param name="interval">The time interval between data points (1min, 5min, 15min, 30min, 60min). Default is 15 minutes.</param>
 	/// <param name="token">A <see cref="CancellationToken"/> to allow cancellation of the operation.</param>
 	/// <returns>A task that represents the asynchronous operation. The task result contains an enumerable collection of <see cref="IntradayRecord"/> objects for the given symbol, date range, and interval.</returns>
-	Task<IEnumerable<IntradayRecord>> GetIntradayRecordsAsync(string symbol, DateTime startDate, DateTime? endDate = null, EInterval interval = EInterval.Interval_15Min, CancellationToken token = default);
+	Task<IEnumerable<IntradayRecord>> GetHistoricalIntradayRecordsAsync(string symbol, DateTime startDate, DateTime? endDate = null, EInterval interval = EInterval.Interval_15Min, CancellationToken token = default);
 
 }

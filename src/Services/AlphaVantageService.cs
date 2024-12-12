@@ -49,7 +49,7 @@ internal class AlphaVantageService : IAlphaVantageService
 		return _serviceProvider.GetRequiredService<IAlphaVantageService>();
 	}
 
-	public async Task<CompanyInfo?> GetCompanyInfoAsync(string symbol, CancellationToken token = default)
+	public async Task<CompanyOverview?> GetCompanyOverviewAsync(string symbol, CancellationToken token = default)
 	{
 		var httpClient = _httpClientFactory.CreateClient(_options.AlphaVantageHttpClientName);
 		var url = _options.AlphaVantageApiUrl + "/query?function=OVERVIEW" +
@@ -67,7 +67,7 @@ internal class AlphaVantageService : IAlphaVantageService
 				{
 					throw new FinanceNetException($"higher API call volume for {symbol}");
 				}
-				return JsonConvert.DeserializeObject<CompanyInfo>(jsonResponse);
+				return JsonConvert.DeserializeObject<CompanyOverview>(jsonResponse);
 			}
 			catch (Exception ex)
 			{
@@ -152,7 +152,7 @@ internal class AlphaVantageService : IAlphaVantageService
 		throw new FinanceNetException($"no daily records for {symbol} after {_options.HttpRetries} retries.");
 	}
 
-	public async Task<IEnumerable<IntradayRecord>> GetIntradayRecordsAsync(string symbol, DateTime startDate, DateTime? endDate = null, EInterval interval = EInterval.Interval_15Min, CancellationToken token = default)
+	public async Task<IEnumerable<IntradayRecord>> GetHistoricalIntradayRecordsAsync(string symbol, DateTime startDate, DateTime? endDate = null, EInterval interval = EInterval.Interval_15Min, CancellationToken token = default)
 	{
 		Guard.Against.NullOrEmpty(symbol);
 		var result = new List<IntradayRecord>();
