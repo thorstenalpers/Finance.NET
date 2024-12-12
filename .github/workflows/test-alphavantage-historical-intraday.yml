@@ -12,4 +12,4 @@ jobs:
   run-test:
     uses: ./.github/workflows/template-tests.yml
     with:
-      TEST_METHOD_NAME: "AlphaVantageTests.GetIntradayRecordsAsync_ValidSymbols_ReturnsRecords"
+      TEST_METHOD_NAME: "AlphaVantageTests.GetHistoricalIntradayRecordsAsync_ValidSymbols_ReturnsRecords"

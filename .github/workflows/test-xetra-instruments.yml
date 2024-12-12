@@ -12,4 +12,4 @@ jobs:
   run-test:
     uses: ./.github/workflows/template-tests.yml
     with:
-      TEST_METHOD_NAME: "XetraTests.GetTradableInstruments_ValidSymbols_ReturnsIntsruments"
+      TEST_METHOD_NAME: "XetraTests.GetInstruments_ValidSymbols_ReturnsIntsruments"

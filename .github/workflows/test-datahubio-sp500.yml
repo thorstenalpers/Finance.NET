@@ -12,4 +12,4 @@ jobs:
   run-test:
     uses: ./.github/workflows/template-tests.yml
     with:
-      TEST_METHOD_NAME: "DataHubIoTests.GetSAndP500InstrumentsAsync_ValidSymbols_ReturnsInstruments"
+      TEST_METHOD_NAME: "DataHubIoTests.GetSP500InstrumentsAsync_ValidSymbols_ReturnsInstruments"
