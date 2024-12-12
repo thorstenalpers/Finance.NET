@@ -1,4 +1,4 @@
-name: "Run Tests Template"
+name: "Run Test: YahooTests.GetProfileAsync_WithoutIoC_ReturnsProfile"
 
 on:
   push:
