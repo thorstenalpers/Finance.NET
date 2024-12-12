@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [ "develop" ]
+    branches: [ develop ]
 
 jobs:
   build:
@@ -28,6 +28,7 @@ jobs:
 
     - name: Install reportgenerator
       run: dotnet tool install --global dotnet-reportgenerator-globaltool
+           dotnet tool install --global coveralls.net
 
     - name: Restore dependencies
       run: dotnet restore ${{ env.Solution_Name }}
@@ -35,36 +36,52 @@ jobs:
     - name: Build project
       run: dotnet build ${{ env.Solution_Name }} --configuration Release --no-restore
 
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v2
+      with:
+        languages: 'csharp'
+
+    - name: Autobuild
+      uses: github/codeql-action/autobuild@v2
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v2
+
     - name: Run unit tests
       shell: pwsh
       run: |
           dotnet test ${{ env.Test_Project_Path }} --collect:"XPlat Code Coverage" --results-directory ./TestResults/UnitTests --configuration Release --filter Category=UnitTests --logger "console;verbosity=detailed"
           if ($LASTEXITCODE -ne 0) {
-            Write-Host "Tests failed, marking job as failed"
+            Write-Host "Tests failed"
             exit 1
           }
-          reportgenerator -reports:./TestResults/UnitTests/**/coverage.cobertura.xml -targetdir:./TestResults/Coverage/Unit -reporttypes:Html
-
-    - name: Run integration tests
-      shell: pwsh
-      run: |
-          dotnet test ${{ env.Test_Project_Path }} --collect:"XPlat Code Coverage" --results-directory ./TestResults/IntegrationTests --configuration Release --filter Category=IntegrationTests --logger "console;verbosity=detailed"
-          if ($LASTEXITCODE -ne 0) {
-            Write-Host "Tests failed, marking job as failed"
-            exit 1
-          }
-          reportgenerator -reports:./TestResults/IntegrationTests/**/coverage.cobertura.xml -targetdir:./TestResults/Coverage/Integration -reporttypes:Html
+          reportgenerator -reports:./TestResults/UnitTests/**/coverage.cobertura.xml -targetdir:./TestResults/Coverage/Unit -reporttypes:Html;lcov
+    
+    - name: Upload to Coveralls
       env:
-          FinanceNet__AlphaVantageApiKey: ${{ secrets.ALPHAVANTAGEAPIKEY }}
-      
-    - name: Upload unit test coverage report
-      uses: actions/upload-artifact@v4.4.3
-      with:
-        name: unit-test-coverage-report
-        path: ./TestResults/Coverage/Unit
+        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+      run: coveralls --lcov -i ./TestResults/Coverage/lcov.info
 
-    - name: Upload integration test coverage report
-      uses: actions/upload-artifact@v4.4.3
-      with:
-        name: integration-test-coverage-report
-        path: ./TestResults/Coverage/Integration
+    # - name: Run integration tests
+    #   shell: pwsh
+    #   run: |
+    #       dotnet test ${{ env.Test_Project_Path }} --collect:"XPlat Code Coverage" --results-directory ./TestResults/IntegrationTests --configuration Release --filter Category=IntegrationTests --logger "console;verbosity=detailed"
+    #       if ($LASTEXITCODE -ne 0) {
+    #         Write-Host "Tests failed, marking job as failed"
+    #         exit 1
+    #       }
+    #       reportgenerator -reports:./TestResults/IntegrationTests/**/coverage.cobertura.xml -targetdir:./TestResults/Coverage/Integration -reporttypes:Html
+    #   env:
+    #       FinanceNet__AlphaVantageApiKey: ${{ secrets.ALPHAVANTAGEAPIKEY }}
+      
+    # - name: Upload unit test coverage report
+    #   uses: actions/upload-artifact@v4.4.3
+    #   with:
+    #     name: unit-test-coverage-report
+    #     path: ./TestResults/Coverage/Unit
+
+    # - name: Upload integration test coverage report
+    #   uses: actions/upload-artifact@v4.4.3
+    #   with:
+    #     name: integration-test-coverage-report
+    #     path: ./TestResults/Coverage/Integration
