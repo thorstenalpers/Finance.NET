@@ -1,4 +1,4 @@
-name: "All Tests"
+name: "Tests"
 
 on:
   workflow_dispatch: # Manual trigger
@@ -46,17 +46,6 @@ jobs:
           }
           reportgenerator -reports:./TestResults/UnitTests/**/coverage.cobertura.xml -targetdir:./TestResults/Coverage/Unit -reporttypes:"Html;lcov"
 
-    - name: Generate reports
-      run: |
-        reportgenerator -reports:./TestResults/UnitTests/**/coverage.cobertura.xml -targetdir:./TestResults/Coverage/Unit -reporttypes:"Html;lcov"
-
-    - name: Upload coverage to Coveralls
-      uses: coverallsapp/github-action@v2
-      with:
-        coverage_file: ./TestResults/Coverage/Unit/lcov.info
-      env:
-        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
-
     - name: Run integration tests
       shell: pwsh
       run: |
@@ -68,15 +57,30 @@ jobs:
           reportgenerator -reports:./TestResults/IntegrationTests/**/coverage.cobertura.xml -targetdir:./TestResults/Coverage/Integration -reporttypes:Html
       env:
           FinanceNet__AlphaVantageApiKey: ${{ secrets.ALPHAVANTAGEAPIKEY }}
-      
-    - name: Upload unit test coverage report
+
+    - name: Generate unit test report
+      run: |
+        reportgenerator -reports:./TestResults/UnitTests/**/coverage.cobertura.xml -targetdir:./TestResults/Coverage/Unit -reporttypes:"Html;lcov"
+
+    - name: Generate integration test report
+      run: |
+        reportgenerator -reports:./TestResults/Integration/**/coverage.cobertura.xml -targetdir:./TestResults/Coverage/Integration -reporttypes:"Html;lcov"
+
+    - name: Merge Coverage Reports
+      run: |
+          reportgenerator -reports:./TestResults/Coverage/Unit/lcov.info;./TestResults/Coverage/Integration/lcov.info -targetdir:./TestResults/Coverage/Merged -reporttypes:"Html;lcov"
+
+    - name: Upload report to Coveralls
+      uses: coverallsapp/github-action@v2
+      with:
+        coverage_file: ./TestResults/Coverage/Merged/lcov.info
+      env:
+        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+
+    - name: Upload report to GitHub
       uses: actions/upload-artifact@v4.4.3
       with:
         name: unit-test-coverage-report
-        path: ./TestResults/Coverage/Unit
+        path: ./TestResults/Coverage/Merged
 
-    - name: Upload integration test coverage report
-      uses: actions/upload-artifact@v4.4.3
-      with:
-        name: integration-test-coverage-report
-        path: ./TestResults/Coverage/Integration
+

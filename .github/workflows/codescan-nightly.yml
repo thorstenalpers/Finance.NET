@@ -1,4 +1,4 @@
-name: "CodeQL Nightly"
+name: "Code Quality Scan Nightly"
 
 on:
   workflow_dispatch: # Manual trigger

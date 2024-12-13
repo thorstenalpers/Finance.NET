@@ -7,7 +7,7 @@ on:
 
 jobs:
   run-test:
-    uses: ./.github/workflows/template-tests.yml
+    uses: ./.github/workflows/_test-template.yml
     with:
       FullyQualifiedName: "Finance.Net.Tests.IntegrationTests.DatahubIoTests"
     secrets: inherit
