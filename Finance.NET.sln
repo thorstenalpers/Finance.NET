@@ -20,12 +20,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{
 	ProjectSection(SolutionItems) = preProject
 		.github\workflows\codescan-nightly.yml = .github\workflows\codescan-nightly.yml
 		.github\workflows\deploy-nuget.yml = .github\workflows\deploy-nuget.yml
-		.github\workflows\test-alphavantage.yml = .github\workflows\test-alphavantage.yml
-		.github\workflows\test-datahubio.yml = .github\workflows\test-datahubio.yml
-		.github\workflows\test-xetra.yml = .github\workflows\test-xetra.yml
-		.github\workflows\test-yahoo.yml = .github\workflows\test-yahoo.yml
+		.github\workflows\tests-alphavantage.yml = .github\workflows\tests-alphavantage.yml
+		.github\workflows\tests-datahubio.yml = .github\workflows\tests-datahubio.yml
+		.github\workflows\tests-xetra.yml = .github\workflows\tests-xetra.yml
+		.github\workflows\tests-yahoo.yml = .github\workflows\tests-yahoo.yml
 		.github\workflows\tests-ci.yml = .github\workflows\tests-ci.yml
-		.github\workflows\_test-template.yml = .github\workflows\_test-template.yml
+		.github\workflows\_tests-template.yml = .github\workflows\_tests-template.yml
 	EndProjectSection
 EndProject
 Global
