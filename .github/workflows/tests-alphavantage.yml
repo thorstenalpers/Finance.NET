@@ -1,4 +1,4 @@
-name: "Alpha Vantage Tests"
+name: "Nightly Tests"
 
 on:  
   # push:

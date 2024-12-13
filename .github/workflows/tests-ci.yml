@@ -50,10 +50,6 @@ jobs:
       env:
           FinanceNet__AlphaVantageApiKey: ${{ secrets.ALPHAVANTAGEAPIKEY }}
 
-    - name: Generate Coverage Report
-      run: |
-        reportgenerator -reports:./TestResults/Tests/**/coverage.cobertura.xml -targetdir:./TestResults/Coverage -reporttypes:"Html;lcov"
-
     - name: Upload report to Coveralls
       uses: coverallsapp/github-action@v2
       with:

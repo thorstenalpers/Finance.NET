@@ -1,4 +1,4 @@
-name: "Datahub.io Tests"
+name: "Nightly Tests"
 
 on:  
   # push:
