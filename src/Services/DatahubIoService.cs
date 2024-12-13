@@ -15,14 +15,19 @@ using Finance.Net.Mappings;
 using Finance.Net.Models.DatahubIo;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Polly;
+using Polly.Registry;
 
 namespace Finance.Net.Services;
 
-internal class DatahubIoService(IHttpClientFactory httpClientFactory, IOptions<FinanceNetConfiguration> options) : IDatahubIoService
+internal class DatahubIoService(IHttpClientFactory httpClientFactory,
+                                IOptions<FinanceNetConfiguration> options,
+                                IReadOnlyPolicyRegistry<string> policyRegistry) : IDatahubIoService
 {
     private readonly IHttpClientFactory _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
     private readonly FinanceNetConfiguration _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
-    private static ServiceProvider? _serviceProvider;
+    private static ServiceProvider? s_serviceProvider;
+    private readonly AsyncPolicy _retryPolicy = policyRegistry.Get<AsyncPolicy>(Constants.DefaultHttpRetryPolicy);
 
     /// <summary>
     /// Creates a service for interacting with the OpenData API.
@@ -31,13 +36,13 @@ internal class DatahubIoService(IHttpClientFactory httpClientFactory, IOptions<F
     /// <param name="cfg">Optional: Default values to configure .Net Finance. <see cref="FinanceNetConfiguration"/> ></param>
     public static IDatahubIoService Create(FinanceNetConfiguration? cfg = null)
     {
-        if (_serviceProvider == null)
+        if (s_serviceProvider == null)
         {
             var services = new ServiceCollection();
-            services.AddFinanceServices(cfg);
-            _serviceProvider = services.BuildServiceProvider();
+            services.AddFinanceNet(cfg);
+            s_serviceProvider = services.BuildServiceProvider();
         }
-        return _serviceProvider.GetRequiredService<IDatahubIoService>();
+        return s_serviceProvider.GetRequiredService<IDatahubIoService>();
     }
 
     public async Task<IEnumerable<NasdaqInstrument>> GetNasdaqInstrumentsAsync(CancellationToken token = default)
@@ -45,14 +50,17 @@ internal class DatahubIoService(IHttpClientFactory httpClientFactory, IOptions<F
         var httpClient = _httpClientFactory.CreateClient(Constants.DatahubIoHttpClientName);
         try
         {
-            var response = await httpClient.GetAsync(_options.DatahubIoDownloadUrlNasdaqListedSymbols, token).ConfigureAwait(false);
-            response.EnsureSuccessStatusCode();
-            var config = new CsvConfiguration(CultureInfo.InvariantCulture);
+            return await _retryPolicy.ExecuteAsync(async () =>
+            {
+                var response = await httpClient.GetAsync(_options.DatahubIoDownloadUrlNasdaqListedSymbols, token).ConfigureAwait(false);
+                response.EnsureSuccessStatusCode();
+                var config = new CsvConfiguration(CultureInfo.InvariantCulture);
 
-            using var reader = new StreamReader(await response.Content.ReadAsStreamAsync());
-            using var csv = new CsvReader(reader, config);
-            csv.Context.RegisterClassMap<NasdaqInstrumentMapping>();
-            return csv.GetRecords<NasdaqInstrument>().ToList();
+                using var reader = new StreamReader(await response.Content.ReadAsStreamAsync());
+                using var csv = new CsvReader(reader, config);
+                csv.Context.RegisterClassMap<NasdaqInstrumentMapping>();
+                return csv.GetRecords<NasdaqInstrument>().ToList();
+            });
         }
         catch (Exception ex)
         {
@@ -65,15 +73,18 @@ internal class DatahubIoService(IHttpClientFactory httpClientFactory, IOptions<F
         var httpClient = _httpClientFactory.CreateClient(Constants.DatahubIoHttpClientName);
         try
         {
-            var response = await httpClient.GetAsync(_options.DatahubIoDownloadUrlSP500Symbols, token).ConfigureAwait(false);
-            response.EnsureSuccessStatusCode();
-            var config = new CsvConfiguration(CultureInfo.InvariantCulture);
+            return await _retryPolicy.ExecuteAsync(async () =>
+            {
+                var response = await httpClient.GetAsync(_options.DatahubIoDownloadUrlSP500Symbols, token).ConfigureAwait(false);
+                response.EnsureSuccessStatusCode();
+                var config = new CsvConfiguration(CultureInfo.InvariantCulture);
 
-            using var reader = new StreamReader(await response.Content.ReadAsStreamAsync());
-            using var csv = new CsvReader(reader, config);
-            csv.Context.RegisterClassMap<SP500InstrumentMapping>();
+                using var reader = new StreamReader(await response.Content.ReadAsStreamAsync());
+                using var csv = new CsvReader(reader, config);
+                csv.Context.RegisterClassMap<SP500InstrumentMapping>();
 
-            return csv.GetRecords<SP500Instrument>().ToList();
+                return csv.GetRecords<SP500Instrument>().ToList();
+            });
         }
         catch (Exception ex)
         {

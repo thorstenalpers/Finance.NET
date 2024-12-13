@@ -58,5 +58,4 @@ public class DatahubIoTests
         Assert.That(instrument, Is.Not.Null);
         Assert.That(instrument?.Name, Is.Not.Empty);
     }
-
 }

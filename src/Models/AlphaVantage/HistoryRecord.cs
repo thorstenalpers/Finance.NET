@@ -1,7 +1,7 @@
 ﻿using System;
 
 namespace Finance.Net.Models.AlphaVantage;
-public record DailyRecord
+public record HistoryRecord
 {
     public DateTime Date { get; set; }
     public double? Open { get; set; }

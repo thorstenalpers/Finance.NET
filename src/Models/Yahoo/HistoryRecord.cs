@@ -2,7 +2,7 @@
 
 namespace Finance.Net.Models.Yahoo;
 
-public record DailyRecord
+public record HistoryRecord
 {
     public DateTime Date { get; set; }
 

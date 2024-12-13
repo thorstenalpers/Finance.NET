@@ -48,27 +48,19 @@ public static class Helper
     public static long? ParseLong(string? numberString)
     {
         var cleanedNumber = numberString?.Replace(",", "");
-        if (string.IsNullOrWhiteSpace(cleanedNumber) || cleanedNumber.All(e => e == '-')) return null;
-
-        if (long.TryParse(cleanedNumber, out long result))
-        {
-            return result;
-        }
-        result = (long)ParseWithMultiplier(cleanedNumber);
-        return result;
+        return string.IsNullOrWhiteSpace(cleanedNumber) || cleanedNumber.All(e => e == '-')
+            ? null
+            : long.TryParse(cleanedNumber, out long result) ? result : (long)ParseWithMultiplier(cleanedNumber);
     }
 
     public static decimal? ParseDecimal(string? numberString)
     {
         var cleanedNumber = numberString?.Replace(",", "");
-        if (string.IsNullOrWhiteSpace(cleanedNumber) || cleanedNumber.All(e => e == '-')) return null;
-        if (decimal.TryParse(cleanedNumber, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal result))
-        {
-            return result;
-        }
-
-        result = ParseWithMultiplier(cleanedNumber);
-        return result;
+        return string.IsNullOrWhiteSpace(cleanedNumber) || cleanedNumber.All(e => e == '-')
+            ? null
+            : decimal.TryParse(cleanedNumber, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal result)
+            ? result
+            : ParseWithMultiplier(cleanedNumber);
     }
 
     private static decimal ParseWithMultiplier(string? cleanedNumber)
@@ -84,30 +76,15 @@ public static class Helper
             throw new FormatException($"Unknown format of {cleanedNumber}");
         }
         var mulStr = match.Groups[2].Value;
-        if (mulStr is "Trl." or "Trl" or "T")
+        return mulStr switch
         {
-            return result * 1000000000000000;
-        }
-        else if (mulStr is "Bio." or "Bio" or "B")
-        {
-            return result * 1000000000000;
-        }
-        else if (mulStr is "Mrd." or "Mrd")
-        {
-            return result * 1000000000;
-        }
-        else if (mulStr is "Mio." or "Mio" or "M")
-        {
-            return result * 1000000;
-        }
-        else if (mulStr is "k" or "K")
-        {
-            return result * 1000;
-        }
-        else
-        {
-            throw new FormatException($"Unknown multiplikator={mulStr} of {cleanedNumber}");
-        }
+            "Trl." or "Trl" or "T" => result * 1000000000000000,
+            "Bio." or "Bio" or "B" => result * 1000000000000,
+            "Mrd." or "Mrd" => result * 1000000000,
+            "Mio." or "Mio" or "M" => result * 1000000,
+            "k" or "K" => result * 1000,
+            _ => throw new FormatException($"Unknown multiplikator={mulStr} of {cleanedNumber}")
+        };
     }
 
     public static DateTime? ParseDate(string? dateString)
@@ -200,22 +177,13 @@ public static class Helper
 
     private static string ToCookieHeader(this CookieCollection cookies)
     {
-        if (cookies == null || cookies.Count == 0)
-        {
-            return string.Empty;
-        }
-        return string.Join("; ", cookies.Cast<Cookie>().Select(cookie => $"{cookie.Name}={cookie.Value}"));
+        return cookies == null || cookies.Count == 0
+            ? string.Empty
+            : string.Join("; ", cookies.Cast<Cookie>().Select(cookie => $"{cookie.Name}={cookie.Value}"));
     }
 
     public static string Minify(this string strXmlContent)
     {
-        if (string.IsNullOrWhiteSpace(strXmlContent))
-        {
-            return strXmlContent;
-        }
-        return Regex.Replace(strXmlContent, @"\s+", " ");
+        return string.IsNullOrWhiteSpace(strXmlContent) ? strXmlContent : Regex.Replace(strXmlContent, @"\s+", " ");
     }
-
-
-
 }

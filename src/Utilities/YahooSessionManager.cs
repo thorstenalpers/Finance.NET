@@ -57,7 +57,6 @@ internal class YahooSessionManager(IHttpClientFactory httpClientFactory,
             {
                 try
                 {
-
                     var crumb = await CreateApiCookiesAndCrumb(token).ConfigureAwait(false);
                     _sessionState.SetCrumb(crumb);
                     await CreateUiCookies(token).ConfigureAwait(false);
@@ -132,7 +131,7 @@ internal class YahooSessionManager(IHttpClientFactory httpClientFactory,
             // no EU consent, call from coming outside of EU
             if (_sessionState?.GetCookieContainer()?.Count >= 3)
             {
-                _logger.LogInformation($"UI Session established successfully without EU consent");
+                _logger.LogInformation("UI Session established successfully without EU consent");
                 return;
             }
             var cookieNames = string.Join(", ", _sessionState?.GetCookieContainer()?.GetCookies(new Uri(Constants.YahooBaseUrlHtml)).Cast<Cookie>().Select(cookie => cookie.Name));
@@ -178,7 +177,7 @@ internal class YahooSessionManager(IHttpClientFactory httpClientFactory,
         }
         if (_sessionState?.GetCookieContainer() != null && _sessionState?.GetCookieContainer()?.Count >= 3)
         {
-            _logger.LogInformation($"UI Session established successfully");
+            _logger.LogInformation("UI Session established successfully");
         }
     }
 }

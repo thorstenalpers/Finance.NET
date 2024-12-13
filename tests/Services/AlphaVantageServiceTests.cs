@@ -14,6 +14,8 @@ using Microsoft.Extensions.Options;
 using Moq;
 using Moq.Protected;
 using NUnit.Framework;
+using Polly;
+using Polly.Registry;
 
 namespace Finance.Net.Tests.Services;
 
@@ -23,6 +25,7 @@ public class AlphaVantageServiceTests
 {
     private Mock<ILogger<IAlphaVantageService>> _mockLogger;
     private Mock<IHttpClientFactory> _mockHttpClientFactory;
+    private Mock<IReadOnlyPolicyRegistry<string>> _mockPolicyRegistry;
     private Mock<HttpMessageHandler> _mockHandler;
     private Mock<IOptions<FinanceNetConfiguration>> _mockOptions;
 
@@ -32,12 +35,16 @@ public class AlphaVantageServiceTests
         _mockOptions = new Mock<IOptions<FinanceNetConfiguration>>();
         _mockOptions.Setup(x => x.Value).Returns(new FinanceNetConfiguration
         {
-            HttpRetries = 1
+            HttpRetryCount = 1
         });
         _mockLogger = new Mock<ILogger<IAlphaVantageService>>();
         _mockHttpClientFactory = new Mock<IHttpClientFactory>();
         _mockHandler = new Mock<HttpMessageHandler>();
-
+        _mockPolicyRegistry = new Mock<IReadOnlyPolicyRegistry<string>>();
+        var realPolicy = Policy.Handle<Exception>().RetryAsync(1);
+        _mockPolicyRegistry
+            .Setup(registry => registry.Get<IAsyncPolicy>(Constants.DefaultHttpRetryPolicy))
+            .Returns(realPolicy);
         _mockHandler
             .Protected()
             .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
@@ -72,15 +79,15 @@ public class AlphaVantageServiceTests
         var service = new AlphaVantageService(
             _mockLogger.Object,
             _mockHttpClientFactory.Object,
-            _mockOptions.Object);
-        var symbol = "IBM";
+            _mockOptions.Object,
+            _mockPolicyRegistry.Object);
 
         // Act
-        var result = await service.GetCompanyOverviewAsync(symbol);
+        var result = await service.GetCompanyOverviewAsync("IBM");
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Symbol, Is.EqualTo(symbol));
+        Assert.That(result.Symbol, Is.EqualTo("IBM"));
     }
 
     [Test]
@@ -92,15 +99,15 @@ public class AlphaVantageServiceTests
         var service = new AlphaVantageService(
             _mockLogger.Object,
             _mockHttpClientFactory.Object,
-            _mockOptions.Object);
+            _mockOptions.Object,
+            _mockPolicyRegistry.Object);
 
-        var symbol = "IBM";
         var startDate = new DateTime(2024, 01, 01);
         DateTime? endDate = null;
 
         // Act
-        var result = await service.GetHistoricalRecordsAsync(
-            symbol,
+        var result = await service.GetHistoryRecordsAsync(
+            "IBM",
             startDate,
             endDate);
 
@@ -123,15 +130,14 @@ public class AlphaVantageServiceTests
         var service = new AlphaVantageService(
             _mockLogger.Object,
             _mockHttpClientFactory.Object,
-            _mockOptions.Object);
+            _mockOptions.Object,
+            _mockPolicyRegistry.Object);
 
-        var symbol = "IBM";
         var startDate = new DateTime(2024, 01, 01);
         DateTime? endDate = null;
-        var interval = EInterval.Interval_5Min;
 
         // Act
-        var result = await service.GetHistoricalIntradayRecordsAsync(symbol, startDate, endDate, interval);
+        var result = await service.GetHistoryIntradayRecordsAsync("IBM", startDate, endDate, EInterval.Interval_5Min);
 
         // Assert
         Assert.That(result, Is.Not.Empty);
@@ -148,17 +154,16 @@ public class AlphaVantageServiceTests
         var service = new AlphaVantageService(
             _mockLogger.Object,
             _mockHttpClientFactory.Object,
-            _mockOptions.Object);
+            _mockOptions.Object,
+            _mockPolicyRegistry.Object);
 
-        var currency1 = "EUR";
-        var currency2 = "USD";
         var startDate = new DateTime(2024, 11, 01);
         DateTime? endDate = null;
 
         // Act
-        var result = await service.GetHistoricalForexRecordsAsync(
-            currency1,
-            currency2,
+        var result = await service.GetHistoryForexRecordsAsync(
+            "EUR",
+            "USD",
             startDate,
             endDate);
 

@@ -29,10 +29,10 @@ public class YahooFinanceTests
     }
 
     [Test]
-    public async Task GetHistoricalRecordsAsync_WithDividend_Success()
+    public async Task GetHistoryRecordsAsync_WithDividend_Success()
     {
         var startDate = new DateTime(2020, 01, 01);
-        var records = await _service.GetHistoricalRecordsAsync("SAP.DE", startDate);
+        var records = await _service.GetHistoryRecordsAsync("SAP.DE", startDate);
 
         Assert.That(records, Is.Not.Empty);
 
@@ -112,10 +112,10 @@ public class YahooFinanceTests
     [TestCase("6758.T")]    // Sony Group Corporation (Tokyo)
     [TestCase("VOO")]       // Vanguard S&P 500 ETF
     [TestCase("EURUSD=X")]  // Euro to USD
-    public async Task GetHistoricalRecordsAsync_ValidSymbols_ReturnsRecords(string symbol)
+    public async Task GetHistoryRecordsAsync_ValidSymbols_ReturnsRecords(string symbol)
     {
         var startDate = DateTime.UtcNow.AddDays(-7);
-        var records = await _service.GetHistoricalRecordsAsync(symbol, startDate);
+        var records = await _service.GetHistoryRecordsAsync(symbol, startDate);
 
         Assert.That(records, Is.Not.Empty);
 

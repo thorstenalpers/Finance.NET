@@ -27,8 +27,8 @@ public interface IAlphaVantageService
     /// <param name="startDate">The start date for retrieving daily records.</param>
     /// <param name="endDate">Optional end date for retrieving daily records. If not provided, the current date will be used.</param>
     /// <param name="token">A <see cref="CancellationToken"/> to allow cancellation of the operation.</param>
-    /// <returns>A task that represents the asynchronous operation. The task result contains an enumerable collection of <see cref="DailyRecord"/> objects for the given symbol and date range.</returns>
-    Task<IEnumerable<DailyRecord>> GetHistoricalRecordsAsync(string symbol, DateTime startDate, DateTime? endDate = null, CancellationToken token = default);
+    /// <returns>A task that represents the asynchronous operation. The task result contains an enumerable collection of <see cref="HistoryRecord"/> objects for the given symbol and date range.</returns>
+    Task<IEnumerable<HistoryRecord>> GetHistoryRecordsAsync(string symbol, DateTime startDate, DateTime? endDate = null, CancellationToken token = default);
 
     /// <summary>
     /// Asynchronously retrieves historical daily forex records for a currency pair from AlphaVantage.
@@ -38,8 +38,8 @@ public interface IAlphaVantageService
     /// <param name="startDate">The start date for retrieving forex records.</param>
     /// <param name="endDate">Optional end date for retrieving forex records. If not provided, the current date will be used.</param>
     /// <param name="token">A <see cref="CancellationToken"/> to allow cancellation of the operation.</param>
-    /// <returns>A task that represents the asynchronous operation. The task result contains an enumerable collection of <see cref="DailyForexRecord"/> objects for the given currency pair and date range.</returns>
-    Task<IEnumerable<DailyForexRecord>> GetHistoricalForexRecordsAsync(string currency1, string currency2, DateTime startDate, DateTime? endDate = null, CancellationToken token = default);
+    /// <returns>A task that represents the asynchronous operation. The task result contains an enumerable collection of <see cref="HistoryForexRecord"/> objects for the given currency pair and date range.</returns>
+    Task<IEnumerable<HistoryForexRecord>> GetHistoryForexRecordsAsync(string currency1, string currency2, DateTime startDate, DateTime? endDate = null, CancellationToken token = default);
 
     /// <summary>
     /// Asynchronously retrieves intraday stock records for a specific symbol from AlphaVantage.
@@ -49,7 +49,6 @@ public interface IAlphaVantageService
     /// <param name="endDate">Optional end date for retrieving intraday records. If not provided, the current date will be used.</param>
     /// <param name="interval">The time interval between data points (1min, 5min, 15min, 30min, 60min). Default is 15 minutes.</param>
     /// <param name="token">A <see cref="CancellationToken"/> to allow cancellation of the operation.</param>
-    /// <returns>A task that represents the asynchronous operation. The task result contains an enumerable collection of <see cref="IntradayRecord"/> objects for the given symbol, date range, and interval.</returns>
-    Task<IEnumerable<IntradayRecord>> GetHistoricalIntradayRecordsAsync(string symbol, DateTime startDate, DateTime? endDate = null, EInterval interval = EInterval.Interval_15Min, CancellationToken token = default);
-
+    /// <returns>A task that represents the asynchronous operation. The task result contains an enumerable collection of <see cref="HistoryIntradayRecord"/> objects for the given symbol, date range, and interval.</returns>
+    Task<IEnumerable<HistoryIntradayRecord>> GetHistoryIntradayRecordsAsync(string symbol, DateTime startDate, DateTime? endDate = null, EInterval interval = EInterval.Interval_15Min, CancellationToken token = default);
 }

@@ -2,7 +2,7 @@
 
 namespace Finance.Net.Models.AlphaVantage;
 
-public record DailyForexRecord
+public record HistoryForexRecord
 {
     public DateTime? Date { get; set; }
     public double? Open { get; set; }

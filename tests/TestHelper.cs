@@ -18,10 +18,10 @@ internal static class TestHelper
         var cfg = cfgBuilder.Build();
 
         services.AddSingleton<IConfiguration>(cfg);
-        services.AddFinanceServices(new FinanceNetConfiguration
+        services.AddFinanceNet(new FinanceNetConfiguration
         {
             HttpTimeout = 10,
-            HttpRetries = 3,
+            HttpRetryCount = 3,
             AlphaVantageApiKey = cfg["FinanceNet:AlphaVantageApiKey"]
         });
         services.AddLogging(builder =>
@@ -29,7 +29,7 @@ internal static class TestHelper
             builder.AddConsole();
             builder.SetMinimumLevel(LogLevel.Information);
             builder.AddFilter("System.Net.Http.HttpClient", LogLevel.Warning);
-            builder.AddFilter("Finance.Net", LogLevel.Debug);
+            builder.AddFilter("Finance.Net", LogLevel.Information);
 
             builder.AddSimpleConsole(options =>
             {

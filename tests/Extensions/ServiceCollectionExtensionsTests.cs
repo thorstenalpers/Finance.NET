@@ -12,14 +12,6 @@ namespace Finance.Net.Tests.Extensions;
 [Category("UnitTests")]
 public class ServiceCollectionExtensionsTests
 {
-
-
-    [SetUp]
-    public void SetUp()
-    {
-
-    }
-
     [Test]
     public void AddFinanceServices_WithCfg_Added()
     {
@@ -31,12 +23,12 @@ public class ServiceCollectionExtensionsTests
             DatahubIoDownloadUrlNasdaqListedSymbols = "https://www.google2.de",
             DatahubIoDownloadUrlSP500Symbols = "https://www.google3.de",
             YahooCookieExpirationTime = 7,
-            HttpRetries = 100,
+            HttpRetryCount = 100,
             HttpTimeout = 1000,
         };
 
         // Act
-        services.AddFinanceServices(cfg);
+        services.AddFinanceNet(cfg);
 
         // Assert
         var provider = services.BuildServiceProvider();
@@ -47,7 +39,7 @@ public class ServiceCollectionExtensionsTests
 
         // Assert
         Assert.That(resolvedCfg.AlphaVantageApiKey, Is.EqualTo(cfg.AlphaVantageApiKey));
-        Assert.That(resolvedCfg.HttpRetries, Is.EqualTo(cfg.HttpRetries));
+        Assert.That(resolvedCfg.HttpRetryCount, Is.EqualTo(cfg.HttpRetryCount));
         Assert.That(resolvedCfg.HttpTimeout, Is.EqualTo(cfg.HttpTimeout));
         Assert.That(resolvedCfg.DatahubIoDownloadUrlSP500Symbols, Is.EqualTo(cfg.DatahubIoDownloadUrlSP500Symbols));
         Assert.That(resolvedCfg.DatahubIoDownloadUrlNasdaqListedSymbols, Is.EqualTo(cfg.DatahubIoDownloadUrlNasdaqListedSymbols));

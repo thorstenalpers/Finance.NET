@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -10,6 +11,8 @@ using Microsoft.Extensions.Options;
 using Moq;
 using Moq.Protected;
 using NUnit.Framework;
+using Polly;
+using Polly.Registry;
 
 namespace Finance.Net.Tests.Services;
 
@@ -20,14 +23,20 @@ public class DatahubIoServiceTests
     private Mock<IHttpClientFactory> _mockHttpClientFactory;
     private Mock<IOptions<FinanceNetConfiguration>> _mockOptions;
     private Mock<HttpMessageHandler> _mockHandler;
+    private Mock<IReadOnlyPolicyRegistry<string>> _mockPolicyRegistry;
 
     [SetUp]
     public void SetUp()
     {
         _mockOptions = new Mock<IOptions<FinanceNetConfiguration>>();
-        _mockOptions.Setup(x => x.Value).Returns(new FinanceNetConfiguration { });
+        _mockOptions.Setup(x => x.Value).Returns(new FinanceNetConfiguration());
         _mockHttpClientFactory = new Mock<IHttpClientFactory>();
         _mockHandler = new Mock<HttpMessageHandler>();
+        _mockPolicyRegistry = new Mock<IReadOnlyPolicyRegistry<string>>();
+        var realPolicy = Policy.Handle<Exception>().RetryAsync(1);
+        _mockPolicyRegistry
+            .Setup(registry => registry.Get<IAsyncPolicy>(Constants.DefaultHttpRetryPolicy))
+            .Returns(realPolicy);
 
         _mockHandler
             .Protected()
@@ -57,7 +66,8 @@ public class DatahubIoServiceTests
         SetupHttpCsvFileResponse(filePath);
         var service = new DatahubIoService(
             _mockHttpClientFactory.Object,
-            _mockOptions.Object);
+            _mockOptions.Object,
+            _mockPolicyRegistry.Object);
 
         // Act
         var result = await service.GetNasdaqInstrumentsAsync();
@@ -76,7 +86,8 @@ public class DatahubIoServiceTests
         SetupHttpCsvFileResponse(filePath);
         var service = new DatahubIoService(
             _mockHttpClientFactory.Object,
-            _mockOptions.Object);
+            _mockOptions.Object,
+            _mockPolicyRegistry.Object);
 
         // Act
         var result = await service.GetSP500InstrumentsAsync();

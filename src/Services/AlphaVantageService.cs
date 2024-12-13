@@ -16,15 +16,21 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using Polly;
+using Polly.Registry;
 
 namespace Finance.Net.Services;
 
-internal class AlphaVantageService(ILogger<IAlphaVantageService> logger, IHttpClientFactory httpClientFactory, IOptions<FinanceNetConfiguration> options) : IAlphaVantageService
+internal class AlphaVantageService(ILogger<IAlphaVantageService> logger,
+                                   IHttpClientFactory httpClientFactory,
+                                   IOptions<FinanceNetConfiguration> options,
+                                   IReadOnlyPolicyRegistry<string> policyRegistry) : IAlphaVantageService
 {
     private readonly ILogger<IAlphaVantageService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IHttpClientFactory _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
     private readonly FinanceNetConfiguration _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
-    private static ServiceProvider? _serviceProvider = null;
+    private static ServiceProvider? s_serviceProvider = null;
+    private readonly AsyncPolicy _retryPolicy = policyRegistry.Get<AsyncPolicy>(Constants.DefaultHttpRetryPolicy);
 
     /// <summary>
     /// Creates a service for interacting with the AlphaVantage API.
@@ -33,13 +39,13 @@ internal class AlphaVantageService(ILogger<IAlphaVantageService> logger, IHttpCl
     /// <param name="cfg">Optional: Default values to configure .Net Finance. <see cref="FinanceNetConfiguration"/> ></param>
     public static IAlphaVantageService Create(FinanceNetConfiguration? cfg = null)
     {
-        if (_serviceProvider == null)
+        if (s_serviceProvider == null)
         {
             var services = new ServiceCollection();
-            services.AddFinanceServices(cfg);
-            _serviceProvider = services.BuildServiceProvider();
+            services.AddFinanceNet(cfg);
+            s_serviceProvider = services.BuildServiceProvider();
         }
-        return _serviceProvider.GetRequiredService<IAlphaVantageService>();
+        return s_serviceProvider.GetRequiredService<IAlphaVantageService>();
     }
 
     public async Task<CompanyOverview?> GetCompanyOverviewAsync(string symbol, CancellationToken token = default)
@@ -48,31 +54,27 @@ internal class AlphaVantageService(ILogger<IAlphaVantageService> logger, IHttpCl
         var url = Constants.AlphaVantageApiUrl + "/query?function=OVERVIEW" +
             $"&symbol={symbol}" +
             $"&apikey={_options.AlphaVantageApiKey}";
-        for (int attempt = 1; attempt <= _options.HttpRetries; attempt++)
-        {
-            try
-            {
-                var response = await httpClient.GetAsync(url, token).ConfigureAwait(false);
-                response.EnsureSuccessStatusCode();
 
-                string jsonResponse = await response.Content.ReadAsStringAsync();
-                if (jsonResponse.Contains("higher API call volume"))
-                {
-                    throw new FinanceNetException($"higher API call volume for {symbol}");
-                }
-                return JsonConvert.DeserializeObject<CompanyOverview>(jsonResponse);
-            }
-            catch (Exception ex)
+        try
+        {
+            return await _retryPolicy.ExecuteAsync(async () =>
             {
-                _logger.LogInformation("{attempt} retry for {symbol}", attempt, symbol);
-                _logger.LogDebug("ex={ex}", ex);
-                await Task.Delay(TimeSpan.FromSeconds(1 * attempt), token);
-            }
+                var httpResponse = await httpClient.GetAsync(url, token).ConfigureAwait(false);
+                httpResponse.EnsureSuccessStatusCode();
+
+                string jsonResponse = await httpResponse.Content.ReadAsStringAsync();
+                return jsonResponse.Contains("higher API call volume")
+                    ? throw new FinanceNetException($"higher API call volume for {symbol}")
+                    : JsonConvert.DeserializeObject<CompanyOverview>(jsonResponse);
+            });
         }
-        throw new FinanceNetException($"No company overview found for {symbol} after {_options.HttpRetries} retries");
+        catch (Exception ex)
+        {
+            throw new FinanceNetException($"No company overview found for {symbol}", ex);
+        }
     }
 
-    public async Task<IEnumerable<DailyRecord>> GetHistoricalRecordsAsync(string symbol, DateTime startDate, DateTime? endDate = null, CancellationToken token = default)
+    public async Task<IEnumerable<HistoryRecord>> GetHistoryRecordsAsync(string symbol, DateTime startDate, DateTime? endDate = null, CancellationToken token = default)
     {
         var httpClient = _httpClientFactory.CreateClient(Constants.AlphaVantageHttpClientName);
         var url = Constants.AlphaVantageApiUrl + "/query?function=TIME_SERIES_DAILY_ADJUSTED" +
@@ -86,12 +88,12 @@ internal class AlphaVantageService(ILogger<IAlphaVantageService> logger, IHttpCl
         {
             throw new FinanceNetException("Startdate after Endate");
         }
-        var daysToImport = ((endDate ?? startDate) - startDate).TotalDays;
-        for (int attempt = 1; attempt <= _options.HttpRetries; attempt++)
+
+        try
         {
-            try
+            return await _retryPolicy.ExecuteAsync(async () =>
             {
-                var result = new List<DailyRecord>();
+                var result = new List<HistoryRecord>();
                 var response = await httpClient.GetAsync(url, token).ConfigureAwait(false);
                 response.EnsureSuccessStatusCode();
 
@@ -115,11 +117,11 @@ internal class AlphaVantageService(ILogger<IAlphaVantageService> logger, IHttpCl
                     }
                     if (result.Any(e => e.Date == today))
                     {
-                        _logger.LogWarning("Bug: Course for {symbol} for {date} already added!", symbol, today.ToString("yyyy-MM-dd"));
+                        _logger.LogWarning("Bug: Course for {Symbol} for {Date} already added!", symbol, today.ToString("yyyy-MM-dd"));
                     }
                     else
                     {
-                        result.Add(new DailyRecord
+                        result.Add(new HistoryRecord
                         {
                             Date = today,
                             Open = item.Value.Open,
@@ -133,21 +135,18 @@ internal class AlphaVantageService(ILogger<IAlphaVantageService> logger, IHttpCl
                     }
                 }
                 return result;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogInformation("{attempt} retry for {symbol}", attempt, symbol);
-                _logger.LogDebug("ex={ex}", ex);
-                await Task.Delay(TimeSpan.FromSeconds(1 * attempt), token);
-            }
+            });
         }
-        throw new FinanceNetException($"no daily records for {symbol} after {_options.HttpRetries} retries.");
+        catch (Exception ex)
+        {
+            throw new FinanceNetException($"No HistoryRecord found for {symbol}", ex);
+        }
     }
 
-    public async Task<IEnumerable<IntradayRecord>> GetHistoricalIntradayRecordsAsync(string symbol, DateTime startDate, DateTime? endDate = null, EInterval interval = EInterval.Interval_15Min, CancellationToken token = default)
+    public async Task<IEnumerable<HistoryIntradayRecord>> GetHistoryIntradayRecordsAsync(string symbol, DateTime startDate, DateTime? endDate = null, EInterval interval = EInterval.Interval_15Min, CancellationToken token = default)
     {
         Guard.Against.NullOrEmpty(symbol);
-        var result = new List<IntradayRecord>();
+        var result = new List<HistoryIntradayRecord>();
         if (endDate == null || endDate?.Date >= DateTime.UtcNow.Date)
         {
             endDate = DateTime.UtcNow.Date;
@@ -162,9 +161,9 @@ internal class AlphaVantageService(ILogger<IAlphaVantageService> logger, IHttpCl
             if (currentMonth == endDate)
             {
                 // dont query for data which not exists (api exception)
-                if (endDate.Value.Day == 1 && endDate.Value.DayOfWeek == DayOfWeek.Saturday ||
-                    endDate.Value.Day == 1 && endDate.Value.DayOfWeek == DayOfWeek.Sunday ||
-                    endDate.Value.Day == 2 && endDate.Value.DayOfWeek == DayOfWeek.Sunday)
+                if ((endDate.Value.Day == 1 && endDate.Value.DayOfWeek == DayOfWeek.Saturday) ||
+                    (endDate.Value.Day == 1 && endDate.Value.DayOfWeek == DayOfWeek.Sunday) ||
+                    (endDate.Value.Day == 2 && endDate.Value.DayOfWeek == DayOfWeek.Sunday))
                 {
                     break;
                 }
@@ -177,7 +176,7 @@ internal class AlphaVantageService(ILogger<IAlphaVantageService> logger, IHttpCl
             : result.Where(e => e.DateTime >= startDate).ToList();
     }
 
-    private async Task<List<IntradayRecord>> GetIntradayRecordsByMonthAsync(string symbol, DateTime month, EInterval interval, CancellationToken token = default)
+    private async Task<List<HistoryIntradayRecord>> GetIntradayRecordsByMonthAsync(string symbol, DateTime month, EInterval interval, CancellationToken token = default)
     {
         var httpClient = _httpClientFactory.CreateClient(Constants.AlphaVantageHttpClientName);
         var url = Constants.AlphaVantageApiUrl + "/query?function=TIME_SERIES_INTRADAY" +
@@ -187,11 +186,12 @@ internal class AlphaVantageService(ILogger<IAlphaVantageService> logger, IHttpCl
             "&extended_hours=false" +      // no pre and post market trading
             "&outputsize=full" +
             $"&apikey={_options.AlphaVantageApiKey}";
-        for (int attempt = 1; attempt <= _options.HttpRetries; attempt++)
+
+        try
         {
-            try
+            return await _retryPolicy.ExecuteAsync(async () =>
             {
-                var result = new List<IntradayRecord>();
+                var result = new List<HistoryIntradayRecord>();
                 var response = await httpClient.GetAsync(url, token).ConfigureAwait(false);
                 response.EnsureSuccessStatusCode();
 
@@ -221,7 +221,7 @@ internal class AlphaVantageService(ILogger<IAlphaVantageService> logger, IHttpCl
 
                     var dateTime = DateTime.ParseExact(dateTimeString, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
 
-                    result.Add(new IntradayRecord
+                    result.Add(new HistoryIntradayRecord
                     {
                         DateOnly = date,
                         DateTime = dateTime,
@@ -235,18 +235,15 @@ internal class AlphaVantageService(ILogger<IAlphaVantageService> logger, IHttpCl
                     });
                 }
                 return result;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogInformation("{attempt} retry for {symbol}", attempt, symbol);
-                _logger.LogDebug("ex={ex}", ex);
-                await Task.Delay(TimeSpan.FromSeconds(1 * attempt), token);
-            }
+            });
         }
-        throw new FinanceNetException($"No intraday records found for {symbol} after {_options.HttpRetries} retries.");
+        catch (Exception ex)
+        {
+            throw new FinanceNetException($"No HistoryIntradayRecord found for {symbol}", ex);
+        }
     }
 
-    public async Task<IEnumerable<DailyForexRecord>> GetHistoricalForexRecordsAsync(string currency1, string currency2, DateTime startDate, DateTime? endDate = null, CancellationToken token = default)
+    public async Task<IEnumerable<HistoryForexRecord>> GetHistoryForexRecordsAsync(string currency1, string currency2, DateTime startDate, DateTime? endDate = null, CancellationToken token = default)
     {
         var httpClient = _httpClientFactory.CreateClient(Constants.AlphaVantageHttpClientName);
         Guard.Against.NullOrEmpty(currency1);
@@ -263,11 +260,11 @@ internal class AlphaVantageService(ILogger<IAlphaVantageService> logger, IHttpCl
         var url = Constants.AlphaVantageApiUrl + "/query?function=FX_DAILY" +
             $"&from_symbol={currency1}&to_symbol={currency2}&outputsize=full&apikey={_options.AlphaVantageApiKey}";
 
-        for (int attempt = 1; attempt <= _options.HttpRetries; attempt++)
+        try
         {
-            try
+            return await _retryPolicy.ExecuteAsync(async () =>
             {
-                var result = new List<DailyForexRecord>();
+                var result = new List<HistoryForexRecord>();
 
                 var response = await httpClient.GetAsync(url, token).ConfigureAwait(false);
                 response.EnsureSuccessStatusCode();
@@ -292,11 +289,11 @@ internal class AlphaVantageService(ILogger<IAlphaVantageService> logger, IHttpCl
                     }
                     if (result.Any(e => e.Date == today))
                     {
-                        _logger.LogWarning("Bug: {currency1} /{currency2} for {date} already added!", currency1, currency2, today.ToString("yyyy-MM-dd"));
+                        _logger.LogWarning("Bug: {Currency1} /{Currency2} for {Date} already added!", currency1, currency2, today.ToString("yyyy-MM-dd"));
                     }
                     else
                     {
-                        result.Add(new DailyForexRecord
+                        result.Add(new HistoryForexRecord
                         {
                             Date = item.Key,
                             Open = item.Value.Open,
@@ -307,14 +304,11 @@ internal class AlphaVantageService(ILogger<IAlphaVantageService> logger, IHttpCl
                     }
                 }
                 return result;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogInformation("Retry for {currency1} /{currency2}", currency1, currency2);
-                _logger.LogDebug("ex={ex}", ex);
-                await Task.Delay(TimeSpan.FromSeconds(1 * attempt), token);
-            }
+            });
         }
-        throw new FinanceNetException($"No forex records found for {currency1} /{currency2} after {_options.HttpRetries} retries.");
+        catch (Exception ex)
+        {
+            throw new FinanceNetException($"No HistoryForexRecord found for {currency1}, {currency2}", ex);
+        }
     }
 }

@@ -43,7 +43,6 @@ public class AlphaVantageTests
     [TestCase("GOOG")]      // Alphabet (Nasdaq)
     public async Task GetCompanyOverviewAsync_ValidSymbols_ReturnsOverview(string symbol)
     {
-
         var overview = await _service.GetCompanyOverviewAsync(symbol);
 
         Assert.That(overview, Is.Not.Null);
@@ -54,28 +53,32 @@ public class AlphaVantageTests
     [TestCase("SAP")]       // SAP SE (Nasdaq)
     [TestCase("SAP.DE")]    // SAP SE (Xetra)
     [TestCase("VOO")]       // Vanguard S&P 500 ETF
-    public async Task GetHistoricalRecordsAsync_ValidSymbols_ReturnsRecords(string symbol)
+    public async Task GetHistoryRecordsAsync_ValidSymbols_ReturnsRecords(string symbol)
     {
-        var records = await _service.GetHistoricalRecordsAsync(symbol, DateTime.UtcNow.AddDays(-7));
+        var records = await _service.GetHistoryRecordsAsync(symbol, DateTime.UtcNow.AddDays(-7));
 
         Assert.That(records, Is.Not.Empty);
     }
 
-    [TestCase("MSFT")]      // Microsoft Corporation (Nasdaq)
-    [TestCase("SAP")]       // SAP SE (Nasdaq)
-    public async Task GetHistoricalIntradayRecordsAsync_ValidSymbols_ReturnsRecords(string symbol)
+    [TestCase("MSFT", Models.AlphaVantage.EInterval.Interval_15Min)]      // Microsoft Corporation (Nasdaq)
+    [TestCase("SAP", Models.AlphaVantage.EInterval.Interval_1Min)]       // SAP SE (Nasdaq)
+    [TestCase("SAP", Models.AlphaVantage.EInterval.Interval_5Min)]       // SAP SE (Nasdaq)
+    [TestCase("SAP", Models.AlphaVantage.EInterval.Interval_15Min)]       // SAP SE (Nasdaq)
+    [TestCase("SAP", Models.AlphaVantage.EInterval.Interval_30Min)]       // SAP SE (Nasdaq)
+    [TestCase("SAP", Models.AlphaVantage.EInterval.Interval_60Min)]       // SAP SE (Nasdaq)
+    public async Task GetHistoryIntradayRecordsAsync_ValidSymbols_ReturnsRecords(string symbol, Models.AlphaVantage.EInterval eInterval)
     {
         var startDay = new DateTime(2024, 12, 02);
         var endDay = new DateTime(2024, 12, 02);
-        var records = await _service.GetHistoricalIntradayRecordsAsync(symbol, startDay, endDay);
+        var records = await _service.GetHistoryIntradayRecordsAsync(symbol, startDay, endDay, eInterval);
 
         Assert.That(records, Is.Not.Empty);
     }
 
     [TestCase("EUR", "USD")]
-    public async Task GetHistoricalForexRecordsAsync_ValidCurrencies_ReturnsRecords(string currency1, string currency2)
+    public async Task GetHistoryForexRecordsAsync_ValidCurrencies_ReturnsRecords(string currency1, string currency2)
     {
-        var records = await _service.GetHistoricalForexRecordsAsync(currency1, currency2, DateTime.UtcNow.AddDays(-3));
+        var records = await _service.GetHistoryForexRecordsAsync(currency1, currency2, DateTime.UtcNow.AddDays(-3));
 
         Assert.That(records, Is.Not.Empty);
     }

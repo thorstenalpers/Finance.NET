@@ -4,6 +4,10 @@ using Finance.Net.Interfaces;
 using Finance.Net.Services;
 using Finance.Net.Utilities;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Polly;
+using Polly.Registry;
 
 namespace Finance.Net.Extensions;
 
@@ -13,19 +17,37 @@ public static class ServiceCollectionExtensions
     /// Configures Finance.NET Service
     /// </summary>
     /// <param name="services">The service collection to configure.</param>
-    /// <param name="configuration">Optional: Default values to configure Finance.NET. <see cref="FinanceNetConfiguration"/> ></param>
-    public static void AddFinanceServices(this IServiceCollection services, FinanceNetConfiguration? cfg = null)
+    /// <param name="cfg">Optional: Default values to configure Finance.NET. <see cref="FinanceNetConfiguration"/> ></param>
+    public static void AddFinanceNet(this IServiceCollection services, FinanceNetConfiguration? cfg = null)
     {
         cfg ??= new FinanceNetConfiguration();
 
         services.Configure<FinanceNetConfiguration>(opt =>
         {
-            opt.HttpRetries = cfg.HttpRetries;
+            opt.HttpRetryCount = cfg.HttpRetryCount;
             opt.HttpTimeout = cfg.HttpTimeout;
             opt.AlphaVantageApiKey = cfg.AlphaVantageApiKey;
             opt.DatahubIoDownloadUrlSP500Symbols = cfg.DatahubIoDownloadUrlSP500Symbols;
             opt.DatahubIoDownloadUrlNasdaqListedSymbols = cfg.DatahubIoDownloadUrlNasdaqListedSymbols;
             opt.YahooCookieExpirationTime = cfg.YahooCookieExpirationTime;
+        });
+
+        services.AddSingleton<IReadOnlyPolicyRegistry<string>, PolicyRegistry>(serviceProvider =>
+        {
+            var logger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger(Constants.DefaultHttpRetryPolicy);
+            var options = serviceProvider.GetRequiredService<IOptions<FinanceNetConfiguration>>();
+
+            return new PolicyRegistry
+            {
+                {
+                    Constants.DefaultHttpRetryPolicy, Policy
+                        .Handle<HttpRequestException>()
+                        .WaitAndRetryAsync(
+                            options.Value.HttpRetryCount,
+                            retryAttempt => TimeSpan.FromSeconds( retryAttempt), // delayed retry
+                            (exception, timeSpan, retryCount, _) => logger.LogWarning("Retry {RetryCount} after {TimeSpan} due to {Exception}.", retryCount, timeSpan, exception))
+                }
+            };
         });
 
         services.AddSingleton<IYahooSessionState, YahooSessionState>();

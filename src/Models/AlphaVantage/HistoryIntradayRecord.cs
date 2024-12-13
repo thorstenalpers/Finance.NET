@@ -1,7 +1,7 @@
 ﻿using System;
 
 namespace Finance.Net.Models.AlphaVantage;
-public record IntradayRecord
+public record HistoryIntradayRecord
 {
     public DateTime DateTime { get; set; }
 

@@ -2,6 +2,8 @@
 
 internal static class Constants
 {
+    public static readonly string DefaultHttpRetryPolicy = "DefaultHttpRetryPolicy";
+
     /// <summary> Base url for Yahoo UI content </summary>
     public static readonly string YahooBaseUrlQuoteHtml = "https://finance.yahoo.com/quote";
 
@@ -26,17 +28,14 @@ internal static class Constants
     /// <summary> Name of the Yahoo HttpClient used from HttpClientFactory </summary>
     public static readonly string YahooHttpClientName = "FinanceNetYahooClient";
 
-
     /// <summary> Name of the Xetra HttpClient used from HttpClientFactory </summary>
     public static readonly string XetraHttpClientName = "FinanceNetXetraClient";
-
 
     /// <summary> Base url for Alpha Vantage API calls </summary>
     public static readonly string AlphaVantageApiUrl = "https://www.alphavantage.co";
 
     /// <summary> Name of the AlphaVantage HttpClient used from HttpClientFactory </summary>
     public static readonly string AlphaVantageHttpClientName = "FinanceNetAlphaVantageClient";
-
 
     /// <summary> Name of the DatahubIo HttpClient used from HttpClientFactory </summary>
     public static readonly string DatahubIoHttpClientName = "DotNetFinanceDatahubIoClient";

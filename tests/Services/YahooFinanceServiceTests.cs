@@ -10,10 +10,11 @@ using System.Threading.Tasks;
 using Finance.Net.Interfaces;
 using Finance.Net.Services;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Moq;
 using Moq.Protected;
 using NUnit.Framework;
+using Polly;
+using Polly.Registry;
 
 namespace Finance.Net.Tests.Services;
 
@@ -24,18 +25,22 @@ public class YahooFinanceServiceTests
     private Mock<ILogger<IYahooFinanceService>> _mockLogger;
     private Mock<IHttpClientFactory> _mockHttpClientFactory;
     private Mock<IYahooSessionManager> _mockYahooSession;
-    private Mock<IOptions<FinanceNetConfiguration>> _mockOptions;
     private Mock<HttpMessageHandler> _mockHandler;
+    private Mock<IReadOnlyPolicyRegistry<string>> _mockPolicyRegistry;
 
     [SetUp]
     public void SetUp()
     {
-        _mockOptions = new Mock<IOptions<FinanceNetConfiguration>>();
-        _mockOptions.Setup(x => x.Value).Returns(new FinanceNetConfiguration { });
         _mockLogger = new Mock<ILogger<IYahooFinanceService>>();
         _mockHttpClientFactory = new Mock<IHttpClientFactory>();
         _mockHandler = new Mock<HttpMessageHandler>();
         _mockYahooSession = new Mock<IYahooSessionManager>();
+        _mockPolicyRegistry = new Mock<IReadOnlyPolicyRegistry<string>>();
+
+        var realPolicy = Policy.Handle<Exception>().RetryAsync(1);
+        _mockPolicyRegistry
+            .Setup(registry => registry.Get<IAsyncPolicy>(Constants.DefaultHttpRetryPolicy))
+            .Returns(realPolicy);
 
         _mockHandler
             .Protected()
@@ -74,17 +79,15 @@ public class YahooFinanceServiceTests
         var service = new YahooFinanceService(
             _mockLogger.Object,
             _mockHttpClientFactory.Object,
-            _mockYahooSession.Object,
-            _mockOptions.Object);
-
-        var symbol = "IBM";
+            _mockPolicyRegistry.Object,
+            _mockYahooSession.Object);
 
         // Act
-        var result = await service.GetQuoteAsync(symbol);
+        var result = await service.GetQuoteAsync("IBM");
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Symbol, Is.EqualTo(symbol));
+        Assert.That(result.Symbol, Is.EqualTo("IBM"));
         Assert.That(!string.IsNullOrWhiteSpace(result.ShortName));
         Assert.That(result.MarketCap > 0);
     }
@@ -99,8 +102,8 @@ public class YahooFinanceServiceTests
         var service = new YahooFinanceService(
             _mockLogger.Object,
             _mockHttpClientFactory.Object,
-            _mockYahooSession.Object,
-            _mockOptions.Object);
+            _mockPolicyRegistry.Object,
+            _mockYahooSession.Object);
 
         var symbols = new List<string> { "IBM" };
 
@@ -125,13 +128,11 @@ public class YahooFinanceServiceTests
         var service = new YahooFinanceService(
             _mockLogger.Object,
             _mockHttpClientFactory.Object,
-            _mockYahooSession.Object,
-            _mockOptions.Object);
-
-        var symbol = "IBM";
+            _mockPolicyRegistry.Object,
+            _mockYahooSession.Object);
 
         // Act
-        var result = await service.GetProfileAsync(symbol);
+        var result = await service.GetProfileAsync("IBM");
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -148,15 +149,14 @@ public class YahooFinanceServiceTests
         var service = new YahooFinanceService(
             _mockLogger.Object,
             _mockHttpClientFactory.Object,
-            _mockYahooSession.Object,
-            _mockOptions.Object);
+            _mockPolicyRegistry.Object,
+            _mockYahooSession.Object);
 
-        var symbol = "IBM";
         DateTime startDate = default;
         DateTime? endDate = null;
 
         // Act
-        var result = await service.GetHistoricalRecordsAsync(symbol, startDate, endDate);
+        var result = await service.GetHistoryRecordsAsync("IBM", startDate, endDate);
 
         // Assert
         Assert.That(result, Is.Not.Empty);
@@ -177,13 +177,11 @@ public class YahooFinanceServiceTests
         var service = new YahooFinanceService(
             _mockLogger.Object,
             _mockHttpClientFactory.Object,
-            _mockYahooSession.Object,
-            _mockOptions.Object);
-
-        var symbol = "IBM";
+            _mockPolicyRegistry.Object,
+            _mockYahooSession.Object);
 
         // Act
-        var result = await service.GetFinancialReportsAsync(symbol);
+        var result = await service.GetFinancialReportsAsync("IBM");
 
         // Assert
         Assert.That(result, Is.Not.Empty);
@@ -204,13 +202,11 @@ public class YahooFinanceServiceTests
         var service = new YahooFinanceService(
             _mockLogger.Object,
             _mockHttpClientFactory.Object,
-            _mockYahooSession.Object,
-            _mockOptions.Object);
-
-        var symbol = "IBM";
+            _mockPolicyRegistry.Object,
+            _mockYahooSession.Object);
 
         // Act
-        var result = await service.GetFinancialReportsAsync(symbol);
+        var result = await service.GetFinancialReportsAsync("IBM");
 
         // Assert
         Assert.That(result, Is.Not.Empty);
@@ -231,13 +227,11 @@ public class YahooFinanceServiceTests
         var service = new YahooFinanceService(
             _mockLogger.Object,
             _mockHttpClientFactory.Object,
-            _mockYahooSession.Object,
-            _mockOptions.Object);
-
-        var symbol = "IBM";
+            _mockPolicyRegistry.Object,
+            _mockYahooSession.Object);
 
         // Act
-        var result = await service.GetSummaryAsync(symbol);
+        var result = await service.GetSummaryAsync("IBM");
 
         // Assert
         Assert.That(result, Is.Not.Null);

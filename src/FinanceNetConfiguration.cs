@@ -4,7 +4,7 @@ namespace Finance.Net;
 public class FinanceNetConfiguration
 {
     /// <summary> Default retries for failed http requests (caused by rate limits) </summary>
-    [Required] public int HttpRetries = 3;
+    [Required] public int HttpRetryCount = 3;
 
     /// <summary> Default HTTP timeout in seconds </summary>
     [Required] public int HttpTimeout = 30;

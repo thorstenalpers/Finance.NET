@@ -20,6 +20,8 @@ using Finance.Net.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Polly;
+using Polly.Registry;
 
 namespace Finance.Net.Services;
 
@@ -29,13 +31,18 @@ internal class XetraService : IXetraService
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly FinanceNetConfiguration _options;
     private readonly IMapper _mapper;
-    private static ServiceProvider? _serviceProvider = null;
+    private static ServiceProvider? s_serviceProvider = null;
+    private readonly AsyncPolicy _retryPolicy;
 
-    public XetraService(ILogger<IXetraService> logger, IHttpClientFactory httpClientFactory, IOptions<FinanceNetConfiguration> options)
+    public XetraService(ILogger<IXetraService> logger,
+                        IHttpClientFactory httpClientFactory,
+                        IOptions<FinanceNetConfiguration> options,
+                        IReadOnlyPolicyRegistry<string> policyRegistry)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
         _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
+        _retryPolicy = policyRegistry.Get<AsyncPolicy>(Constants.DefaultHttpRetryPolicy);
 
         // do not use IoC, so users can use Automapper independently
         var config = new MapperConfiguration(cfg => cfg.AddProfile<XetraInstrumentAutomapperProfile>());
@@ -49,13 +56,13 @@ internal class XetraService : IXetraService
     /// <param name="cfg">Optional: Default values to configure .Net Finance. <see cref="FinanceNetConfiguration"/> ></param>
     public static IXetraService Create(FinanceNetConfiguration? cfg = null)
     {
-        if (_serviceProvider == null)
+        if (s_serviceProvider == null)
         {
             var services = new ServiceCollection();
-            services.AddFinanceServices(cfg);
-            _serviceProvider = services.BuildServiceProvider();
+            services.AddFinanceNet(cfg);
+            s_serviceProvider = services.BuildServiceProvider();
         }
-        return _serviceProvider.GetRequiredService<IXetraService>();
+        return s_serviceProvider.GetRequiredService<IXetraService>();
     }
 
     public async Task<IEnumerable<Instrument>> GetInstruments(CancellationToken token = default)
@@ -63,27 +70,30 @@ internal class XetraService : IXetraService
         var httpClient = _httpClientFactory.CreateClient(Constants.XetraHttpClientName);
         try
         {
-            var url = await GetDownloadUrl(token).ConfigureAwait(false);
-            var response = await httpClient.GetAsync(url, token).ConfigureAwait(false);
-            response.EnsureSuccessStatusCode();
-            var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+            return await _retryPolicy.ExecuteAsync(async () =>
             {
-                HasHeaderRecord = true,
-                Delimiter = ";",
-            };
+                var url = await GetDownloadUrl(token).ConfigureAwait(false);
+                var response = await httpClient.GetAsync(url, token).ConfigureAwait(false);
+                response.EnsureSuccessStatusCode();
+                var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+                {
+                    HasHeaderRecord = true,
+                    Delimiter = ";",
+                };
 
-            using var reader = new StreamReader(await response.Content.ReadAsStreamAsync());
-            using var csv = new CsvReader(reader, config);
-            csv.Read();
-            csv.Read();
-            csv.Context.RegisterClassMap<XetraInstrumentsMapping>();
-            var records = csv.GetRecords<InstrumentItem>()?.ToList();
+                using var reader = new StreamReader(await response.Content.ReadAsStreamAsync());
+                using var csv = new CsvReader(reader, config);
+                csv.Read();
+                csv.Read();
+                csv.Context.RegisterClassMap<XetraInstrumentsMapping>();
+                var records = csv.GetRecords<InstrumentItem>()?.ToList();
 
-            return _mapper.Map<List<Instrument>>(records);
+                return _mapper.Map<List<Instrument>>(records);
+            });
         }
         catch (Exception ex)
         {
-            throw new FinanceNetException($"Unable to get assests from Xetra", ex);
+            throw new FinanceNetException("Cannot fetch from Xetra", ex);
         }
     }
 
@@ -92,9 +102,10 @@ internal class XetraService : IXetraService
         var httpClient = _httpClientFactory.CreateClient(Constants.XetraHttpClientName);
         var url = $"{Constants.XetraInstrumentsUrl}".ToLower();
         var baseUri = new Uri(url);
-        for (int attempt = 1; attempt <= _options.HttpRetries; attempt++)
+
+        try
         {
-            try
+            return await _retryPolicy.ExecuteAsync(async () =>
             {
                 var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
                 var response = await httpClient.SendAsync(requestMessage, token).ConfigureAwait(false);
@@ -107,8 +118,7 @@ internal class XetraService : IXetraService
                 var urlNodes = document
                     .Body.SelectNodes("//a[contains(@class, 'download') and contains(., 'All tradable instruments')]")
                     .ToList();
-                var xpath = "//a[contains(@class, 'download') and contains(., 'All tradable instruments')]/@href";
-                var hrefAttributes = document.DocumentElement.SelectNodes(xpath)?.Select(e => e.NodeValue);
+                var hrefAttributes = document.DocumentElement.SelectNodes("//a[contains(@class, 'download') and contains(., 'All tradable instruments')]/@href")?.Select(e => e.NodeValue);
                 if (hrefAttributes.Count() != 1)
                 {
                     throw new FinanceNetException($"Failed finding download link, found {hrefAttributes.Count()} links");
@@ -116,18 +126,12 @@ internal class XetraService : IXetraService
                 var relativeDownloadUrl = hrefAttributes.FirstOrDefault();
                 var uri = new Uri(url);
                 string baseAddress = $"{uri.Scheme}://{uri.Host}";
-                var fullUri = new Uri(baseUri, relativeDownloadUrl);
-
-                return fullUri;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogInformation("{attempt} retry to download instruments from Xetra", attempt);
-                _logger.LogDebug("url={url}, ex={ex}", url, ex);
-                await Task.Delay(TimeSpan.FromSeconds(1 * attempt), token);
-            }
+                return new Uri(baseUri, relativeDownloadUrl);
+            });
         }
-        throw new FinanceNetException("No instruments url found on Xetra.com");
+        catch (Exception ex)
+        {
+            throw new FinanceNetException($"Cannot fetch from {_options.DatahubIoDownloadUrlNasdaqListedSymbols}", ex);
+        }
     }
 }
-
