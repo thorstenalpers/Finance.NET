@@ -1,4 +1,4 @@
-name: "Nightly Tests"
+name: "Yahoo Finance Tests"
 
 on:  
   push:
