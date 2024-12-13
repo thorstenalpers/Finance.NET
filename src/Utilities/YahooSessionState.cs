@@ -13,7 +13,7 @@ internal class YahooSessionState(IOptions<FinanceNetConfiguration> options) : IY
 {
     private readonly FinanceNetConfiguration _options = options.Value ?? throw new ArgumentNullException(nameof(options));
     private string _userAgent = Helper.CreateRandomUserAgent();
-    private CookieContainer _cookieContainer = new();
+    private readonly CookieContainer _cookieContainer = new();
     private string? _crumb;
     private DateTime? _refreshTime;
 

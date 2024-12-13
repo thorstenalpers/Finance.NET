@@ -5,11 +5,11 @@ using System.Threading.Tasks;
 
 namespace Finance.Net.Interfaces
 {
-	public interface IYahooSessionManager
-	{
-		Task RefreshSessionAsync(CancellationToken token = default);
-		string? GetApiCrumb();
-		IEnumerable<Cookie> GetCookies();
-		string GetUserAgent();
-	}
+    public interface IYahooSessionManager
+    {
+        Task RefreshSessionAsync(CancellationToken token = default);
+        string? GetApiCrumb();
+        IEnumerable<Cookie> GetCookies();
+        string GetUserAgent();
+    }
 }

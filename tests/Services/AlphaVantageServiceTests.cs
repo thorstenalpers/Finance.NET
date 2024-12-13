@@ -21,163 +21,163 @@ namespace Finance.Net.Tests.Services;
 [Category("UnitTests")]
 public class AlphaVantageServiceTests
 {
-	private Mock<ILogger<IAlphaVantageService>> _mockLogger;
-	private Mock<IHttpClientFactory> _mockHttpClientFactory;
-	private Mock<HttpMessageHandler> _mockHandler;
-	private Mock<IOptions<FinanceNetConfiguration>> _mockOptions;
+    private Mock<ILogger<IAlphaVantageService>> _mockLogger;
+    private Mock<IHttpClientFactory> _mockHttpClientFactory;
+    private Mock<HttpMessageHandler> _mockHandler;
+    private Mock<IOptions<FinanceNetConfiguration>> _mockOptions;
 
-	[SetUp]
-	public void SetUp()
-	{
-		_mockOptions = new Mock<IOptions<FinanceNetConfiguration>>();
-		_mockOptions.Setup(x => x.Value).Returns(new FinanceNetConfiguration
-		{
-			HttpRetries = 1
-		});
-		_mockLogger = new Mock<ILogger<IAlphaVantageService>>();
-		_mockHttpClientFactory = new Mock<IHttpClientFactory>();
-		_mockHandler = new Mock<HttpMessageHandler>();
+    [SetUp]
+    public void SetUp()
+    {
+        _mockOptions = new Mock<IOptions<FinanceNetConfiguration>>();
+        _mockOptions.Setup(x => x.Value).Returns(new FinanceNetConfiguration
+        {
+            HttpRetries = 1
+        });
+        _mockLogger = new Mock<ILogger<IAlphaVantageService>>();
+        _mockHttpClientFactory = new Mock<IHttpClientFactory>();
+        _mockHandler = new Mock<HttpMessageHandler>();
 
-		_mockHandler
-			.Protected()
-			.Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
-			.ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("") });
-		_mockHttpClientFactory.Setup(e => e.CreateClient(It.IsAny<string>())).Returns(new HttpClient(_mockHandler.Object));
-	}
+        _mockHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("") });
+        _mockHttpClientFactory.Setup(e => e.CreateClient(It.IsAny<string>())).Returns(new HttpClient(_mockHandler.Object));
+    }
 
-	[Test]
-	public void Create_Static_ReturnsObject()
-	{
-		// Arrange
-		FinanceNetConfiguration cfg = null;
+    [Test]
+    public void Create_Static_ReturnsObject()
+    {
+        // Arrange
+        FinanceNetConfiguration cfg = null;
 
-		// Act
-		var service = AlphaVantageService.Create(cfg);
+        // Act
+        var service = AlphaVantageService.Create(cfg);
 
-		// Assert
-		Assert.That(service, Is.Not.Null);
-	}
+        // Assert
+        Assert.That(service, Is.Not.Null);
+    }
 
-	[Test]
-	public async Task GetCompanyOverviewAsync_OfIbm_ReturnsResult()
-	{
-		var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "AlphaVantage", "companyOverview.json");
-		var jsonContent = File.ReadAllText(filePath);
-		_mockHandler
-			.Protected()
-			.Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
-			.ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(jsonContent, Encoding.UTF8, "application/json") });
-		_mockHttpClientFactory.Setup(e => e.CreateClient(It.IsAny<string>())).Returns(new HttpClient(_mockHandler.Object));
+    [Test]
+    public async Task GetCompanyOverviewAsync_OfIbm_ReturnsResult()
+    {
+        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "AlphaVantage", "companyOverview.json");
+        var jsonContent = File.ReadAllText(filePath);
+        _mockHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(jsonContent, Encoding.UTF8, "application/json") });
+        _mockHttpClientFactory.Setup(e => e.CreateClient(It.IsAny<string>())).Returns(new HttpClient(_mockHandler.Object));
 
-		var service = new AlphaVantageService(
-			_mockLogger.Object,
-			_mockHttpClientFactory.Object,
-			_mockOptions.Object);
-		var symbol = "IBM";
+        var service = new AlphaVantageService(
+            _mockLogger.Object,
+            _mockHttpClientFactory.Object,
+            _mockOptions.Object);
+        var symbol = "IBM";
 
-		// Act
-		var result = await service.GetCompanyOverviewAsync(symbol);
+        // Act
+        var result = await service.GetCompanyOverviewAsync(symbol);
 
-		// Assert
-		Assert.That(result, Is.Not.Null);
-		Assert.That(result.Symbol, Is.EqualTo(symbol));
-	}
+        // Assert
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Symbol, Is.EqualTo(symbol));
+    }
 
-	[Test]
-	public async Task GetDailyRecordsAsync_OfIbm_ReturnsResult()
-	{
-		var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "AlphaVantage", "record.json");
-		SetupHttpJsonFileResponse(filePath);
+    [Test]
+    public async Task GetDailyRecordsAsync_OfIbm_ReturnsResult()
+    {
+        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "AlphaVantage", "record.json");
+        SetupHttpJsonFileResponse(filePath);
 
-		var service = new AlphaVantageService(
-			_mockLogger.Object,
-			_mockHttpClientFactory.Object,
-			_mockOptions.Object);
+        var service = new AlphaVantageService(
+            _mockLogger.Object,
+            _mockHttpClientFactory.Object,
+            _mockOptions.Object);
 
-		var symbol = "IBM";
-		var startDate = new DateTime(2024, 01, 01);
-		DateTime? endDate = null;
+        var symbol = "IBM";
+        var startDate = new DateTime(2024, 01, 01);
+        DateTime? endDate = null;
 
-		// Act
-		var result = await service.GetHistoricalRecordsAsync(
-			symbol,
-			startDate,
-			endDate);
+        // Act
+        var result = await service.GetHistoricalRecordsAsync(
+            symbol,
+            startDate,
+            endDate);
 
-		// Assert
-		Assert.That(result, Is.Not.Empty);
-		Assert.That(result.All(e => e.Open != null));
-		Assert.That(result.All(e => e.Low != null));
-		Assert.That(result.All(e => e.High != null));
-		Assert.That(result.All(e => e.Close != null));
-		Assert.That(result.All(e => e.Volume != null));
-		Assert.That(result.All(e => e.AdjustedClose != null));
-	}
+        // Assert
+        Assert.That(result, Is.Not.Empty);
+        Assert.That(result.All(e => e.Open != null));
+        Assert.That(result.All(e => e.Low != null));
+        Assert.That(result.All(e => e.High != null));
+        Assert.That(result.All(e => e.Close != null));
+        Assert.That(result.All(e => e.Volume != null));
+        Assert.That(result.All(e => e.AdjustedClose != null));
+    }
 
-	[Test]
-	public async Task GetIntradayRecordsAsync_OfIbm_ReturnsResult()
-	{
-		var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "AlphaVantage", "intradayRecord.json");
-		SetupHttpJsonFileResponse(filePath);
+    [Test]
+    public async Task GetIntradayRecordsAsync_OfIbm_ReturnsResult()
+    {
+        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "AlphaVantage", "intradayRecord.json");
+        SetupHttpJsonFileResponse(filePath);
 
-		var service = new AlphaVantageService(
-			_mockLogger.Object,
-			_mockHttpClientFactory.Object,
-			_mockOptions.Object);
+        var service = new AlphaVantageService(
+            _mockLogger.Object,
+            _mockHttpClientFactory.Object,
+            _mockOptions.Object);
 
-		var symbol = "IBM";
-		var startDate = new DateTime(2024, 01, 01);
-		DateTime? endDate = null;
-		var interval = EInterval.Interval_5Min;
+        var symbol = "IBM";
+        var startDate = new DateTime(2024, 01, 01);
+        DateTime? endDate = null;
+        var interval = EInterval.Interval_5Min;
 
-		// Act
-		var result = await service.GetHistoricalIntradayRecordsAsync(symbol, startDate, endDate, interval);
+        // Act
+        var result = await service.GetHistoricalIntradayRecordsAsync(symbol, startDate, endDate, interval);
 
-		// Assert
-		Assert.That(result, Is.Not.Empty);
-		Assert.That(result.All(e => !string.IsNullOrWhiteSpace(e.DateOnly)));
-		Assert.That(result.All(e => !string.IsNullOrWhiteSpace(e.TimeOnly)));
-	}
+        // Assert
+        Assert.That(result, Is.Not.Empty);
+        Assert.That(result.All(e => !string.IsNullOrWhiteSpace(e.DateOnly)));
+        Assert.That(result.All(e => !string.IsNullOrWhiteSpace(e.TimeOnly)));
+    }
 
-	[Test]
-	public async Task GetDailyForexRecordsAsync_WithEurUsd_ReturnsResult()
-	{
-		var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "AlphaVantage", "forex.json");
-		SetupHttpJsonFileResponse(filePath);
+    [Test]
+    public async Task GetDailyForexRecordsAsync_WithEurUsd_ReturnsResult()
+    {
+        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "AlphaVantage", "forex.json");
+        SetupHttpJsonFileResponse(filePath);
 
-		var service = new AlphaVantageService(
-			_mockLogger.Object,
-			_mockHttpClientFactory.Object,
-			_mockOptions.Object);
+        var service = new AlphaVantageService(
+            _mockLogger.Object,
+            _mockHttpClientFactory.Object,
+            _mockOptions.Object);
 
-		var currency1 = "EUR";
-		var currency2 = "USD";
-		var startDate = new DateTime(2024, 11, 01);
-		DateTime? endDate = null;
+        var currency1 = "EUR";
+        var currency2 = "USD";
+        var startDate = new DateTime(2024, 11, 01);
+        DateTime? endDate = null;
 
-		// Act
-		var result = await service.GetHistoricalForexRecordsAsync(
-			currency1,
-			currency2,
-			startDate,
-			endDate);
+        // Act
+        var result = await service.GetHistoricalForexRecordsAsync(
+            currency1,
+            currency2,
+            startDate,
+            endDate);
 
-		// Assert
-		Assert.That(result, Is.Not.Empty);
-		Assert.That(result.All(e => e.Open != null));
-		Assert.That(result.All(e => e.Date != null));
-		Assert.That(result.All(e => e.Low != null));
-		Assert.That(result.All(e => e.High != null));
-		Assert.That(result.All(e => e.Close != null));
-	}
+        // Assert
+        Assert.That(result, Is.Not.Empty);
+        Assert.That(result.All(e => e.Open != null));
+        Assert.That(result.All(e => e.Date != null));
+        Assert.That(result.All(e => e.Low != null));
+        Assert.That(result.All(e => e.High != null));
+        Assert.That(result.All(e => e.Close != null));
+    }
 
-	private void SetupHttpJsonFileResponse(string filePath)
-	{
-		var jsonContent = File.ReadAllText(filePath);
-		_mockHandler
-			.Protected()
-			.Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
-			.ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(jsonContent, Encoding.UTF8, "application/json") });
-		_mockHttpClientFactory.Setup(e => e.CreateClient(It.IsAny<string>())).Returns(new HttpClient(_mockHandler.Object));
-	}
+    private void SetupHttpJsonFileResponse(string filePath)
+    {
+        var jsonContent = File.ReadAllText(filePath);
+        _mockHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(jsonContent, Encoding.UTF8, "application/json") });
+        _mockHttpClientFactory.Setup(e => e.CreateClient(It.IsAny<string>())).Returns(new HttpClient(_mockHandler.Object));
+    }
 }
