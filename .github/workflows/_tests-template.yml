@@ -4,7 +4,6 @@ on:
   workflow_call:
     inputs:
       FullyQualifiedName:
-        description: 'The test name to run'
         required: true
         type: string
 
@@ -26,7 +25,7 @@ jobs:
         ref: develop
         fetch-depth: 0 
 
-    - name: Install .Net
+    - name: Install dotnet
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.x
