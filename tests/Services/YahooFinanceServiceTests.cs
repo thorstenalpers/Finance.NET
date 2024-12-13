@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Finance.Net.Exceptions;
 using Finance.Net.Interfaces;
 using Finance.Net.Services;
 using Microsoft.Extensions.Logging;
@@ -19,7 +20,7 @@ using Polly.Registry;
 namespace Finance.Net.Tests.Services;
 
 [TestFixture]
-[Category("UnitTests")]
+[Category("Unit")]
 public class YahooFinanceServiceTests
 {
     private Mock<ILogger<IYahooFinanceService>> _mockLogger;
@@ -70,7 +71,7 @@ public class YahooFinanceServiceTests
     }
 
     [Test]
-    public async Task GetQuoteAsync_OfIbm_ReturnsResult()
+    public async Task GetQuoteAsync_WithResponse_ReturnsResult()
     {
         // Arrange
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Yahoo", "quote.json");
@@ -91,9 +92,22 @@ public class YahooFinanceServiceTests
         Assert.That(!string.IsNullOrWhiteSpace(result.ShortName));
         Assert.That(result.MarketCap > 0);
     }
+    [Test]
+    public void GetQuoteAsync_NoResponse_Throws()
+    {
+        // Arrange
+        var service = new YahooFinanceService(
+            _mockLogger.Object,
+            _mockHttpClientFactory.Object,
+            _mockPolicyRegistry.Object,
+            _mockYahooSession.Object);
+
+        // Act
+        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetQuoteAsync("IBM"));
+    }
 
     [Test]
-    public async Task GetQuotesAsync_OfIbm_ReturnsResult()
+    public async Task GetQuotesAsync_WithResponse_ReturnsResult()
     {
         // Arrange
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Yahoo", "quote.json");
@@ -119,7 +133,7 @@ public class YahooFinanceServiceTests
     }
 
     [Test]
-    public async Task GetProfileAsync_OfIbm_ReturnsResult()
+    public async Task GetProfileAsync_WithResponse_ReturnsResult()
     {
         // Arrange
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Yahoo", "profile.html");
@@ -139,9 +153,22 @@ public class YahooFinanceServiceTests
         Assert.That(!string.IsNullOrWhiteSpace(result.Phone));
         Assert.That(!string.IsNullOrWhiteSpace(result.Description));
     }
+    [Test]
+    public void GetProfileAsync_NoResponse_Throws()
+    {
+        // Arrange
+        var service = new YahooFinanceService(
+            _mockLogger.Object,
+            _mockHttpClientFactory.Object,
+            _mockPolicyRegistry.Object,
+            _mockYahooSession.Object);
+
+        // Act
+        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetProfileAsync("IBM"));
+    }
 
     [Test]
-    public async Task GetRecordsAsync_OfIbm_ReturnsResult()
+    public async Task GetRecordsAsync_WithResponse_ReturnsResult()
     {
         // Arrange
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Yahoo", "records.html");
@@ -166,9 +193,25 @@ public class YahooFinanceServiceTests
         Assert.That(result.All(e => e.Low != null));
         Assert.That(result.All(e => e.High != null));
     }
+    [Test]
+    public void GetRecordsAsync_NoResponse_Throws()
+    {
+        // Arrange
+        var service = new YahooFinanceService(
+            _mockLogger.Object,
+            _mockHttpClientFactory.Object,
+            _mockPolicyRegistry.Object,
+            _mockYahooSession.Object);
+
+        DateTime startDate = default;
+        DateTime? endDate = null;
+
+        // Act
+        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetHistoryRecordsAsync("IBM", startDate, endDate));
+    }
 
     [Test]
-    public async Task GetFinancialReportsAsync_OfIbmFromEu_ReturnsResult()
+    public async Task GetFinancialReportsAsync_WithResponseEuConsent_ReturnsResult()
     {
         // Arrange
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Yahoo", "financial_eu.html");
@@ -193,7 +236,7 @@ public class YahooFinanceServiceTests
     }
 
     [Test]
-    public async Task GetFinancialReportsAsync_OfIbmFromUs_ReturnsResult()
+    public async Task GetFinancialReportsAsync_WithResponseUs_ReturnsResult()
     {
         // Arrange
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Yahoo", "financial_us.html");
@@ -216,9 +259,23 @@ public class YahooFinanceServiceTests
         Assert.That(first.Value.BasicAverageShares != null);
         Assert.That(first.Value.EBIT != null);
     }
+    [Test]
+    public void GetFinancialReportsAsync_NoResponse_Throws()
+    {
+        // Arrange
+        var service = new YahooFinanceService(
+            _mockLogger.Object,
+            _mockHttpClientFactory.Object,
+            _mockPolicyRegistry.Object,
+            _mockYahooSession.Object);
+
+        // Act
+        // Assert
+        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetFinancialReportsAsync("IBM"));
+    }
 
     [Test]
-    public async Task GetSummaryAsync_OfIbm_ReturnsResult()
+    public async Task GetSummaryAsync_WithResponse_ReturnsResult()
     {
         // Arrange		
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Yahoo", "summary.html");
@@ -239,6 +296,19 @@ public class YahooFinanceServiceTests
         Assert.That(result.Ask != null);
         Assert.That(result.Bid != null);
         Assert.That(result.MarketCap_Intraday != null);
+    }
+    [Test]
+    public void GetSummaryAsync_NoResponse_Throws()
+    {
+        // Arrange		
+        var service = new YahooFinanceService(
+            _mockLogger.Object,
+            _mockHttpClientFactory.Object,
+            _mockPolicyRegistry.Object,
+            _mockYahooSession.Object);
+
+        // Act
+        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetSummaryAsync("IBM"));
     }
 
     private void SetupHttpHtmlFileResponse(string filePath)

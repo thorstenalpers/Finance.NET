@@ -16,7 +16,7 @@ using Polly.Registry;
 namespace Finance.Net.Tests.Utilities;
 
 [TestFixture]
-[Category("UnitTests")]
+[Category("Unit")]
 public class YahooSessionManagerTests
 {
     private Mock<IHttpClientFactory> _mockHttpClientFactory;

@@ -7,7 +7,7 @@ using NUnit.Framework;
 namespace Finance.Net.Tests.Utilities;
 
 [TestFixture]
-[Category("UnitTests")]
+[Category("Unit")]
 public class YahooSessionStateTests
 {
     private Mock<IOptions<FinanceNetConfiguration>> _mockOptions;

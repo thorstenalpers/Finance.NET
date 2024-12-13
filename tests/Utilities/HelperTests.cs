@@ -7,7 +7,7 @@ using NUnit.Framework;
 namespace Finance.Net.Tests.Utilities;
 
 [TestFixture]
-[Category("UnitTests")]
+[Category("Unit")]
 public class HelperTests
 {
     [TestCase(null, true)]
@@ -143,7 +143,20 @@ public class HelperTests
     }
 
     [Test]
-    public void AreAllFieldsNull_Null_ReturnsTrue()
+    public void Minify_WithNullObj_ReturnsNull()
+    {
+        // Arrange
+        const string str = null;
+
+        // Act
+        var result = str.Minify();
+
+        // Assert
+        Assert.That(result, Is.Null);
+    }
+
+    [Test]
+    public void AreAllFieldsNull_AllNull_ReturnsTrue()
     {
         // Arrange
         var model = new QuoteResponse();
@@ -169,5 +182,16 @@ public class HelperTests
 
         // Assert
         Assert.That(false, Is.EqualTo(result));
+    }
+
+    [Test]
+    public void AreAllFieldsNull_ObjNull_ReturnsTrue()
+    {
+        // Arrange
+        // Act
+        var result = Helper.AreAllFieldsNull((QuoteResponse)null);
+
+        // Assert
+        Assert.That(true, Is.EqualTo(result));
     }
 }

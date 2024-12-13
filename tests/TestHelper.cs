@@ -1,4 +1,5 @@
-﻿using Finance.Net.Extensions;
+﻿using System.Reflection;
+using Finance.Net.Extensions;
 using Finance.Net.Tests.IntegrationTests;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,6 +9,18 @@ namespace Finance.Net.Tests;
 
 internal static class TestHelper
 {
+    public static void SetPrivateField(object target, string fieldName, object value)
+    {
+        var field = target.GetType().GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance);
+        field?.SetValue(target, value);
+    }
+
+    public static T GetPrivateField<T>(object target, string fieldName)
+    {
+        var field = target.GetType().GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance);
+        return (T)field?.GetValue(target);
+    }
+
     public static ServiceProvider SetUpServiceProvider()
     {
         var services = new ServiceCollection();

@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Finance.Net.Exceptions;
 using Finance.Net.Interfaces;
 using Finance.Net.Services;
 using Microsoft.Extensions.Logging;
@@ -19,7 +20,7 @@ using Polly.Registry;
 namespace Finance.Net.Tests.Services;
 
 [TestFixture]
-[Category("UnitTests")]
+[Category("Unit")]
 public class XetraServiceTests
 {
     private Mock<ILogger<IXetraService>> _mockLogger;
@@ -63,7 +64,7 @@ public class XetraServiceTests
     }
 
     [Test]
-    public async Task GetTradableInstruments_WithValidEntries_ReturnsResult()
+    public async Task GetTradableInstruments_WithResponse_ReturnsResult()
     {
         // Arrange
         var csvFilePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Xetra", "t7-xetr-allTradableInstruments.csv");
@@ -87,16 +88,52 @@ public class XetraServiceTests
         Assert.That(result.All(e => !string.IsNullOrWhiteSpace(e.Mnemonic)));
     }
 
+    [Test]
+    public void GetTradableInstruments_NoHtml_Throws()
+    {
+        // Arrange
+        var csvFilePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Xetra", "t7-xetr-allTradableInstruments.csv");
+
+        SetupHttpResponses(null, csvFilePath);
+
+        var service = new XetraService(
+            _mockLogger.Object,
+            _mockHttpClientFactory.Object,
+            _mockOptions.Object,
+            _mockPolicyRegistry.Object);
+
+        // Act
+        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetInstruments());
+    }
+
+    [Test]
+    public void GetTradableInstruments_NoCsv_Throws()
+    {
+        // Arrange
+        var htmlFilePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Xetra", "xetra-download-area.html");
+
+        SetupHttpResponses(htmlFilePath, null);
+
+        var service = new XetraService(
+            _mockLogger.Object,
+            _mockHttpClientFactory.Object,
+            _mockOptions.Object,
+            _mockPolicyRegistry.Object);
+
+        // Act
+        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetInstruments());
+    }
+
     private void SetupHttpResponses(string htmlFilePath, string csvFilePath)
     {
-        var htmlFilePathContent = File.ReadAllText(htmlFilePath);
-        var csvFileContent = File.ReadAllText(csvFilePath);
+        var htmlFilePathContent = string.IsNullOrEmpty(htmlFilePath) ? "" : File.ReadAllText(htmlFilePath);
+        var csvFileContent = string.IsNullOrEmpty(csvFilePath) ? "" : File.ReadAllText(csvFilePath);
 
         _mockHandler
-                    .Protected()
+            .Protected()
             .Setup<Task<HttpResponseMessage>>("SendAsync",
-                                     ItExpr.Is<HttpRequestMessage>(req => req.RequestUri.AbsoluteUri.EndsWith(".csv", System.StringComparison.OrdinalIgnoreCase)),
-                                     ItExpr.IsAny<CancellationToken>())
+                ItExpr.Is<HttpRequestMessage>(req => req.RequestUri.AbsoluteUri.EndsWith(".csv", System.StringComparison.OrdinalIgnoreCase)),
+                ItExpr.IsAny<CancellationToken>())
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(csvFileContent, Encoding.UTF8, "text/csv") });
 
         _mockHandler

@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Finance.Net.Exceptions;
 using Finance.Net.Services;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -17,7 +18,7 @@ using Polly.Registry;
 namespace Finance.Net.Tests.Services;
 
 [TestFixture]
-[Category("UnitTests")]
+[Category("Unit")]
 public class DatahubIoServiceTests
 {
     private Mock<IHttpClientFactory> _mockHttpClientFactory;
@@ -59,7 +60,7 @@ public class DatahubIoServiceTests
     }
 
     [Test]
-    public async Task GetNasdaqInstrumentsAsync_WithValidEntries_ReturnsResult()
+    public async Task GetNasdaqInstrumentsAsync_WithResponse_ReturnsResult()
     {
         // Arrange
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "DatahubIo", "nasdaq-listed-symbols.csv");
@@ -79,7 +80,28 @@ public class DatahubIoServiceTests
     }
 
     [Test]
-    public async Task GetSAndP500InstrumentsAsync_WithValidEntries_ReturnsResult()
+    public void GetNasdaqInstrumentsAsync_NoResponse_Throws()
+    {
+        // Arrange
+        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "DatahubIo", "nasdaq-listed-symbols.csv");
+        SetupHttpCsvFileResponse(filePath);
+        _mockHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.NotFound) { Content = new StringContent("") });
+        _mockHttpClientFactory.Setup(e => e.CreateClient(It.IsAny<string>())).Returns(new HttpClient(_mockHandler.Object));
+
+        var service = new DatahubIoService(
+            _mockHttpClientFactory.Object,
+            _mockOptions.Object,
+            _mockPolicyRegistry.Object);
+
+        // Act + Assert
+        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetNasdaqInstrumentsAsync());
+    }
+
+    [Test]
+    public async Task GetSAndP500InstrumentsAsync_WithResponse_ReturnsResult()
     {
         // Arrange
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "DatahubIo", "constituents-financials.csv");
@@ -97,6 +119,28 @@ public class DatahubIoServiceTests
         Assert.That(result, Is.Not.Empty);
         Assert.That(result.All(e => !string.IsNullOrWhiteSpace(e.Name)));
         Assert.That(result.All(e => !string.IsNullOrWhiteSpace(e.Symbol)));
+    }
+
+    [Test]
+    public void GetSAndP500InstrumentsAsync_NoResponse_Throws()
+    {
+        // Arrange
+        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "DatahubIo", "constituents-financials.csv");
+        SetupHttpCsvFileResponse(filePath);
+        _mockHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.NotFound) { Content = new StringContent("") });
+        _mockHttpClientFactory.Setup(e => e.CreateClient(It.IsAny<string>())).Returns(new HttpClient(_mockHandler.Object));
+        _mockHttpClientFactory.Setup(e => e.CreateClient(It.IsAny<string>())).Returns(new HttpClient(_mockHandler.Object));
+
+        var service = new DatahubIoService(
+            _mockHttpClientFactory.Object,
+            _mockOptions.Object,
+            _mockPolicyRegistry.Object);
+
+        // Act + Assert
+        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetSP500InstrumentsAsync());
     }
 
     private void SetupHttpCsvFileResponse(string filePath)

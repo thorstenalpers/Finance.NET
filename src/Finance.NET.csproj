@@ -10,7 +10,7 @@
 	<EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
 	<LangVersion>latest</LangVersion>
 
-	<PackageId>Finance.NET</PackageId>
+    <PackageId>Finance.NET</PackageId>
 	<Version>0.0.1</Version>
 	<Authors>Thorsten Alpers</Authors>
 	<Owners>Thorsten Alpers</Owners>

@@ -151,7 +151,7 @@ public static class Helper
     {
         if (obj == null)
         {
-            throw new ArgumentNullException(nameof(obj), "Object cannot be null.");
+            return true;
         }
         var fields = obj.GetType().GetFields(
             System.Reflection.BindingFlags.Instance |

@@ -9,7 +9,7 @@ using NUnit.Framework;
 namespace Finance.Net.Tests.IntegrationTests;
 
 [TestFixture]
-[Category("IntegrationTests")]
+[Category("Integration")]
 public class XetraTests
 {
     private static IServiceProvider s_serviceProvider;

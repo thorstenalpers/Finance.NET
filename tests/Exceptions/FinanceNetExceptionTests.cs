@@ -5,7 +5,7 @@ using NUnit.Framework;
 namespace Finance.Net.Tests.Exceptions;
 
 [TestFixture]
-[Category("UnitTests")]
+[Category("Unit")]
 public class FinanceNetExceptionTests
 {
     [Test]

@@ -9,7 +9,7 @@ using NUnit.Framework;
 namespace Finance.Net.Tests.Extensions;
 
 [TestFixture]
-[Category("UnitTests")]
+[Category("Unit")]
 public class ServiceCollectionExtensionsTests
 {
     [Test]

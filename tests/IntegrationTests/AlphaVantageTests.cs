@@ -10,7 +10,7 @@ using NUnit.Framework;
 namespace Finance.Net.Tests.IntegrationTests;
 
 [TestFixture]
-[Category("IntegrationTests")]
+[Category("Integration")]
 public class AlphaVantageTests
 {
     private IServiceProvider _serviceProvider;
