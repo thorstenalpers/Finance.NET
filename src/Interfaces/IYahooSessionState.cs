@@ -2,7 +2,7 @@
 
 namespace Finance.Net.Interfaces;
 
-internal interface IYahooSessionState
+public interface IYahooSessionState
 {
     bool IsValid();
     string GetUserAgent();

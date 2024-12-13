@@ -93,3 +93,4 @@ yarn-error.log*
 
 *.cmd
 **/TestResult/
+/TestReport.html.lnk

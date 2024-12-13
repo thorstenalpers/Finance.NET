@@ -29,8 +29,8 @@ public class AlphaVantageServiceTests
     private Mock<HttpMessageHandler> _mockHandler;
     private Mock<IOptions<FinanceNetConfiguration>> _mockOptions;
 
-    [SetUp]
-    public void SetUp()
+    [OneTimeSetUp]
+    public void OneTimeSetUp()
     {
         _mockOptions = new Mock<IOptions<FinanceNetConfiguration>>();
         _mockOptions.Setup(x => x.Value).Returns(new FinanceNetConfiguration

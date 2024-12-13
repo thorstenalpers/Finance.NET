@@ -28,8 +28,8 @@ public class YahooFinanceServiceTests
     private Mock<HttpMessageHandler> _mockHandler;
     private Mock<IReadOnlyPolicyRegistry<string>> _mockPolicyRegistry;
 
-    [SetUp]
-    public void SetUp()
+    [OneTimeSetUp]
+    public void OneTimeSetUp()
     {
         _mockLogger = new Mock<ILogger<IYahooFinanceService>>();
         _mockHttpClientFactory = new Mock<IHttpClientFactory>();

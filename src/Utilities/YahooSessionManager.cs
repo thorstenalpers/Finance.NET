@@ -8,17 +8,21 @@ using System.Threading.Tasks;
 using Finance.Net.Exceptions;
 using Finance.Net.Interfaces;
 using Microsoft.Extensions.Logging;
+using Polly;
+using Polly.Registry;
 
 namespace Finance.Net.Utilities;
 
 internal class YahooSessionManager(IHttpClientFactory httpClientFactory,
     ILogger<IYahooSessionManager> logger,
-    IYahooSessionState sessionState) : IYahooSessionManager
+    IYahooSessionState sessionState,
+    IReadOnlyPolicyRegistry<string> policyRegistry) : IYahooSessionManager
 {
     private readonly ILogger<IYahooSessionManager> _logger = logger;
     private readonly IYahooSessionState _sessionState = sessionState ?? throw new ArgumentNullException(nameof(sessionState));
-    private static readonly SemaphoreSlim _semaphore = new(1, 1);
+    private static readonly SemaphoreSlim Semaphore = new(1, 1);
     private readonly IHttpClientFactory _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+    private readonly AsyncPolicy _retryPolicy = policyRegistry.Get<AsyncPolicy>(Constants.DefaultHttpRetryPolicy);
 
     public string? GetApiCrumb()
     {
@@ -32,51 +36,39 @@ internal class YahooSessionManager(IHttpClientFactory httpClientFactory,
 
     public IEnumerable<Cookie> GetCookies()
     {
-        var cookies = _sessionState.GetCookieContainer().GetCookies(new Uri(Constants.YahooBaseUrlHtml)).Cast<Cookie>();
-        return cookies;
+        return _sessionState.GetCookieContainer().GetCookies(new Uri(Constants.YahooBaseUrlHtml)).Cast<Cookie>();
     }
 
     public async Task RefreshSessionAsync(CancellationToken token = default)
     {
         var cookies = GetCookies();
-        _logger.LogDebug("cookieNames={cookies}", string.Join(", ", cookies.Cast<Cookie>().Select(cookie => cookie.Name)));
+        _logger.LogDebug("cookieNames={cookies}", string.Join(", ", cookies.Select(cookie => cookie.Name)));
 
         if (_sessionState.IsValid())
         {
             return;
         }
-        await _semaphore.WaitAsync(token).ConfigureAwait(false);
-        if (_sessionState.IsValid())
-        {
-            return;
-        }
-
+        await Semaphore.WaitAsync(token).ConfigureAwait(false);
         try
         {
-            for (int attempt = 1; attempt <= 5; attempt++)
+            await _retryPolicy.ExecuteAsync(async () =>
             {
-                try
+                var crumb = await CreateApiCookiesAndCrumb(token).ConfigureAwait(false);
+                _sessionState.SetCrumb(crumb);
+                await CreateUiCookies(token).ConfigureAwait(false);
+                if (!_sessionState.IsValid())
                 {
-                    var crumb = await CreateApiCookiesAndCrumb(token).ConfigureAwait(false);
-                    _sessionState.SetCrumb(crumb);
-                    await CreateUiCookies(token).ConfigureAwait(false);
-                    if (!_sessionState.IsValid())
-                    {
-                        throw new FinanceNetException("cannot fetch Yahoo credentials");
-                    }
-                    return;
+                    throw new FinanceNetException("cannot fetch Yahoo credentials");
                 }
-                catch (Exception ex)
-                {
-                    _sessionState.InvalidateSession();
-                    _logger.LogInformation("Retry after exception={ex}", ex?.Message);
-                    await Task.Delay(TimeSpan.FromSeconds(1 * attempt), token);
-                }
-            }
+            });
+        }
+        catch (Exception ex)
+        {
+            throw new FinanceNetException("No Yahoo session created", ex);
         }
         finally
         {
-            _semaphore.Release();
+            Semaphore.Release();
         }
     }
 

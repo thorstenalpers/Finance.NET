@@ -28,8 +28,8 @@ public class XetraServiceTests
     private Mock<HttpMessageHandler> _mockHandler;
     private Mock<IReadOnlyPolicyRegistry<string>> _mockPolicyRegistry;
 
-    [SetUp]
-    public void SetUp()
+    [OneTimeSetUp]
+    public void OneTimeSetUp()
     {
         _mockOptions = new Mock<IOptions<FinanceNetConfiguration>>();
         _mockOptions.Setup(x => x.Value).Returns(new FinanceNetConfiguration());

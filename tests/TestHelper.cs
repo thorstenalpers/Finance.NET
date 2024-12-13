@@ -11,7 +11,6 @@ internal static class TestHelper
     public static ServiceProvider SetUpServiceProvider()
     {
         var services = new ServiceCollection();
-
         var cfgBuilder = new ConfigurationBuilder();
         cfgBuilder.AddUserSecrets<AlphaVantageTests>();
         cfgBuilder.AddEnvironmentVariables();

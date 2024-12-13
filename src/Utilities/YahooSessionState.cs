@@ -35,14 +35,23 @@ internal class YahooSessionState(IOptions<FinanceNetConfiguration> options) : IY
 
     public void InvalidateSession()
     {
-        var fieldInfo = typeof(CookieContainer).GetField("m_domainTable", BindingFlags.NonPublic | BindingFlags.Instance);
-        var domainTable = fieldInfo.GetValue(_cookieContainer);
+        // clear cookies
+        var domainTableField = typeof(CookieContainer).GetField("m_domainTable", BindingFlags.NonPublic | BindingFlags.Instance);
+        var domainTable = domainTableField?.GetValue(_cookieContainer);
 
-        if (domainTable != null)
-        {
-            var clearMethod = domainTable.GetType().GetMethod("Clear", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
-            clearMethod.Invoke(domainTable, null);
-        }
+        var clearDomainTableMethod = domainTable?.GetType().GetMethod("Clear", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
+        clearDomainTableMethod?.Invoke(domainTable, null);
+
+        var listField = typeof(CookieContainer).GetField("m_list", BindingFlags.NonPublic | BindingFlags.Instance);
+        var list = listField?.GetValue(_cookieContainer);
+
+        var clearListMethod = list?.GetType().GetMethod("Clear", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
+        clearListMethod?.Invoke(list, null);
+
+        var capacityField = typeof(CookieContainer).GetField("m_capacity", BindingFlags.NonPublic | BindingFlags.Instance);
+        capacityField?.SetValue(_cookieContainer, 0);
+        var countField = typeof(CookieContainer).GetField("m_count", BindingFlags.NonPublic | BindingFlags.Instance);
+        countField?.SetValue(_cookieContainer, 0);
 
         _userAgent = Helper.CreateRandomUserAgent();
         _crumb = null;
@@ -66,7 +75,7 @@ internal class YahooSessionState(IOptions<FinanceNetConfiguration> options) : IY
             // e.g. 10:00 >= 12:00 (09:00+3) = false, 10:00 >= 04:00 (01:00+3) = true
             return false;
         }
-        var anyExpired = cookies.Cast<Cookie>().Where(e => e.Expires != default).Any(e => e.Expires < DateTime.UtcNow);
+        var anyExpired = cookies.Cast<Cookie>().Any(e => e.Expires != default && e.Expires < DateTime.UtcNow);
         return !anyExpired;
     }
 }

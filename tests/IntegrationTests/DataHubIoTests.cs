@@ -12,14 +12,14 @@ namespace Finance.Net.Tests.IntegrationTests;
 [Category("IntegrationTests")]
 public class DatahubIoTests
 {
-    private static IServiceProvider _serviceProvider;
+    private static IServiceProvider s_serviceProvider;
     private IDatahubIoService _service;
 
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
-        _serviceProvider = TestHelper.SetUpServiceProvider();
-        _service = _serviceProvider.GetRequiredService<IDatahubIoService>();
+        s_serviceProvider = TestHelper.SetUpServiceProvider();
+        _service = s_serviceProvider.GetRequiredService<IDatahubIoService>();
     }
 
     [Test]

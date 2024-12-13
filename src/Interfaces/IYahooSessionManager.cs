@@ -3,13 +3,12 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Finance.Net.Interfaces
+namespace Finance.Net.Interfaces;
+
+public interface IYahooSessionManager
 {
-    public interface IYahooSessionManager
-    {
-        Task RefreshSessionAsync(CancellationToken token = default);
-        string? GetApiCrumb();
-        IEnumerable<Cookie> GetCookies();
-        string GetUserAgent();
-    }
+    Task RefreshSessionAsync(CancellationToken token = default);
+    string? GetApiCrumb();
+    IEnumerable<Cookie> GetCookies();
+    string GetUserAgent();
 }
