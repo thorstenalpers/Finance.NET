@@ -1,9 +1,11 @@
-name: "CI"
+name: "CI Tests"
 
 on:
   workflow_dispatch: # Manual trigger
   push:
-    branches: [ develop ]
+    branches: [ develop, main]
+  schedule:
+    - cron: '0 2 * * *'  # Runs nightly at 2 AM UTC on main branch
 
 jobs:
   build:
@@ -36,36 +38,26 @@ jobs:
     - name: Build
       run: dotnet build "${{ env.Solution_Name }}" --configuration Release --no-restore
 
-    - name: Run unit tests
+    - name: Run tests
       shell: pwsh
       run: |
-          dotnet test "${{ env.Test_Project_Path }}" --collect:"XPlat Code Coverage" --results-directory ./TestResults/UnitTests --configuration Release --filter Category=UnitTests --logger "console;verbosity=detailed"
+          dotnet test "${{ env.Test_Project_Path }}" --collect:"XPlat Code Coverage" --results-directory ./TestResults/Tests --configuration Release --logger "console;verbosity=detailed"
           if ($LASTEXITCODE -ne 0) {
             Write-Host "Tests failed"
             exit 1
           }
-          reportgenerator -reports:./TestResults/UnitTests/**/coverage.cobertura.xml -targetdir:./TestResults/Coverage/Unit -reporttypes:"Html;lcov"
-
-    - name: Run integration tests
-      shell: pwsh
-      run: |
-          dotnet test "${{ env.Test_Project_Path }}" --collect:"XPlat Code Coverage" --results-directory ./TestResults/IntegrationTests --configuration Release --filter Category=IntegrationTests --logger "console;verbosity=detailed"
-          if ($LASTEXITCODE -ne 0) {
-            Write-Host "Tests failed"
-            exit 1
-          }
-          reportgenerator -reports:./TestResults/IntegrationTests/**/coverage.cobertura.xml -targetdir:./TestResults/Coverage/Integration -reporttypes:"Html;lcov"
+          reportgenerator -reports:./TestResults/Tests/**/coverage.cobertura.xml -targetdir:./TestResults/Coverage -reporttypes:"Html;lcov"
       env:
           FinanceNet__AlphaVantageApiKey: ${{ secrets.ALPHAVANTAGEAPIKEY }}
 
     - name: Generate Coverage Report
       run: |
-        reportgenerator -reports:./TestResults/**/**/coverage.cobertura.xml -targetdir:./TestResults/Coverage/Report -reporttypes:"Html;lcov"
+        reportgenerator -reports:./TestResults/Tests/**/coverage.cobertura.xml -targetdir:./TestResults/Coverage -reporttypes:"Html;lcov"
 
     - name: Upload report to Coveralls
       uses: coverallsapp/github-action@v2
       with:
-        path-to-lcov: ./TestResults/Coverage/Report/lcov.info
+        path-to-lcov: ./TestResults/Coverage/lcov.info
       env:
         COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
 
@@ -73,6 +65,6 @@ jobs:
       uses: actions/upload-artifact@v4.4.3
       with:
         name: unit-test-coverage-report
-        path: ./TestResults/Coverage/Report
+        path: ./TestResults/Coverage
 
 
