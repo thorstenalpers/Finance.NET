@@ -1,4 +1,4 @@
-name: "Tests"
+name: "CI"
 
 on:
   workflow_dispatch: # Manual trigger
@@ -54,7 +54,7 @@ jobs:
             Write-Host "Tests failed, marking job as failed"
             exit 1
           }
-          reportgenerator -reports:./TestResults/IntegrationTests/**/coverage.cobertura.xml -targetdir:./TestResults/Coverage/Integration -reporttypes:Html;lcov
+          reportgenerator -reports:./TestResults/IntegrationTests/**/coverage.cobertura.xml -targetdir:./TestResults/Coverage/Integration -reporttypes:"Html;lcov"
       env:
           FinanceNet__AlphaVantageApiKey: ${{ secrets.ALPHAVANTAGEAPIKEY }}
 
