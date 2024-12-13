@@ -6,7 +6,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using AngleSharp.Io;
 using AngleSharp.XPath;
 using AutoMapper;
 using CsvHelper;
