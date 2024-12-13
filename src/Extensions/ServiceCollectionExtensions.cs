@@ -23,17 +23,9 @@ public static class ServiceCollectionExtensions
 			opt.HttpRetries = cfg.HttpRetries;
 			opt.HttpTimeout = cfg.HttpTimeout;
 			opt.AlphaVantageApiKey = cfg.AlphaVantageApiKey;
-			opt.AlphaVantageApiUrl = cfg.AlphaVantageApiUrl;
-			opt.XetraDownloadUrlInstruments = cfg.XetraDownloadUrlInstruments;
 			opt.DatahubIoDownloadUrlSP500Symbols = cfg.DatahubIoDownloadUrlSP500Symbols;
 			opt.DatahubIoDownloadUrlNasdaqListedSymbols = cfg.DatahubIoDownloadUrlNasdaqListedSymbols;
-			opt.YahooBaseUrlQuoteHtml = cfg.YahooBaseUrlQuoteHtml;
-			opt.YahooBaseUrlAuthentication = cfg.YahooBaseUrlAuthentication;
-			opt.YahooBaseUrlCrumbApi = cfg.YahooBaseUrlCrumbApi;
-			opt.YahooBaseUrlQuoteApi = cfg.YahooBaseUrlQuoteApi;
-			opt.YahooCookieRefreshTime = cfg.YahooCookieRefreshTime;
-			opt.YahooBaseUrlConsent = cfg.YahooBaseUrlConsent;
-			opt.YahooBaseUrlConsentCollect = cfg.YahooBaseUrlConsentCollect;
+			opt.YahooCookieExpirationTime = cfg.YahooCookieExpirationTime;
 		});
 
 		services.AddSingleton<IYahooSessionState, YahooSessionState>();
@@ -44,7 +36,7 @@ public static class ServiceCollectionExtensions
 		services.AddScoped<IAlphaVantageService, AlphaVantageService>();
 		services.AddScoped<IDatahubIoService, DatahubIoService>();
 
-		services.AddHttpClient(cfg.YahooHttpClientName)
+		services.AddHttpClient(Constants.YahooHttpClientName)
 			.ConfigureHttpClient((provider, client) =>
 			{
 				var session = provider.GetRequiredService<IYahooSessionManager>();
@@ -65,7 +57,7 @@ public static class ServiceCollectionExtensions
 				return handler;
 			});
 
-		services.AddHttpClient(cfg.XetraHttpClientName)
+		services.AddHttpClient(Constants.XetraHttpClientName)
 			.ConfigureHttpClient(client =>
 			{
 				var userAgent = Helper.CreateRandomUserAgent();
@@ -75,7 +67,7 @@ public static class ServiceCollectionExtensions
 				client.Timeout = TimeSpan.FromSeconds(cfg.HttpTimeout);
 			});
 
-		services.AddHttpClient(cfg.AlphaVantageHttpClientName)
+		services.AddHttpClient(Constants.AlphaVantageHttpClientName)
 			.ConfigureHttpClient(client =>
 			{
 				var userAgent = Helper.CreateRandomUserAgent();
@@ -85,7 +77,7 @@ public static class ServiceCollectionExtensions
 				client.Timeout = TimeSpan.FromSeconds(cfg.HttpTimeout);
 			});
 
-		services.AddHttpClient(cfg.DatahubIoHttpClientName)
+		services.AddHttpClient(Constants.DatahubIoHttpClientName)
 			.ConfigureHttpClient(client =>
 			{
 				var userAgent = Helper.CreateRandomUserAgent();

@@ -70,8 +70,8 @@ internal class YahooFinanceService : IYahooFinanceService
 	{
 		await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
 		var crumb = _yahooSession.GetApiCrumb();
-		var httpClient = _httpClientFactory.CreateClient(_options.YahooHttpClientName);
-		var url = $"{_options.YahooBaseUrlQuoteApi}?" +
+		var httpClient = _httpClientFactory.CreateClient(Constants.YahooHttpClientName);
+		var url = $"{Constants.YahooBaseUrlQuoteApi}?" +
 			$"&symbols={string.Join(",", symbols).ToLower()}" +
 			$"&crumb={crumb}";
 		for (int attempt = 1; attempt <= _options.HttpRetries; attempt++)
@@ -126,8 +126,8 @@ internal class YahooFinanceService : IYahooFinanceService
 	public async Task<Models.Yahoo.Profile> GetProfileAsync(string symbol, CancellationToken token = default)
 	{
 		await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
-		var httpClient = _httpClientFactory.CreateClient(_options.YahooHttpClientName);
-		var url = $"{_options.YahooBaseUrlQuoteHtml}/{symbol}/profile/".ToLower();
+		var httpClient = _httpClientFactory.CreateClient(Constants.YahooHttpClientName);
+		var url = $"{Constants.YahooBaseUrlQuoteHtml}/{symbol}/profile/".ToLower();
 
 		for (int attempt = 1; attempt <= _options.HttpRetries; attempt++)
 		{
@@ -188,7 +188,7 @@ internal class YahooFinanceService : IYahooFinanceService
 				await Task.Delay(TimeSpan.FromSeconds(1 * attempt));
 
 				// try using without cookies
-				url = $"{_options.YahooBaseUrlQuoteHtml}/{symbol}/profile/?_guc_consent_skip={Helper.ToUnixTimestamp(DateTime.UtcNow.AddHours(1))}".ToLower();
+				url = $"{Constants.YahooBaseUrlQuoteHtml}/{symbol}/profile/?_guc_consent_skip={Helper.ToUnixTimestamp(DateTime.UtcNow.AddHours(1))}".ToLower();
 			}
 		}
 		_logger.LogWarning($"No profile found after {_options.HttpRetries} attempts.");
@@ -198,7 +198,7 @@ internal class YahooFinanceService : IYahooFinanceService
 	public async Task<IEnumerable<DailyRecord>> GetHistoricalRecordsAsync(string symbol, DateTime startDate, DateTime? endDate = null, CancellationToken token = default)
 	{
 		await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
-		var httpClient = _httpClientFactory.CreateClient(_options.YahooHttpClientName);
+		var httpClient = _httpClientFactory.CreateClient(Constants.YahooHttpClientName);
 
 		endDate ??= DateTime.UtcNow;
 		endDate = endDate.Value.AddDays(1).Date;
@@ -206,7 +206,7 @@ internal class YahooFinanceService : IYahooFinanceService
 		var period1 = Helper.ToUnixTimestamp(startDate.Date) ?? throw new FinanceNetException("Invalid startDate");
 		var period2 = Helper.ToUnixTimestamp(endDate.Value.Date) ?? throw new FinanceNetException("Invalid endDate");
 
-		var url = $"{_options.YahooBaseUrlQuoteHtml}/{symbol}/history/?period1={period1}&period2={period2}".ToLower();
+		var url = $"{Constants.YahooBaseUrlQuoteHtml}/{symbol}/history/?period1={period1}&period2={period2}".ToLower();
 		for (int attempt = 1; attempt <= _options.HttpRetries; attempt++)
 		{
 			try
@@ -300,7 +300,7 @@ internal class YahooFinanceService : IYahooFinanceService
 				await Task.Delay(TimeSpan.FromSeconds(1 * attempt));
 
 				// try using without cookies
-				url = $"{_options.YahooBaseUrlQuoteHtml}/{symbol}/history/?period1={period1}&period2={period2}&_guc_consent_skip={Helper.ToUnixTimestamp(DateTime.UtcNow.AddHours(1))}".ToLower();
+				url = $"{Constants.YahooBaseUrlQuoteHtml}/{symbol}/history/?period1={period1}&period2={period2}&_guc_consent_skip={Helper.ToUnixTimestamp(DateTime.UtcNow.AddHours(1))}".ToLower();
 			}
 		}
 		_logger.LogWarning($"No records found after {_options.HttpRetries} attempts.");
@@ -310,9 +310,9 @@ internal class YahooFinanceService : IYahooFinanceService
 	public async Task<Dictionary<string, FinancialReport>> GetFinancialReportsAsync(string symbol, CancellationToken token = default)
 	{
 		await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
-		var httpClient = _httpClientFactory.CreateClient(_options.YahooHttpClientName);
-		var url = $"{_options.YahooBaseUrlQuoteHtml}/{symbol}/financials/".ToLower();
-		for (int attempt = 1; attempt <= 20; attempt++)
+		var httpClient = _httpClientFactory.CreateClient(Constants.YahooHttpClientName);
+		var url = $"{Constants.YahooBaseUrlQuoteHtml}/{symbol}/financials/".ToLower();
+		for (int attempt = 1; attempt <= _options.HttpRetries; attempt++)
 		{
 			try
 			{
@@ -385,7 +385,7 @@ internal class YahooFinanceService : IYahooFinanceService
 				await Task.Delay(TimeSpan.FromSeconds(1 * attempt));
 
 				// try using without cookies
-				url = $"{_options.YahooBaseUrlQuoteHtml}/{symbol}/financials/?_guc_consent_skip={Helper.ToUnixTimestamp(DateTime.UtcNow.AddHours(1))}".ToLower();
+				url = $"{Constants.YahooBaseUrlQuoteHtml}/{symbol}/financials/?_guc_consent_skip={Helper.ToUnixTimestamp(DateTime.UtcNow.AddHours(1))}".ToLower();
 			}
 		}
 		_logger.LogWarning($"No financial reports found after {_options.HttpRetries} attempts.");
@@ -395,9 +395,9 @@ internal class YahooFinanceService : IYahooFinanceService
 	public async Task<Summary> GetSummaryAsync(string symbol, CancellationToken token = default)
 	{
 		await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
-		var httpClient = _httpClientFactory.CreateClient(_options.YahooHttpClientName);
+		var httpClient = _httpClientFactory.CreateClient(Constants.YahooHttpClientName);
 		var symbolsToSecurity = new Dictionary<string, Quote>();
-		var url = $"{_options.YahooBaseUrlQuoteHtml}/{symbol}/".ToLower();
+		var url = $"{Constants.YahooBaseUrlQuoteHtml}/{symbol}/".ToLower();
 
 		for (int attempt = 1; attempt <= _options.HttpRetries; attempt++)
 		{
@@ -509,7 +509,7 @@ internal class YahooFinanceService : IYahooFinanceService
 				await Task.Delay(TimeSpan.FromSeconds(1 * attempt));
 
 				// try using without cookies
-				url = $"{_options.YahooBaseUrlQuoteHtml}/{symbol}/?_guc_consent_skip={Helper.ToUnixTimestamp(DateTime.UtcNow.AddHours(1))}".ToLower();
+				url = $"{Constants.YahooBaseUrlQuoteHtml}/{symbol}/?_guc_consent_skip={Helper.ToUnixTimestamp(DateTime.UtcNow.AddHours(1))}".ToLower();
 			}
 		}
 		_logger.LogWarning($"No summary found after {_options.HttpRetries} attempts.");

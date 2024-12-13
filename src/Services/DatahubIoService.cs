@@ -48,10 +48,10 @@ internal class DatahubIoService : IDatahubIoService
 
 	public async Task<IEnumerable<NasdaqInstrument>> GetNasdaqInstrumentsAsync(CancellationToken token = default)
 	{
-		var httpClient = _httpClientFactory.CreateClient(_options.DatahubIoHttpClientName);
+		var httpClient = _httpClientFactory.CreateClient(Constants.DatahubIoHttpClientName);
 		try
 		{
-			var response = await httpClient.GetAsync(_options.DatahubIoDownloadUrlNasdaqListedSymbols, token);
+			var response = await httpClient.GetAsync(_options.DatahubIoDownloadUrlNasdaqListedSymbols, token).ConfigureAwait(false);
 			response.EnsureSuccessStatusCode();
 			var config = new CsvConfiguration(CultureInfo.InvariantCulture);
 
@@ -68,10 +68,10 @@ internal class DatahubIoService : IDatahubIoService
 
 	public async Task<IEnumerable<SP500Instrument>> GetSP500InstrumentsAsync(CancellationToken token = default)
 	{
-		var httpClient = _httpClientFactory.CreateClient(_options.DatahubIoHttpClientName);
+		var httpClient = _httpClientFactory.CreateClient(Constants.DatahubIoHttpClientName);
 		try
 		{
-			var response = await httpClient.GetAsync(_options.DatahubIoDownloadUrlSP500Symbols, token);
+			var response = await httpClient.GetAsync(_options.DatahubIoDownloadUrlSP500Symbols, token).ConfigureAwait(false);
 			response.EnsureSuccessStatusCode();
 			var config = new CsvConfiguration(CultureInfo.InvariantCulture);
 

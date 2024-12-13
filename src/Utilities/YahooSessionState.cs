@@ -52,12 +52,12 @@ internal class YahooSessionState(IOptions<FinanceNetConfiguration> options) : IY
 
 	public bool IsValid()
 	{
-		var cookies = _cookieContainer?.GetCookies(new Uri(_options.YahooBaseUrlHtml));
+		var cookies = _cookieContainer?.GetCookies(new Uri(Constants.YahooBaseUrlHtml));
 		if (_refreshTime == null || cookies?.Count == null || cookies.Count == 0 || string.IsNullOrWhiteSpace(_crumb))
 		{
 			return false;
 		}
-		if (DateTime.UtcNow >= _refreshTime?.AddHours(_options.YahooCookieRefreshTime))
+		if (DateTime.UtcNow >= _refreshTime?.AddHours(_options.YahooCookieExpirationTime))
 		{
 			// e.g. 10:00 >= 12:00 (09:00+3) = false, 10:00 >= 04:00 (01:00+3) = true
 			return false;

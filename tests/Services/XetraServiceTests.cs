@@ -5,7 +5,9 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Finance.Net.Interfaces;
 using Finance.Net.Services;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using Moq.Protected;
@@ -17,6 +19,7 @@ namespace Finance.Net.Tests.Services;
 [Category("UnitTests")]
 public class XetraServiceTests
 {
+	private Mock<ILogger<IXetraService>> _mockLogger;
 	private Mock<IHttpClientFactory> _mockHttpClientFactory;
 	private Mock<IOptions<FinanceNetConfiguration>> _mockOptions;
 	private Mock<HttpMessageHandler> _mockHandler;
@@ -28,6 +31,7 @@ public class XetraServiceTests
 		_mockOptions.Setup(x => x.Value).Returns(new FinanceNetConfiguration { });
 		_mockHttpClientFactory = new Mock<IHttpClientFactory>();
 		_mockHandler = new Mock<HttpMessageHandler>();
+		_mockLogger = new Mock<ILogger<IXetraService>>();
 
 		_mockHandler
 			.Protected()
@@ -56,6 +60,7 @@ public class XetraServiceTests
 		var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Xetra", "t7-xetr-allTradableInstruments.csv");
 		SetupHttpCsvFileResponse(filePath);
 		var service = new XetraService(
+			_mockLogger.Object,
 			_mockHttpClientFactory.Object,
 			_mockOptions.Object);
 

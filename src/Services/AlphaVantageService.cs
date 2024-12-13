@@ -51,15 +51,15 @@ internal class AlphaVantageService : IAlphaVantageService
 
 	public async Task<CompanyOverview?> GetCompanyOverviewAsync(string symbol, CancellationToken token = default)
 	{
-		var httpClient = _httpClientFactory.CreateClient(_options.AlphaVantageHttpClientName);
-		var url = _options.AlphaVantageApiUrl + "/query?function=OVERVIEW" +
+		var httpClient = _httpClientFactory.CreateClient(Constants.AlphaVantageHttpClientName);
+		var url = Constants.AlphaVantageApiUrl + "/query?function=OVERVIEW" +
 			$"&symbol={symbol}" +
 			$"&apikey={_options.AlphaVantageApiKey}";
 		for (int attempt = 1; attempt <= _options.HttpRetries; attempt++)
 		{
 			try
 			{
-				var response = await httpClient.GetAsync(url, token);
+				var response = await httpClient.GetAsync(url, token).ConfigureAwait(false);
 				response.EnsureSuccessStatusCode();
 
 				string jsonResponse = await response.Content.ReadAsStringAsync();
@@ -81,8 +81,8 @@ internal class AlphaVantageService : IAlphaVantageService
 
 	public async Task<IEnumerable<DailyRecord>> GetHistoricalRecordsAsync(string symbol, DateTime startDate, DateTime? endDate = null, CancellationToken token = default)
 	{
-		var httpClient = _httpClientFactory.CreateClient(_options.AlphaVantageHttpClientName);
-		var url = _options.AlphaVantageApiUrl + "/query?function=TIME_SERIES_DAILY_ADJUSTED" +
+		var httpClient = _httpClientFactory.CreateClient(Constants.AlphaVantageHttpClientName);
+		var url = Constants.AlphaVantageApiUrl + "/query?function=TIME_SERIES_DAILY_ADJUSTED" +
 			$"&symbol={symbol}&outputsize=full&apikey={_options.AlphaVantageApiKey}";
 		Guard.Against.NullOrEmpty(symbol);
 		if (endDate == null || endDate?.Date >= DateTime.UtcNow.Date)
@@ -99,7 +99,7 @@ internal class AlphaVantageService : IAlphaVantageService
 			try
 			{
 				var result = new List<DailyRecord>();
-				var response = await httpClient.GetAsync(url, token);
+				var response = await httpClient.GetAsync(url, token).ConfigureAwait(false);
 				response.EnsureSuccessStatusCode();
 
 				string jsonResponse = await response.Content.ReadAsStringAsync();
@@ -187,8 +187,8 @@ internal class AlphaVantageService : IAlphaVantageService
 
 	private async Task<List<IntradayRecord>> GetIntradayRecordsByMonthAsync(string symbol, DateTime month, EInterval interval, CancellationToken token = default)
 	{
-		var httpClient = _httpClientFactory.CreateClient(_options.AlphaVantageHttpClientName);
-		var url = _options.AlphaVantageApiUrl + "/query?function=TIME_SERIES_INTRADAY" +
+		var httpClient = _httpClientFactory.CreateClient(Constants.AlphaVantageHttpClientName);
+		var url = Constants.AlphaVantageApiUrl + "/query?function=TIME_SERIES_INTRADAY" +
 			$"&symbol={symbol}" +
 			$"&interval={interval.Description()}" +
 			$"&month={month:yyyy-MM}" +
@@ -200,7 +200,7 @@ internal class AlphaVantageService : IAlphaVantageService
 			try
 			{
 				var result = new List<IntradayRecord>();
-				var response = await httpClient.GetAsync(url, token);
+				var response = await httpClient.GetAsync(url, token).ConfigureAwait(false);
 				response.EnsureSuccessStatusCode();
 
 				string jsonResponse = await response.Content.ReadAsStringAsync();
@@ -261,7 +261,7 @@ internal class AlphaVantageService : IAlphaVantageService
 
 	public async Task<IEnumerable<DailyForexRecord>> GetHistoricalForexRecordsAsync(string currency1, string currency2, DateTime startDate, DateTime? endDate = null, CancellationToken token = default)
 	{
-		var httpClient = _httpClientFactory.CreateClient(_options.AlphaVantageHttpClientName);
+		var httpClient = _httpClientFactory.CreateClient(Constants.AlphaVantageHttpClientName);
 		Guard.Against.NullOrEmpty(currency1);
 		Guard.Against.NullOrEmpty(currency2);
 
@@ -273,7 +273,7 @@ internal class AlphaVantageService : IAlphaVantageService
 		{
 			throw new FinanceNetException("Startdate after Endate");
 		}
-		var url = _options.AlphaVantageApiUrl + "/query?function=FX_DAILY" +
+		var url = Constants.AlphaVantageApiUrl + "/query?function=FX_DAILY" +
 			$"&from_symbol={currency1}&to_symbol={currency2}&outputsize=full&apikey={_options.AlphaVantageApiKey}";
 
 		for (int attempt = 1; attempt <= _options.HttpRetries; attempt++)
@@ -282,7 +282,7 @@ internal class AlphaVantageService : IAlphaVantageService
 			{
 				var result = new List<DailyForexRecord>();
 
-				var response = await httpClient.GetAsync(url, token);
+				var response = await httpClient.GetAsync(url, token).ConfigureAwait(false);
 				response.EnsureSuccessStatusCode();
 
 				string jsonResponse = await response.Content.ReadAsStringAsync();

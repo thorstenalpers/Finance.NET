@@ -36,7 +36,7 @@ internal class YahooSessionManager(IHttpClientFactory httpClientFactory,
 
 	public IEnumerable<Cookie> GetCookies()
 	{
-		var cookies = _sessionState.GetCookieContainer().GetCookies(new Uri(_options.YahooBaseUrlHtml)).Cast<Cookie>();
+		var cookies = _sessionState.GetCookieContainer().GetCookies(new Uri(Constants.YahooBaseUrlHtml)).Cast<Cookie>();
 		return cookies;
 	}
 
@@ -93,13 +93,13 @@ internal class YahooSessionManager(IHttpClientFactory httpClientFactory,
 
 	private async Task<string> CreateApiCookiesAndCrumb(CancellationToken token)
 	{
-		var httpClient = _httpClientFactory.CreateClient(_options.YahooHttpClientName);
+		var httpClient = _httpClientFactory.CreateClient(Constants.YahooHttpClientName);
 		httpClient.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml,application/json;q=0.9,*/*;q=0.8");
 
 		string? crumb = null;
-		var response = await httpClient.GetAsync(_options.YahooBaseUrlAuthentication.ToLower(), token).ConfigureAwait(false);
+		var response = await httpClient.GetAsync(Constants.YahooBaseUrlAuthentication.ToLower(), token).ConfigureAwait(false);
 
-		var requestMessage = new HttpRequestMessage(HttpMethod.Get, _options.YahooBaseUrlCrumbApi.ToLower());
+		var requestMessage = new HttpRequestMessage(HttpMethod.Get, Constants.YahooBaseUrlCrumbApi.ToLower());
 		var cookieHeader = response.Headers.GetValues("Set-Cookie").FirstOrDefault();
 		requestMessage.Headers.Add("Cookie", cookieHeader);
 
@@ -114,7 +114,7 @@ internal class YahooSessionManager(IHttpClientFactory httpClientFactory,
 		{
 			throw new FinanceNetException("Unable to get api cookies.");
 		}
-		var cookieString = _sessionState?.GetCookieContainer()?.GetCookies(new Uri(_options.YahooBaseUrlHtml)).Cast<Cookie>().Select(cookie => cookie.Name);
+		var cookieString = _sessionState?.GetCookieContainer()?.GetCookies(new Uri(Constants.YahooBaseUrlHtml)).Cast<Cookie>().Select(cookie => cookie.Name);
 		_logger.LogDebug(() => $"cookieNames= {cookieString}");
 		_logger.LogDebug(() => $"_crumb= {crumb}");
 		_logger.LogInformation($"API Session established successfully");
@@ -123,12 +123,12 @@ internal class YahooSessionManager(IHttpClientFactory httpClientFactory,
 
 	private async Task CreateUiCookies(CancellationToken token)
 	{
-		var httpClient = _httpClientFactory.CreateClient(_options.YahooHttpClientName);
+		var httpClient = _httpClientFactory.CreateClient(Constants.YahooHttpClientName);
 		httpClient.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml,application/json;q=0.9,*/*;q=0.8");
 
 		// get consent
 		await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
-		var response = await httpClient.GetAsync(_options.YahooBaseUrlHtml, token);
+		var response = await httpClient.GetAsync(Constants.YahooBaseUrlHtml, token);
 		response.EnsureSuccessStatusCode();
 
 		var htmlContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -137,7 +137,7 @@ internal class YahooSessionManager(IHttpClientFactory httpClientFactory,
 		var sessionIdNode = document.QuerySelector("input[name='sessionId']");
 		if (csrfTokenNode == null || sessionIdNode == null)
 		{
-			response = await httpClient.GetAsync(_options.YahooBaseUrlHtml, token);
+			response = await httpClient.GetAsync(Constants.YahooBaseUrlHtml, token);
 			response.EnsureSuccessStatusCode();
 
 			// no EU consent, call from coming outside of EU
@@ -146,14 +146,14 @@ internal class YahooSessionManager(IHttpClientFactory httpClientFactory,
 				_logger.LogInformation($"UI Session established successfully without EU consent");
 				return;
 			}
-			var cookieNames = string.Join(", ", _sessionState?.GetCookieContainer()?.GetCookies(new Uri(_options.YahooBaseUrlHtml)).Cast<Cookie>().Select(cookie => cookie.Name));
+			var cookieNames = string.Join(", ", _sessionState?.GetCookieContainer()?.GetCookies(new Uri(Constants.YahooBaseUrlHtml)).Cast<Cookie>().Select(cookie => cookie.Name));
 			throw new FinanceNetException($"Unable to retrieve csrfTokenNode and sessionIdNode, cnt={_sessionState?.GetCookieContainer()?.Count},names={cookieNames}");
 		}
 		var csrfToken = csrfTokenNode.GetAttribute("value");
 		var sessionId = sessionIdNode.GetAttribute("value");
 		if (string.IsNullOrEmpty(csrfToken) || string.IsNullOrEmpty(sessionId))
 		{
-			var cookieNames = string.Join(", ", _sessionState?.GetCookieContainer()?.GetCookies(new Uri(_options.YahooBaseUrlHtml)).Cast<Cookie>().Select(cookie => cookie.Name));
+			var cookieNames = string.Join(", ", _sessionState?.GetCookieContainer()?.GetCookies(new Uri(Constants.YahooBaseUrlHtml)).Cast<Cookie>().Select(cookie => cookie.Name));
 			throw new FinanceNetException($"Unable to retrieve csrfToken and sessionId, cnt={_sessionState?.GetCookieContainer()?.Count},names={cookieNames}");
 		}
 		await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
@@ -163,14 +163,14 @@ internal class YahooSessionManager(IHttpClientFactory httpClientFactory,
 						{
 							new("csrfToken", csrfToken),
 							new("sessionId", sessionId),
-							new("originalDoneUrl", _options.YahooBaseUrlHtml),
+							new("originalDoneUrl", Constants.YahooBaseUrlHtml),
 							new("namespace", "yahoo"),
 						};
 		foreach (var value in new List<string> { "reject", "reject" })
 		{
 			postData.Add(new("reject", value));
 		}
-		var requestMessage = new HttpRequestMessage(HttpMethod.Post, (string?)$"{_options.YahooBaseUrlConsentCollect}?sessionId={sessionId}")
+		var requestMessage = new HttpRequestMessage(HttpMethod.Post, (string?)$"{Constants.YahooBaseUrlConsentCollect}?sessionId={sessionId}")
 		{
 			Content = new FormUrlEncodedContent(postData)
 		};
@@ -180,7 +180,7 @@ internal class YahooSessionManager(IHttpClientFactory httpClientFactory,
 		await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
 
 		// finalize
-		response = await httpClient.GetAsync(_options.YahooBaseUrlHtml, token);
+		response = await httpClient.GetAsync(Constants.YahooBaseUrlHtml, token);
 		response.EnsureSuccessStatusCode();
 		if (_sessionState.GetCookieContainer()?.Count < 3)
 		{
