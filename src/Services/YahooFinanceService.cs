@@ -137,7 +137,7 @@ internal class YahooFinanceService : IYahooFinanceService
 				var response = await httpClient.SendAsync(requestMessage, token).ConfigureAwait(false);
 				response.EnsureSuccessStatusCode();
 				var htmlContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-				_logger.LogDebug(() => $"htmlContent={Regex.Replace(htmlContent, @"\s+", " ")}");
+				_logger.LogDebug(() => $"htmlContent={htmlContent.Minify()}");
 				var len = htmlContent.Length;
 
 				var document = new AngleSharp.Html.Parser.HtmlParser().ParseDocument(htmlContent);
@@ -221,7 +221,7 @@ internal class YahooFinanceService : IYahooFinanceService
 				response.EnsureSuccessStatusCode();
 
 				var htmlContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-				_logger.LogDebug(() => $"htmlContent={Regex.Replace(htmlContent, @"\s+", " ")}");
+				_logger.LogDebug(() => $"htmlContent={htmlContent.Minify()}");
 				var document = new AngleSharp.Html.Parser.HtmlParser().ParseDocument(htmlContent);
 
 				var table = document.QuerySelector("table.table");
@@ -322,7 +322,7 @@ internal class YahooFinanceService : IYahooFinanceService
 				response.EnsureSuccessStatusCode();
 
 				var htmlContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-				_logger.LogDebug(() => $"htmlContent={Regex.Replace(htmlContent, @"\s+", " ")}");
+				_logger.LogDebug(() => $"htmlContent={htmlContent.Minify()}");
 				var document = new AngleSharp.Html.Parser.HtmlParser().ParseDocument(htmlContent);
 
 				var headers = document
@@ -408,7 +408,7 @@ internal class YahooFinanceService : IYahooFinanceService
 				response.EnsureSuccessStatusCode();
 
 				var htmlContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-				_logger.LogDebug(() => $"htmlContent={Regex.Replace(htmlContent, @"\s+", " ")}");
+				_logger.LogDebug(() => $"htmlContent={htmlContent.Minify()}");
 				var document = new AngleSharp.Html.Parser.HtmlParser().ParseDocument(htmlContent);
 
 				var askElement = document.Body.SelectSingleNode("//li[span[contains(text(), 'Ask')]]/span[2]");

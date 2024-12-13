@@ -29,7 +29,7 @@ internal static class TestHelper
 			builder.AddConsole();
 			builder.SetMinimumLevel(LogLevel.Information);
 			builder.AddFilter("System.Net.Http.HttpClient", LogLevel.Warning);
-			builder.AddFilter("Finance.Net", LogLevel.Information);
+			builder.AddFilter("Finance.Net", LogLevel.Debug);
 
 			builder.AddSimpleConsole(options =>
 			{

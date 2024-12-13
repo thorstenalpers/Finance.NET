@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using AngleSharp.Io;
 using AngleSharp.XPath;
 using AutoMapper;
 using CsvHelper;
@@ -101,6 +102,7 @@ internal class XetraService : IXetraService
 				response.EnsureSuccessStatusCode();
 
 				var htmlContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+				_logger.LogDebug(() => $"htmlContent={htmlContent.Minify()}");
 				var document = new AngleSharp.Html.Parser.HtmlParser().ParseDocument(htmlContent);
 
 				var urlNodes = document

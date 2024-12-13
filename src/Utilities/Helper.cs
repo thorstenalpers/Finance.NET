@@ -224,4 +224,16 @@ public static class Helper
 		}
 		return string.Join("; ", cookies.Cast<Cookie>().Select(cookie => $"{cookie.Name}={cookie.Value}"));
 	}
+
+	public static string Minify(this string strXmlContent)
+	{
+		if (string.IsNullOrWhiteSpace(strXmlContent))
+		{
+			return strXmlContent;
+		}
+		return Regex.Replace(strXmlContent, @"\s+", " ");
+	}
+
+
+
 }

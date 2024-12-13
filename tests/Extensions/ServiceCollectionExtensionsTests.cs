@@ -27,7 +27,7 @@ public class ServiceCollectionExtensionsTests
 		var services = new ServiceCollection();
 		var cfg = new FinanceNetConfiguration()
 		{
-			AlphaVantageApiKey = "xxx",
+			AlphaVantageApiKey = "MyKey",
 			DatahubIoDownloadUrlNasdaqListedSymbols = "https://www.google2.de",
 			DatahubIoDownloadUrlSP500Symbols = "https://www.google3.de",
 			YahooCookieExpirationTime = 7,
