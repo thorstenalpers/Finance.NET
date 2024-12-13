@@ -51,9 +51,12 @@
     <None Update="TestData\DatahubIo\nasdaq-listed-symbols.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="TestData\Xetra\t7-xetr-allTradableInstruments.csv">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+	<None Update="TestData\Xetra\t7-xetr-allTradableInstruments.csv">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
+	<None Update="TestData\Xetra\xetra-download-area.html">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
 	<None Update="TestData\Yahoo\financial_eu.html">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</None>
