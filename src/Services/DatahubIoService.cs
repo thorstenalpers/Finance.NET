@@ -18,17 +18,11 @@ using Microsoft.Extensions.Options;
 
 namespace Finance.Net.Services;
 
-internal class DatahubIoService : IDatahubIoService
+internal class DatahubIoService(IHttpClientFactory httpClientFactory, IOptions<FinanceNetConfiguration> options) : IDatahubIoService
 {
-	private readonly IHttpClientFactory _httpClientFactory;
-	private readonly FinanceNetConfiguration _options;
+	private readonly IHttpClientFactory _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+	private readonly FinanceNetConfiguration _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
 	private static ServiceProvider? _serviceProvider = null;
-
-	public DatahubIoService(IHttpClientFactory httpClientFactory, IOptions<FinanceNetConfiguration> options)
-	{
-		_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
-		_options = options?.Value ?? throw new ArgumentNullException(nameof(options));
-	}
 
 	/// <summary>
 	/// Creates a service for interacting with the OpenData API.

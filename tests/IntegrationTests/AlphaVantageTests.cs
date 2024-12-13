@@ -2,8 +2,6 @@ using System;
 using System.Threading.Tasks;
 using Finance.Net.Interfaces;
 using Finance.Net.Services;
-using Finance.Net.Tests;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using NUnit.Framework;
@@ -28,7 +26,6 @@ public class AlphaVantageTests
 	public async Task GetCompanyOverviewAsync_WithoutIoC_ValidSymbols_ReturnsOverview()
 	{
 		var cfg = _serviceProvider.GetRequiredService<IOptions<FinanceNetConfiguration>>();
-		var configuration = _serviceProvider.GetService<IConfiguration>();
 
 		var service = AlphaVantageService.Create(new FinanceNetConfiguration
 		{

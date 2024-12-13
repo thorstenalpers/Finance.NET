@@ -7,20 +7,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using Finance.Net.Exceptions;
 using Finance.Net.Interfaces;
-using Finance.Net.Utilities;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace Finance.Net.Utilities;
 
 internal class YahooSessionManager(IHttpClientFactory httpClientFactory,
 	ILogger<IYahooSessionManager> logger,
-								   IOptions<FinanceNetConfiguration> options,
-								   IYahooSessionState sessionState) : IYahooSessionManager
+	IYahooSessionState sessionState) : IYahooSessionManager
 {
 	private readonly ILogger<IYahooSessionManager> _logger = logger;
 	private readonly IYahooSessionState _sessionState = sessionState ?? throw new ArgumentNullException(nameof(sessionState));
-	private readonly FinanceNetConfiguration _options = options.Value ?? throw new ArgumentNullException(nameof(options));
 	private static readonly SemaphoreSlim _semaphore = new(1, 1);
 	private readonly IHttpClientFactory _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
 
@@ -40,22 +36,16 @@ internal class YahooSessionManager(IHttpClientFactory httpClientFactory,
 		return cookies;
 	}
 
-	public async Task RefreshSessionAsync(CancellationToken token = default, bool forceRefresh = false)
+	public async Task RefreshSessionAsync(CancellationToken token = default)
 	{
 		var cookies = GetCookies();
-		_logger.LogDebug(() => $"cookieNames= {string.Join(", ", cookies.Cast<Cookie>().Select(cookie => cookie.Name))}");
+		_logger.LogDebug("cookieNames={cookies}", string.Join(", ", cookies.Cast<Cookie>().Select(cookie => cookie.Name)));
 
-		if (forceRefresh)
-		{
-			_sessionState.InvalidateSession();
-		}
 		if (_sessionState.IsValid())
 		{
 			return;
 		}
-
 		await _semaphore.WaitAsync(token).ConfigureAwait(false);
-
 		if (_sessionState.IsValid())
 		{
 			return;
@@ -80,8 +70,8 @@ internal class YahooSessionManager(IHttpClientFactory httpClientFactory,
 				catch (Exception ex)
 				{
 					_sessionState.InvalidateSession();
-					_logger.LogInformation($"Retry after exception={ex?.Message}");
-					await Task.Delay(TimeSpan.FromSeconds(1 * attempt));
+					_logger.LogInformation("Retry after exception={ex}", ex?.Message);
+					await Task.Delay(TimeSpan.FromSeconds(1 * attempt), token);
 				}
 			}
 		}
@@ -114,10 +104,9 @@ internal class YahooSessionManager(IHttpClientFactory httpClientFactory,
 		{
 			throw new FinanceNetException("Unable to get api cookies.");
 		}
-		var cookieString = _sessionState?.GetCookieContainer()?.GetCookies(new Uri(Constants.YahooBaseUrlHtml)).Cast<Cookie>().Select(cookie => cookie.Name);
-		_logger.LogDebug(() => $"cookieNames= {cookieString}");
-		_logger.LogDebug(() => $"_crumb= {crumb}");
-		_logger.LogInformation($"API Session established successfully");
+		_logger.LogDebug("cookieNames= {cookieString}", _sessionState?.GetCookieContainer()?.GetCookies(new Uri(Constants.YahooBaseUrlHtml)).Cast<Cookie>().Select(cookie => cookie.Name));
+		_logger.LogDebug("_crumb= {crumb}", crumb);
+		_logger.LogInformation("API Session established successfully");
 		return crumb;
 	}
 

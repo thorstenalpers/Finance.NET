@@ -86,7 +86,7 @@ internal class YahooFinanceService : IYahooFinanceService
 
 				var jsonContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
-				_logger.LogDebug(() => $"jsonContent={Regex.Replace(jsonContent, @"\s+", " ")}");
+				_logger.LogDebug("jsonContent={jsonContent}", jsonContent.Minify());
 
 				var parsedData = JsonConvert.DeserializeObject<QuoteResponseRoot>(jsonContent) ?? throw new FinanceNetException($"Invalid data returned by Yahoo");
 				var responseObj = parsedData.QuoteResponse ?? throw new FinanceNetException($"Unexpected response from Yahoo");
@@ -114,12 +114,12 @@ internal class YahooFinanceService : IYahooFinanceService
 			}
 			catch (Exception ex)
 			{
-				_logger.LogInformation($"Retry for {string.Join(",", symbols)}");
-				_logger.LogDebug(() => $"url={url}, ex={ex}");
-				await Task.Delay(TimeSpan.FromSeconds(1 * attempt));
+				_logger.LogInformation("Retry for {symbols}", string.Join(",", symbols));
+				_logger.LogDebug("url={url}, ex={ex}", url, ex);
+				await Task.Delay(TimeSpan.FromSeconds(1 * attempt), token);
 			}
 		}
-		_logger.LogWarning($"No quotes found after {_options.HttpRetries} attempts.");
+		_logger.LogWarning("No quotes found after {retries} attempts.", _options.HttpRetries);
 		return [];
 	}
 
@@ -137,7 +137,7 @@ internal class YahooFinanceService : IYahooFinanceService
 				var response = await httpClient.SendAsync(requestMessage, token).ConfigureAwait(false);
 				response.EnsureSuccessStatusCode();
 				var htmlContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-				_logger.LogDebug(() => $"htmlContent={htmlContent.Minify()}");
+				_logger.LogDebug("htmlContent={htmlContent}", htmlContent.Minify());
 				var len = htmlContent.Length;
 
 				var document = new AngleSharp.Html.Parser.HtmlParser().ParseDocument(htmlContent);
@@ -183,15 +183,15 @@ internal class YahooFinanceService : IYahooFinanceService
 			}
 			catch (Exception ex)
 			{
-				_logger.LogInformation($"{attempt} retry for {symbol}");
-				_logger.LogDebug(() => $"url={url}, ex={ex}");
-				await Task.Delay(TimeSpan.FromSeconds(1 * attempt));
+				_logger.LogInformation("{attempt} retry for {symbol}", attempt, symbol);
+				_logger.LogDebug("url={url}, ex={ex}", url, ex);
+				await Task.Delay(TimeSpan.FromSeconds(1 * attempt), token);
 
 				// try using without cookies
 				url = $"{Constants.YahooBaseUrlQuoteHtml}/{symbol}/profile/?_guc_consent_skip={Helper.ToUnixTimestamp(DateTime.UtcNow.AddHours(1))}".ToLower();
 			}
 		}
-		_logger.LogWarning($"No profile found after {_options.HttpRetries} attempts.");
+		_logger.LogWarning("No profile found after {retries} attempts.", _options.HttpRetries);
 		return new Models.Yahoo.Profile();
 	}
 
@@ -221,14 +221,10 @@ internal class YahooFinanceService : IYahooFinanceService
 				response.EnsureSuccessStatusCode();
 
 				var htmlContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-				_logger.LogDebug(() => $"htmlContent={htmlContent.Minify()}");
+				_logger.LogDebug("htmlContent={htmlContent}", htmlContent.Minify());
 				var document = new AngleSharp.Html.Parser.HtmlParser().ParseDocument(htmlContent);
 
-				var table = document.QuerySelector("table.table");
-				if (table == null)
-				{
-					throw new FinanceNetException("No records found");
-				}
+				var table = document.QuerySelector("table.table") ?? throw new FinanceNetException("No records found");
 
 				var headers = table.QuerySelectorAll("thead th")
 					.Select(th =>
@@ -271,7 +267,7 @@ internal class YahooFinanceService : IYahooFinanceService
 
 						if (date == null)
 						{
-							_logger.LogWarning($"invalid date {dateString}");
+							_logger.LogWarning("invalid date {dateString}", dateString);
 							continue;
 						}
 
@@ -288,22 +284,22 @@ internal class YahooFinanceService : IYahooFinanceService
 					}
 					else
 					{
-						_logger.LogInformation($"No records in row {row.TextContent}");    // e.g. date + dividend (over all columns)
+						_logger.LogInformation("No records in row {row}", row.TextContent);    // e.g. date + dividend (over all columns)
 					}
 				}
 				return records;
 			}
 			catch (Exception ex)
 			{
-				_logger.LogInformation($"{attempt} retry for {symbol}");
-				_logger.LogDebug(() => $"url={url}, ex={ex}");
-				await Task.Delay(TimeSpan.FromSeconds(1 * attempt));
+				_logger.LogInformation("{attempt} retry for {symbol}", attempt, symbol);
+				_logger.LogDebug("url={url}, ex={ex}", url, ex);
+				await Task.Delay(TimeSpan.FromSeconds(1 * attempt), token);
 
 				// try using without cookies
 				url = $"{Constants.YahooBaseUrlQuoteHtml}/{symbol}/history/?period1={period1}&period2={period2}&_guc_consent_skip={Helper.ToUnixTimestamp(DateTime.UtcNow.AddHours(1))}".ToLower();
 			}
 		}
-		_logger.LogWarning($"No records found after {_options.HttpRetries} attempts.");
+		_logger.LogWarning("No records found after {retries} attempts.", _options.HttpRetries);
 		return [];
 	}
 
@@ -322,7 +318,7 @@ internal class YahooFinanceService : IYahooFinanceService
 				response.EnsureSuccessStatusCode();
 
 				var htmlContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-				_logger.LogDebug(() => $"htmlContent={htmlContent.Minify()}");
+				_logger.LogDebug("htmlContent={htmlContent}", htmlContent.Minify());
 				var document = new AngleSharp.Html.Parser.HtmlParser().ParseDocument(htmlContent);
 
 				var headers = document
@@ -368,7 +364,7 @@ internal class YahooFinanceService : IYahooFinanceService
 					}
 					else
 					{
-						_logger.LogWarning($"Unknown row property {rowTitle}.");
+						_logger.LogWarning("Unknown row property {rowTitle}.", rowTitle);
 					}
 				}
 				if (result == null || result.Count == 0)
@@ -380,15 +376,15 @@ internal class YahooFinanceService : IYahooFinanceService
 			}
 			catch (Exception ex)
 			{
-				_logger.LogInformation($"{attempt} retry for {symbol}");
-				_logger.LogDebug(() => $"url={url}, ex={ex}");
-				await Task.Delay(TimeSpan.FromSeconds(1 * attempt));
+				_logger.LogInformation("{attempt} retry for {symbol}", attempt, symbol);
+				_logger.LogDebug("url={url}, ex={ex}", url, ex);
+				await Task.Delay(TimeSpan.FromSeconds(1 * attempt), token);
 
 				// try using without cookies
 				url = $"{Constants.YahooBaseUrlQuoteHtml}/{symbol}/financials/?_guc_consent_skip={Helper.ToUnixTimestamp(DateTime.UtcNow.AddHours(1))}".ToLower();
 			}
 		}
-		_logger.LogWarning($"No financial reports found after {_options.HttpRetries} attempts.");
+		_logger.LogWarning("No financial reports found after {retries} attempts.", _options.HttpRetries);
 		return [];
 	}
 
@@ -408,7 +404,7 @@ internal class YahooFinanceService : IYahooFinanceService
 				response.EnsureSuccessStatusCode();
 
 				var htmlContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-				_logger.LogDebug(() => $"htmlContent={htmlContent.Minify()}");
+				_logger.LogDebug("htmlContent={htmlContent}", htmlContent.Minify());
 				var document = new AngleSharp.Html.Parser.HtmlParser().ParseDocument(htmlContent);
 
 				var askElement = document.Body.SelectSingleNode("//li[span[contains(text(), 'Ask')]]/span[2]");
@@ -429,12 +425,12 @@ internal class YahooFinanceService : IYahooFinanceService
 
 				var daysRangeElement = document.Body.SelectSingleNode("//li[span[contains(text(), 's Range')]]/span[2]");
 				var daysRange = daysRangeElement?.TextContent?.Trim()?.Split(" - ");
-				var daysRange_Min = daysRange?.Count() == 2 ? Helper.ParseDecimal(daysRange.FirstOrDefault()) : null;
-				var daysRange_Max = daysRange?.Count() == 2 ? Helper.ParseDecimal(daysRange.LastOrDefault()) : null;
+				var daysRange_Min = daysRange?.Length == 2 ? Helper.ParseDecimal(daysRange.FirstOrDefault()) : null;
+				var daysRange_Max = daysRange?.Length == 2 ? Helper.ParseDecimal(daysRange.LastOrDefault()) : null;
 
 				var earningsDateElement = document.Body.SelectSingleNode("//li[span[contains(text(), 'Earnings Date')]]/span[2]");
 				var earningsDateStr = earningsDateElement?.TextContent?.Trim()?.Split(" - ");
-				var earningsDate = earningsDateStr == null || !earningsDateStr.Any() ? null : Helper.ParseDate(earningsDateStr.FirstOrDefault());
+				var earningsDate = earningsDateStr == null || earningsDateStr.Length == 0 ? null : Helper.ParseDate(earningsDateStr.FirstOrDefault());
 
 				var ePS_TTMElement = document.Body.SelectSingleNode("//li[span[contains(text(), 'EPS (TTM)')]]/span[2]");
 				var ePS_TTM = Helper.ParseDecimal(ePS_TTMElement?.TextContent?.Trim());
@@ -470,8 +466,8 @@ internal class YahooFinanceService : IYahooFinanceService
 
 				var weekRange52Element = document.Body.SelectSingleNode("//li[span[contains(text(), '52 Week Range')]]/span[2]");
 				var weekRange52 = weekRange52Element?.TextContent?.Trim()?.Split(" - ");
-				var weekRange52_Min = weekRange52?.Count() == 2 ? Helper.ParseDecimal(weekRange52.FirstOrDefault()) : null;
-				var weekRange52_Max = weekRange52?.Count() == 2 ? Helper.ParseDecimal(weekRange52.LastOrDefault()) : null;
+				var weekRange52_Min = weekRange52?.Length == 2 ? Helper.ParseDecimal(weekRange52.FirstOrDefault()) : null;
+				var weekRange52_Max = weekRange52?.Length == 2 ? Helper.ParseDecimal(weekRange52.LastOrDefault()) : null;
 
 				var result = new Summary
 				{
@@ -504,15 +500,15 @@ internal class YahooFinanceService : IYahooFinanceService
 			}
 			catch (Exception ex)
 			{
-				_logger.LogInformation($"{attempt} retry for {symbol}");
-				_logger.LogDebug(() => $"url={url}, ex={ex}");
-				await Task.Delay(TimeSpan.FromSeconds(1 * attempt));
+				_logger.LogInformation("{attempt} retry for {symbol}", attempt, symbol);
+				_logger.LogDebug("url={url}, ex={ex}", url, ex);
+				await Task.Delay(TimeSpan.FromSeconds(1 * attempt), token);
 
 				// try using without cookies
 				url = $"{Constants.YahooBaseUrlQuoteHtml}/{symbol}/?_guc_consent_skip={Helper.ToUnixTimestamp(DateTime.UtcNow.AddHours(1))}".ToLower();
 			}
 		}
-		_logger.LogWarning($"No summary found after {_options.HttpRetries} attempts.");
+		_logger.LogWarning("No summary found after {retries} attempts.", _options.HttpRetries);
 		return new Summary();
 	}
 }

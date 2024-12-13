@@ -7,28 +7,11 @@ using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using Finance.Net.Models.AlphaVantage;
-using Finance.Net.Utilities;
-using Microsoft.Extensions.Logging;
 
 namespace Finance.Net.Utilities;
 
 public static class Helper
 {
-	public static void LogDebug(this ILogger logger, Func<string> message)
-	{
-		if (logger.IsEnabled(LogLevel.Debug))
-		{
-			logger.LogDebug(message());
-		}
-	}
-
-	public static void LogInformation(this ILogger logger, Func<string> message)
-	{
-		if (logger.IsEnabled(LogLevel.Information))
-		{
-			logger.LogInformation(message());
-		}
-	}
 	public static bool IsNullOrEmpty<T>(this IEnumerable<T> list)
 	{
 		return list?.Any() != true;
@@ -176,7 +159,6 @@ public static class Helper
 			"Linux x86_64",
 			"X11; Ubuntu; Linux x86_64"
 		  ];
-		var firefoxUserAgents = new List<string>();
 		var allAgents = new List<string>();
 		foreach (var firefoxVersion in firefoxVersions)
 		{

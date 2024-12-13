@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Finance.Net.Interfaces;
 using Finance.Net.Services;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 using NUnit.Framework;
 
 namespace Finance.Net.Tests.IntegrationTests;
@@ -62,7 +61,6 @@ public class YahooFinanceTests
 	{
 		var quote = await _service.GetQuoteAsync(symbol);
 
-		var json = JsonConvert.SerializeObject(quote, Formatting.Indented);
 		Assert.That(quote, Is.Not.Null);
 		Assert.That(quote.Symbol, Is.EqualTo(symbol));
 		Assert.That(quote.FirstTradeDate.Value.Date >= new DateTime(1920, 1, 1) && quote.FirstTradeDate.Value.Date <= DateTime.UtcNow, Is.True);

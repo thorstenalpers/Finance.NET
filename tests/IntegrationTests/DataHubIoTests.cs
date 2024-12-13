@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Finance.Net.Interfaces;
 using Finance.Net.Services;
-using Finance.Net.Tests;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 

@@ -19,19 +19,12 @@ using Newtonsoft.Json;
 
 namespace Finance.Net.Services;
 
-internal class AlphaVantageService : IAlphaVantageService
+internal class AlphaVantageService(ILogger<IAlphaVantageService> logger, IHttpClientFactory httpClientFactory, IOptions<FinanceNetConfiguration> options) : IAlphaVantageService
 {
-	private readonly ILogger<IAlphaVantageService> _logger;
-	private readonly IHttpClientFactory _httpClientFactory;
-	private readonly FinanceNetConfiguration _options;
+	private readonly ILogger<IAlphaVantageService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+	private readonly IHttpClientFactory _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+	private readonly FinanceNetConfiguration _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
 	private static ServiceProvider? _serviceProvider = null;
-
-	public AlphaVantageService(ILogger<IAlphaVantageService> logger, IHttpClientFactory httpClientFactory, IOptions<FinanceNetConfiguration> options)
-	{
-		_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-		_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
-		_options = options?.Value ?? throw new ArgumentNullException(nameof(options));
-	}
 
 	/// <summary>
 	/// Creates a service for interacting with the AlphaVantage API.
@@ -71,9 +64,9 @@ internal class AlphaVantageService : IAlphaVantageService
 			}
 			catch (Exception ex)
 			{
-				_logger.LogInformation($"{attempt} retry for {symbol}");
-				_logger.LogDebug(() => $"ex={ex}");
-				await Task.Delay(TimeSpan.FromSeconds(1 * attempt));
+				_logger.LogInformation("{attempt} retry for {symbol}", attempt, symbol);
+				_logger.LogDebug("ex={ex}", ex);
+				await Task.Delay(TimeSpan.FromSeconds(1 * attempt), token);
 			}
 		}
 		throw new FinanceNetException($"No company overview found for {symbol} after {_options.HttpRetries} retries");
@@ -122,8 +115,7 @@ internal class AlphaVantageService : IAlphaVantageService
 					}
 					if (result.Any(e => e.Date == today))
 					{
-						var errMsg = $"Bug: Course for {symbol} for {today:yyyy-MM-dd} already added!";
-						_logger.LogWarning(errMsg);
+						_logger.LogWarning("Bug: Course for {symbol} for {date} already added!", symbol, today.ToString("yyyy-MM-dd"));
 					}
 					else
 					{
@@ -144,9 +136,9 @@ internal class AlphaVantageService : IAlphaVantageService
 			}
 			catch (Exception ex)
 			{
-				_logger.LogInformation($"{attempt} retry for {symbol}");
-				_logger.LogDebug(() => $"ex={ex}");
-				await Task.Delay(TimeSpan.FromSeconds(1 * attempt));
+				_logger.LogInformation("{attempt} retry for {symbol}", attempt, symbol);
+				_logger.LogDebug("ex={ex}", ex);
+				await Task.Delay(TimeSpan.FromSeconds(1 * attempt), token);
 			}
 		}
 		throw new FinanceNetException($"no daily records for {symbol} after {_options.HttpRetries} retries.");
@@ -212,18 +204,13 @@ internal class AlphaVantageService : IAlphaVantageService
 
 				var timeseries = interval switch
 				{
-					EInterval.Interval_1Min => data?.TimeSeries1Min,
-					EInterval.Interval_5Min => data?.TimeSeries5Min,
-					EInterval.Interval_15Min => data?.TimeSeries15Min,
-					EInterval.Interval_30Min => data?.TimeSeries30Min,
-					EInterval.Interval_60Min => data?.TimeSeries60Min,
+					EInterval.Interval_1Min => data?.TimeSeries1Min ?? throw new FinanceNetException($"no intraday records for {symbol}"),
+					EInterval.Interval_5Min => data?.TimeSeries5Min ?? throw new FinanceNetException($"no intraday records for {symbol}"),
+					EInterval.Interval_15Min => data?.TimeSeries15Min ?? throw new FinanceNetException($"no intraday records for {symbol}"),
+					EInterval.Interval_30Min => data?.TimeSeries30Min ?? throw new FinanceNetException($"no intraday records for {symbol}"),
+					EInterval.Interval_60Min => data?.TimeSeries60Min ?? throw new FinanceNetException($"no intraday records for {symbol}"),
 					_ => throw new NotImplementedException(),
 				};
-
-				if (timeseries == null)
-				{
-					throw new FinanceNetException($"no intraday records for {symbol}");
-				}
 				foreach (var item in timeseries)
 				{
 					var dateTimeString = item.Key;
@@ -251,9 +238,9 @@ internal class AlphaVantageService : IAlphaVantageService
 			}
 			catch (Exception ex)
 			{
-				_logger.LogInformation($"{attempt} retry for {symbol}");
-				_logger.LogDebug(() => $"ex={ex}");
-				await Task.Delay(TimeSpan.FromSeconds(1 * attempt));
+				_logger.LogInformation("{attempt} retry for {symbol}", attempt, symbol);
+				_logger.LogDebug("ex={ex}", ex);
+				await Task.Delay(TimeSpan.FromSeconds(1 * attempt), token);
 			}
 		}
 		throw new FinanceNetException($"No intraday records found for {symbol} after {_options.HttpRetries} retries.");
@@ -305,8 +292,7 @@ internal class AlphaVantageService : IAlphaVantageService
 					}
 					if (result.Any(e => e.Date == today))
 					{
-						var errMsg = $"Bug: {currency1} /{currency2} for {today:yyyy-MM-dd} already added!";
-						_logger.LogWarning(errMsg);
+						_logger.LogWarning("Bug: {currency1} /{currency2} for {date} already added!", currency1, currency2, today.ToString("yyyy-MM-dd"));
 					}
 					else
 					{
@@ -324,9 +310,9 @@ internal class AlphaVantageService : IAlphaVantageService
 			}
 			catch (Exception ex)
 			{
-				_logger.LogInformation($"Retry for {currency1} /{currency2}");
-				_logger.LogDebug(() => $"ex={ex}");
-				await Task.Delay(TimeSpan.FromSeconds(1 * attempt));
+				_logger.LogInformation("Retry for {currency1} /{currency2}", currency1, currency2);
+				_logger.LogDebug("ex={ex}", ex);
+				await Task.Delay(TimeSpan.FromSeconds(1 * attempt), token);
 			}
 		}
 		throw new FinanceNetException($"No forex records found for {currency1} /{currency2} after {_options.HttpRetries} retries.");

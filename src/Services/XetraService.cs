@@ -101,7 +101,7 @@ internal class XetraService : IXetraService
 				response.EnsureSuccessStatusCode();
 
 				var htmlContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-				_logger.LogDebug(() => $"htmlContent={htmlContent.Minify()}");
+				_logger.LogDebug("htmlContent={htmlContent}", htmlContent.Minify());
 				var document = new AngleSharp.Html.Parser.HtmlParser().ParseDocument(htmlContent);
 
 				var urlNodes = document
@@ -122,9 +122,9 @@ internal class XetraService : IXetraService
 			}
 			catch (Exception ex)
 			{
-				_logger.LogInformation($"{attempt} retry to download instruments from Xetra");
-				_logger.LogDebug(() => $"url={url}, ex={ex}");
-				await Task.Delay(TimeSpan.FromSeconds(1 * attempt));
+				_logger.LogInformation("{attempt} retry to download instruments from Xetra", attempt);
+				_logger.LogDebug("url={url}, ex={ex}", url, ex);
+				await Task.Delay(TimeSpan.FromSeconds(1 * attempt), token);
 			}
 		}
 		throw new FinanceNetException("No instruments url found on Xetra.com");
