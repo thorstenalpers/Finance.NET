@@ -51,29 +51,21 @@ jobs:
       run: |
           dotnet test "${{ env.Test_Project_Path }}" --collect:"XPlat Code Coverage" --results-directory ./TestResults/IntegrationTests --configuration Release --filter Category=IntegrationTests --logger "console;verbosity=detailed"
           if ($LASTEXITCODE -ne 0) {
-            Write-Host "Tests failed, marking job as failed"
+            Write-Host "Tests failed"
             exit 1
           }
           reportgenerator -reports:./TestResults/IntegrationTests/**/coverage.cobertura.xml -targetdir:./TestResults/Coverage/Integration -reporttypes:"Html;lcov"
       env:
           FinanceNet__AlphaVantageApiKey: ${{ secrets.ALPHAVANTAGEAPIKEY }}
 
-    - name: Generate unit test report
+    - name: Generate Coverage Report
       run: |
-        reportgenerator -reports:./TestResults/UnitTests/**/coverage.cobertura.xml -targetdir:./TestResults/Coverage/Unit -reporttypes:"Html;lcov"
-
-    - name: Generate integration test report
-      run: |
-        reportgenerator -reports:./TestResults/Integration/**/coverage.cobertura.xml -targetdir:./TestResults/Coverage/Integration -reporttypes:"Html;lcov"
-
-    - name: Merge Coverage Reports
-      run: |
-          reportgenerator -reports:./TestResults/Coverage/Unit/lcov.info;./TestResults/Coverage/Integration/lcov.info -targetdir:./TestResults/Coverage/Merged -reporttypes:"Html;lcov"
+        reportgenerator -reports:./TestResults/**/**/coverage.cobertura.xml -targetdir:./TestResults/Coverage/Report -reporttypes:"Html;lcov"
 
     - name: Upload report to Coveralls
       uses: coverallsapp/github-action@v2
       with:
-        coverage_file: ./TestResults/Coverage/Merged/lcov.info
+        coverage_file: ./TestResults/Coverage/Report/lcov.info
       env:
         COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
 
@@ -81,6 +73,6 @@ jobs:
       uses: actions/upload-artifact@v4.4.3
       with:
         name: unit-test-coverage-report
-        path: ./TestResults/Coverage/Merged
+        path: ./TestResults/Coverage/Report
 
 
