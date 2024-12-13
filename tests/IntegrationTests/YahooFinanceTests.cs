@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Finance.Net.Exceptions;
 using Finance.Net.Interfaces;
 using Finance.Net.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,14 +13,14 @@ namespace Finance.Net.Tests.IntegrationTests;
 [Category("IntegrationTests")]
 public class YahooFinanceTests
 {
-    private static IServiceProvider _serviceProvider;
+    private static IServiceProvider s_serviceProvider;
     private IYahooFinanceService _service;
 
-    [SetUp]
-    public void SetUp()
+    [OneTimeSetUp]
+    public void OneTimeSetUp()
     {
-        _serviceProvider = TestHelper.SetUpServiceProvider();
-        _service = _serviceProvider.GetRequiredService<IYahooFinanceService>();
+        s_serviceProvider = TestHelper.SetUpServiceProvider();
+        _service = s_serviceProvider.GetRequiredService<IYahooFinanceService>();
     }
 
     [TearDown]
@@ -78,10 +79,10 @@ public class YahooFinanceTests
     [TestCase("EURUSD=X", false)]  // Euro to USD
     public async Task GetProfileAsync_ValidSymbols_ReturnsProfile(string symbol, bool shouldHaveProfile)
     {
-        var profile = await _service.GetProfileAsync(symbol);
-
         if (shouldHaveProfile)
         {
+            var profile = await _service.GetProfileAsync(symbol);
+
             Assert.That(profile, Is.Not.Null);
             Assert.That(profile.Industry, Is.Not.Null);
             Assert.That(profile.Sector, Is.Not.Null);
@@ -94,15 +95,7 @@ public class YahooFinanceTests
         }
         else
         {
-            Assert.That(profile, Is.Not.Null);
-            Assert.That(profile.Industry, Is.Null);
-            Assert.That(profile.Sector, Is.Null);
-            Assert.That(profile.Phone, Is.Null);
-            Assert.That(profile.CorporateGovernance, Is.Null);
-            Assert.That(profile.CntEmployees, Is.Null);
-            Assert.That(profile.Adress, Is.Null);
-            Assert.That(profile.Description, Is.Null);
-            Assert.That(profile.Website, Is.Null);
+            Assert.ThrowsAsync<FinanceNetException>(async () => await _service.GetProfileAsync(symbol));
         }
     }
 
@@ -132,16 +125,15 @@ public class YahooFinanceTests
     [TestCase("EURUSD=X", true)]  // Euro to USD
     public async Task GetSummaryAsync_ValidSymbols_ReturnsSummary(string symbol, bool shouldHaveSummary)
     {
-        var summary = await _service.GetSummaryAsync(symbol);
-
         if (shouldHaveSummary)
         {
+            var summary = await _service.GetSummaryAsync(symbol);
             Assert.That(summary, Is.Not.Null);
             Assert.That(summary.PreviousClose, Is.Not.Null);
         }
         else
         {
-            Assert.That(summary, Is.Null);
+            Assert.ThrowsAsync<FinanceNetException>(async () => await _service.GetSummaryAsync(symbol));
         }
     }
 
@@ -153,10 +145,9 @@ public class YahooFinanceTests
     [TestCase("EURUSD=X", false)]  // Euro to USD
     public async Task GetFinancialReportsAsync_ValidSymbols_ReturnsReports(string symbol, bool shouldHaveReport)
     {
-        var reports = await _service.GetFinancialReportsAsync(symbol);
-
         if (shouldHaveReport)
         {
+            var reports = await _service.GetFinancialReportsAsync(symbol);
             Assert.That(reports, Is.Not.Empty);
 
             var firstReport = reports.First();
@@ -165,7 +156,7 @@ public class YahooFinanceTests
         }
         else
         {
-            Assert.That(reports, Is.Null.Or.Empty);
+            Assert.ThrowsAsync<FinanceNetException>(async () => await _service.GetFinancialReportsAsync(symbol));
         }
     }
 }

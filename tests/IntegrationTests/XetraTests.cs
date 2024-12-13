@@ -12,14 +12,14 @@ namespace Finance.Net.Tests.IntegrationTests;
 [Category("IntegrationTests")]
 public class XetraTests
 {
-    private static IServiceProvider _serviceProvider;
+    private static IServiceProvider s_serviceProvider;
     private IXetraService _service;
 
-    [SetUp]
-    public void SetUp()
+    [OneTimeSetUp]
+    public void OneTimeSetUp()
     {
-        _serviceProvider = TestHelper.SetUpServiceProvider();
-        _service = _serviceProvider.GetRequiredService<IXetraService>();
+        s_serviceProvider = TestHelper.SetUpServiceProvider();
+        _service = s_serviceProvider.GetRequiredService<IXetraService>();
     }
 
     [TestCase("MSF.DE")]    // Microsoft Corporation (Xetra)

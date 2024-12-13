@@ -15,8 +15,8 @@ public class AlphaVantageTests
     private IServiceProvider _serviceProvider;
     private IAlphaVantageService _service;
 
-    [SetUp]
-    public void SetUp()
+    [OneTimeSetUp]
+    public void OneTimeSetUp()
     {
         _serviceProvider = TestHelper.SetUpServiceProvider();
         _service = _serviceProvider.GetRequiredService<IAlphaVantageService>();

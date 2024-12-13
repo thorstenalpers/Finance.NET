@@ -15,8 +15,8 @@ public class DatahubIoTests
     private static IServiceProvider _serviceProvider;
     private IDatahubIoService _service;
 
-    [SetUp]
-    public void SetUp()
+    [OneTimeSetUp]
+    public void OneTimeSetUp()
     {
         _serviceProvider = TestHelper.SetUpServiceProvider();
         _service = _serviceProvider.GetRequiredService<IDatahubIoService>();
