@@ -1,5 +1,6 @@
 ﻿using System;
 using Finance.Net.Models.AlphaVantage;
+using Finance.Net.Models.Yahoo.Dtos;
 using Finance.Net.Utilities;
 using NUnit.Framework;
 
@@ -126,5 +127,50 @@ public class HelperTests
 
         // Assert
         Assert.That(result, Is.EqualTo(expected));
+    }
+
+    [Test]
+    public void Minify_WithWhiteChars_ReturnsText()
+    {
+        // Arrange
+        var str = "Hello\n\nWorld\r\n\t!";
+
+        // Act
+        var result = str.Minify();
+
+        // Assert
+        Assert.That(result, Is.EqualTo("Hello World !"));
+    }
+
+    [Test]
+    public void AreAllFieldsNull_Null_ReturnsTrue()
+    {
+        // Arrange
+        var model = new QuoteResponse
+        {
+
+        };
+
+        // Act
+        var result = Helper.AreAllFieldsNull(model);
+
+        // Assert
+        Assert.That(true, Is.EqualTo(result));
+    }
+
+    [Test]
+    public void AreAllFieldsNull_NotNull_ReturnsFalse()
+    {
+        // Arrange
+        var model = new QuoteResponse
+        {
+            AskSize = 123
+        };
+
+        // Act
+        var result = Helper.AreAllFieldsNull(model);
+
+        // Assert
+        Assert.That(false, Is.EqualTo(result));
     }
 }
