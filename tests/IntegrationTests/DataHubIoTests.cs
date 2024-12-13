@@ -31,31 +31,41 @@ public class DatahubIoTests
         Assert.That(instruments, Is.Not.Empty);
     }
 
-    [TestCase("MSFT")]      // Microsoft Corporation (Nasdaq)
-    [TestCase("GOOG")]      // Alphabet (Nasdaq)
-    public async Task GetNasdaqInstrumentsAsync_ValidSymbols_ReturnsInstruments(string symbol)
+    [TestCase("MSFT", true)]      // Microsoft Corporation (Nasdaq)
+    [TestCase("GOOG", true)]      // Alphabet (Nasdaq)
+    [TestCase("TESTING.NET", false)]
+    public async Task GetNasdaqInstrumentsAsync_ValidSymbols_ReturnsInstruments(string symbol, bool shouldHave)
     {
         var instruments = await _service.GetNasdaqInstrumentsAsync();
-
-        Assert.That(instruments, Is.Not.Empty);
-
         var instrument = instruments.FirstOrDefault(e => e.Symbol == symbol);
-
-        Assert.That(instrument, Is.Not.Null);
-        Assert.That(instrument?.SecurityName, Is.Not.Empty);
+        if (shouldHave)
+        {
+            Assert.That(instrument, Is.Not.Null);
+            Assert.That(instrument?.SecurityName, Is.Not.Empty);
+        }
+        else
+        {
+            Assert.That(instrument, Is.Null);
+            Assert.That(instrument?.SecurityName, Is.Null.Or.Empty);
+        }
     }
 
-    [TestCase("MSFT")]      // Microsoft Corporation (Nasdaq)
-    [TestCase("GOOG")]      // Alphabet (Nasdaq)
-    public async Task GetSP500InstrumentsAsync_ValidSymbols_ReturnsInstruments(string symbol)
+    [TestCase("MSFT", true)]      // Microsoft Corporation (Nasdaq)
+    [TestCase("GOOG", true)]      // Alphabet (Nasdaq)
+    [TestCase("TESTING.NET", false)]
+    public async Task GetSP500InstrumentsAsync_ValidSymbols_ReturnsInstruments(string symbol, bool shouldHave)
     {
         var instruments = await _service.GetSP500InstrumentsAsync();
-
-        Assert.That(instruments, Is.Not.Empty);
-
         var instrument = instruments.FirstOrDefault(e => e.Symbol == symbol);
-
-        Assert.That(instrument, Is.Not.Null);
-        Assert.That(instrument?.Name, Is.Not.Empty);
+        if (shouldHave)
+        {
+            Assert.That(instrument, Is.Not.Null);
+            Assert.That(instrument?.Name, Is.Not.Empty);
+        }
+        else
+        {
+            Assert.That(instrument, Is.Null);
+            Assert.That(instrument?.Name, Is.Null.Or.Empty);
+        }
     }
 }

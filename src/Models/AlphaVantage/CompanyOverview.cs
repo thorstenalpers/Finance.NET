@@ -17,7 +17,7 @@ public class CompanyOverview
     public string? OfficialSite { get; set; }
     public string? FiscalYearEnd { get; set; }
     public string? LatestQuarter { get; set; }
-    public long MarketCapitalization { get; set; }
+    public long? MarketCapitalization { get; set; }
     public string? EBITDA { get; set; }
     public string? PERatio { get; set; }
     public string? PEGRatio { get; set; }

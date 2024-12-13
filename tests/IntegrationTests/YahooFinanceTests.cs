@@ -52,23 +52,31 @@ public class YahooFinanceTests
         Assert.That(profile.Adress, Is.Not.Null);
     }
 
-    [TestCase("MSFT")]      // Microsoft Corporation (Nasdaq)
-    [TestCase("IBM")]       // IBM (Nasdaq)
-    [TestCase("SAP.DE")]    // SAP SE (Xetra)
-    [TestCase("6758.T")]    // Sony Group Corporation (Tokyo)
-    [TestCase("VOO")]       // Vanguard S&P 500 ETF
-    [TestCase("EURUSD=X")]  // Euro to USD
-    public async Task GetQuoteAsync_ValidSymbols_ReturnsQuote(string symbol)
+    [TestCase("MSFT", true)]      // Microsoft Corporation (Nasdaq)
+    [TestCase("IBM", true)]       // IBM (Nasdaq)
+    [TestCase("SAP.DE", true)]    // SAP SE (Xetra)
+    [TestCase("6758.T", true)]    // Sony Group Corporation (Tokyo)
+    [TestCase("VOO", true)]       // Vanguard S&P 500 ETF
+    [TestCase("EURUSD=X", true)]  // Euro to USD
+    [TestCase("TESTING.NET", false)]
+    public async Task GetQuoteAsync_ValidSymbols_ReturnsQuote(string symbol, bool shouldHaveQuote)
     {
-        var quote = await _service.GetQuoteAsync(symbol);
+        if (shouldHaveQuote)
+        {
+            var quote = await _service.GetQuoteAsync(symbol);
 
-        Assert.That(quote, Is.Not.Null);
-        Assert.That(quote.Symbol, Is.EqualTo(symbol));
-        Assert.That(quote.FirstTradeDate.Value.Date >= new DateTime(1920, 1, 1) && quote.FirstTradeDate.Value.Date <= DateTime.UtcNow, Is.True);
-        Assert.That(!string.IsNullOrWhiteSpace(quote.QuoteType), Is.True);
-        Assert.That(!string.IsNullOrWhiteSpace(quote.Exchange), Is.True);
-        Assert.That(!string.IsNullOrWhiteSpace(quote.ShortName), Is.True);
-        Assert.That(!string.IsNullOrWhiteSpace(quote.LongName), Is.True);
+            Assert.That(quote, Is.Not.Null);
+            Assert.That(quote.Symbol, Is.EqualTo(symbol));
+            Assert.That(quote.FirstTradeDate.Value.Date >= new DateTime(1920, 1, 1) && quote.FirstTradeDate.Value.Date <= DateTime.UtcNow, Is.True);
+            Assert.That(!string.IsNullOrWhiteSpace(quote.QuoteType), Is.True);
+            Assert.That(!string.IsNullOrWhiteSpace(quote.Exchange), Is.True);
+            Assert.That(!string.IsNullOrWhiteSpace(quote.ShortName), Is.True);
+            Assert.That(!string.IsNullOrWhiteSpace(quote.LongName), Is.True);
+        }
+        else
+        {
+            Assert.ThrowsAsync<FinanceNetException>(async () => await _service.GetQuoteAsync(symbol));
+        }
     }
 
     [TestCase("MSFT", true)]      // Microsoft Corporation (Nasdaq)
@@ -99,22 +107,30 @@ public class YahooFinanceTests
         }
     }
 
-    [TestCase("MSFT")]      // Microsoft Corporation (Nasdaq)
-    [TestCase("SAP")]       // SAP SE (Nasdaq)
-    [TestCase("SAP.DE")]    // SAP SE (Xetra)
-    [TestCase("6758.T")]    // Sony Group Corporation (Tokyo)
-    [TestCase("VOO")]       // Vanguard S&P 500 ETF
-    [TestCase("EURUSD=X")]  // Euro to USD
-    public async Task GetHistoryRecordsAsync_ValidSymbols_ReturnsRecords(string symbol)
+    [TestCase("MSFT", true)]      // Microsoft Corporation (Nasdaq)
+    [TestCase("SAP", true)]       // SAP SE (Nasdaq)
+    [TestCase("SAP.DE", true)]    // SAP SE (Xetra)
+    [TestCase("6758.T", true)]    // Sony Group Corporation (Tokyo)
+    [TestCase("VOO", true)]       // Vanguard S&P 500 ETF
+    [TestCase("EURUSD=X", true)]  // Euro to USD
+    [TestCase("TESTING.NET", false)]
+    public async Task GetHistoryRecordsAsync_ValidSymbols_ReturnsRecords(string symbol, bool shouldHaveRecords)
     {
         var startDate = DateTime.UtcNow.AddDays(-7);
-        var records = await _service.GetHistoryRecordsAsync(symbol, startDate);
+        if (shouldHaveRecords)
+        {
+            var records = await _service.GetHistoryRecordsAsync(symbol, startDate);
 
-        Assert.That(records, Is.Not.Empty);
+            Assert.That(records, Is.Not.Empty);
 
-        var lastRecentRecord = records.FirstOrDefault();
-        Assert.That(lastRecentRecord.Date.Date <= DateTime.UtcNow, Is.True);
-        Assert.That(lastRecentRecord.Date.Date >= startDate, Is.True);
+            var lastRecentRecord = records.FirstOrDefault();
+            Assert.That(lastRecentRecord.Date.Date <= DateTime.UtcNow, Is.True);
+            Assert.That(lastRecentRecord.Date.Date >= startDate, Is.True);
+        }
+        else
+        {
+            Assert.ThrowsAsync<FinanceNetException>(async () => await _service.GetHistoryRecordsAsync(symbol, startDate));
+        }
     }
 
     [TestCase("MSFT", true)]      // Microsoft Corporation (Nasdaq)
@@ -123,6 +139,7 @@ public class YahooFinanceTests
     [TestCase("6758.T", true)]    // Sony Group Corporation (Tokyo)
     [TestCase("VOO", true)]       // Vanguard S&P 500 ETF
     [TestCase("EURUSD=X", true)]  // Euro to USD
+    [TestCase("TESTING.NET", false)]
     public async Task GetSummaryAsync_ValidSymbols_ReturnsSummary(string symbol, bool shouldHaveSummary)
     {
         if (shouldHaveSummary)

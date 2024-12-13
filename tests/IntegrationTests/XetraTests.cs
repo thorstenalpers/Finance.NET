@@ -22,20 +22,27 @@ public class XetraTests
         _service = s_serviceProvider.GetRequiredService<IXetraService>();
     }
 
-    [TestCase("MSF.DE")]    // Microsoft Corporation (Xetra)
-    [TestCase("SAP.DE")]    // SAP SE (Xetra)
-    [TestCase("VUSA.DE")]   // Vanguard S&P 500 ETF
-    public async Task GetInstruments_ValidSymbols_ReturnsIntsruments(string symbol)
+    [TestCase("MSF.DE", true)]    // Microsoft Corporation (Xetra)
+    [TestCase("SAP.DE", true)]    // SAP SE (Xetra)
+    [TestCase("VUSA.DE", true)]   // Vanguard S&P 500 ETF
+    [TestCase("TESTING.NET", false)]
+    public async Task GetInstruments_ValidSymbols_ReturnsIntsruments(string symbol, bool shouldHave)
     {
         var instruments = await _service.GetInstruments();
-
-        Assert.That(instruments, Is.Not.Empty);
-
         var instrument = instruments.FirstOrDefault(e => e.Symbol == symbol);
 
-        Assert.That(instrument, Is.Not.Null);
-        Assert.That(instrument?.ISIN, Is.Not.Empty);
-        Assert.That(instrument?.InstrumentName, Is.Not.Empty);
+        if (shouldHave)
+        {
+            Assert.That(instrument, Is.Not.Null);
+            Assert.That(instrument?.ISIN, Is.Not.Empty);
+            Assert.That(instrument?.InstrumentName, Is.Not.Empty);
+        }
+        else
+        {
+            Assert.That(instrument, Is.Null);
+            Assert.That(instrument?.ISIN, Is.Null.Or.Empty);
+            Assert.That(instrument?.InstrumentName, Is.Null.Or.Empty);
+        }
     }
 
     [Test]

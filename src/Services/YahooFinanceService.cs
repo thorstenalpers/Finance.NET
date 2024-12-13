@@ -115,7 +115,7 @@ internal class YahooFinanceService : IYahooFinanceService
                     var quote = _mapper.Map<Quote>(quoteResponse);
                     quotes.Add(quote);
                 }
-                return quotes;
+                return quotes.IsNullOrEmpty() ? throw new FinanceNetException("All fields empty") : quotes;
             });
         }
         catch (Exception ex)
@@ -277,7 +277,7 @@ internal class YahooFinanceService : IYahooFinanceService
                         _logger.LogInformation("No records in row {row}", row.TextContent);    // e.g. date + dividend (over all columns)
                     }
                 }
-                return records;
+                return records.IsNullOrEmpty() ? throw new FinanceNetException("All fields empty") : records;
             });
         }
         catch (Exception ex)
@@ -351,7 +351,7 @@ internal class YahooFinanceService : IYahooFinanceService
                         _logger.LogWarning("Unknown row property {RowTitle}.", rowTitle);
                     }
                 }
-                return result == null || result.Count == 0 ? throw new FinanceNetException("no reports") : result;
+                return result.IsNullOrEmpty() ? throw new FinanceNetException("All fields empty") : result;
             });
         }
         catch (Exception ex)

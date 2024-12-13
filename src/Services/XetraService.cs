@@ -88,7 +88,8 @@ internal class XetraService : IXetraService
                 csv.Context.RegisterClassMap<XetraInstrumentsMapping>();
                 var records = csv.GetRecords<InstrumentItem>()?.ToList();
 
-                return _mapper.Map<List<Instrument>>(records);
+                var instruments = _mapper.Map<List<Instrument>>(records);
+                return instruments.IsNullOrEmpty() ? throw new FinanceNetException("All fields empty") : instruments;
             });
         }
         catch (Exception ex)

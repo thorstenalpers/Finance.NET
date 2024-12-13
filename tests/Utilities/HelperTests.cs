@@ -133,7 +133,7 @@ public class HelperTests
     public void Minify_WithWhiteChars_ReturnsText()
     {
         // Arrange
-        var str = "Hello\n\nWorld\r\n\t!";
+        const string str = "Hello\n\nWorld\r\n\t!";
 
         // Act
         var result = str.Minify();
@@ -146,10 +146,7 @@ public class HelperTests
     public void AreAllFieldsNull_Null_ReturnsTrue()
     {
         // Arrange
-        var model = new QuoteResponse
-        {
-
-        };
+        var model = new QuoteResponse();
 
         // Act
         var result = Helper.AreAllFieldsNull(model);

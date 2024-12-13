@@ -27,15 +27,14 @@ internal class YahooSessionState(IOptions<FinanceNetConfiguration> options) : IY
         return _crumb;
     }
 
-    public void SetCrumb(string crumb)
+    public void SetCrumb(string crumb, DateTime refreshTime)
     {
         _crumb = crumb;
-        _refreshTime = DateTime.UtcNow;
+        _refreshTime = refreshTime;
     }
 
     public void InvalidateSession()
     {
-        // clear cookies
         var domainTableField = typeof(CookieContainer).GetField("m_domainTable", BindingFlags.NonPublic | BindingFlags.Instance);
         var domainTable = domainTableField?.GetValue(_cookieContainer);
 

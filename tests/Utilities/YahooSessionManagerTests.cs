@@ -46,6 +46,7 @@ public class YahooSessionManagerTests
                 Content = new StringContent("Crumb"),
                 Headers = { { "Set-Cookie", "cookieName=cookieValue; path=/; expires=Wed, 13 Jan 2024 00:00:00 GMT" } }
             });
+
         _mockHttpClientFactory.Setup(e => e.CreateClient(It.IsAny<string>())).Returns(new HttpClient(_mockHandler.Object));
     }
 
@@ -172,5 +173,81 @@ public class YahooSessionManagerTests
 
         // Assert
         _mockYahooSessionState.Verify(s => s.IsValid(), Times.AtLeast(2));
+    }
+
+    [Test]
+    public async Task RefreshSessionAsync_NotRefreshed_RefreshesWithEuConsent()
+    {
+        // Arrange
+        var cookieContainer = new CookieContainer();
+        cookieContainer.Add(new Cookie("cookieName1", "Value", "/", ".yahoo.com")
+        {
+            Expires = DateTime.Now.AddDays(1)
+        });
+        cookieContainer.Add(new Cookie("cookieName2", "Value", "/", ".yahoo.com")
+        {
+            Expires = DateTime.Now.AddDays(1)
+        });
+        cookieContainer.Add(new Cookie("cookieName3", "Value", "/", ".yahoo.com")
+        {
+            Expires = DateTime.Now.AddDays(1)
+        });
+        cookieContainer.Add(new Cookie("cookieName4", "Value", "/", ".yahoo.com")
+        {
+            Expires = DateTime.Now.AddDays(1)
+        });
+        _mockYahooSessionState.Setup(s => s.GetCookieContainer()).Returns(cookieContainer);
+        _mockYahooSessionState.SetupSequence(s => s.IsValid())
+            .Returns(false)
+            .Returns(true);
+        _mockHandler
+            .Protected()
+            .SetupSequence<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("Auth"),
+                Headers = { { "Set-Cookie", "cookieName=cookieValue; path=/; expires=Wed, 13 Jan 2024 00:00:00 GMT" } }
+            })
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("Crumb"),
+                Headers = { { "Set-Cookie", "cookieName=cookieValue; path=/; expires=Wed, 13 Jan 2024 00:00:00 GMT" } }
+            })
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("<div class=\"actions couple\">\r\n    <input type=\"hidden\" name=\"csrfToken\" value=\"W95-xeA\">\r\n    <input type=\"hidden\" name=\"sessionId\" value=\"3_cc-session_41bb06e7-1410-408d-9312-8fdb41fc92a2\">\r\n    <input type=\"hidden\" name=\"originalDoneUrl\" value=\"https://finance.yahoo.com/quote/SAP.DE/profile/?guccounter=2\">\r\n    <input type=\"hidden\" name=\"namespace\" value=\"yahoo\">\r\n    <button type=\"submit\" class=\"btn secondary accept-all \" name=\"agree\" value=\"agree\">Alle akzeptieren</button>\r\n        <button type=\"submit\" class=\"btn secondary reject-all\" name=\"reject\" value=\"reject\">Alle ablehnen</button>\r\n    <a href=\"/v2/partners?sessionId=3_cc-session_41bb06e7-1410-408d-9312-8fdb41fc92a2\" class=\"btn secondary mng-btn manage-settings\" role=\"button\">Datenschutzeinstellungen verwalten</a>\r\n                    </div>"),
+            })
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(""),
+            })
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(""),
+            });
+        _mockHttpClientFactory.Setup(e => e.CreateClient(It.IsAny<string>())).Returns(new HttpClient(_mockHandler.Object));
+
+        var manager = new YahooSessionManager(
+            _mockHttpClientFactory.Object,
+            _mockLogger.Object,
+            _mockYahooSessionState.Object,
+            _mockPolicyRegistry.Object);
+
+        // Act
+        await manager.RefreshSessionAsync();
+
+        // Assert
+        _mockYahooSessionState.Verify(s => s.IsValid(), Times.AtLeast(2));
+
+        _mockLogger.Verify(
+            logger => logger.Log(
+                LogLevel.Information,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((state, t) =>
+                state.ToString() == "UI Session established successfully"),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()
+            ),
+            Times.Once);
     }
 }

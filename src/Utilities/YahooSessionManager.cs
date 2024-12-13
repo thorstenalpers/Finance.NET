@@ -54,7 +54,7 @@ internal class YahooSessionManager(IHttpClientFactory httpClientFactory,
             await _retryPolicy.ExecuteAsync(async () =>
             {
                 var crumb = await CreateApiCookiesAndCrumb(token).ConfigureAwait(false);
-                _sessionState.SetCrumb(crumb);
+                _sessionState.SetCrumb(crumb, DateTime.UtcNow);
                 await CreateUiCookies(token).ConfigureAwait(false);
                 if (!_sessionState.IsValid())
                 {

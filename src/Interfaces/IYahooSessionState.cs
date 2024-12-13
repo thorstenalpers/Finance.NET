@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 
 namespace Finance.Net.Interfaces;
 
@@ -8,6 +9,6 @@ public interface IYahooSessionState
     string GetUserAgent();
     CookieContainer GetCookieContainer();
     string? GetCrumb();
-    void SetCrumb(string crumb);
+    void SetCrumb(string crumb, DateTime refreshTime);
     void InvalidateSession();
 }

@@ -13,6 +13,7 @@ using Finance.Net.Extensions;
 using Finance.Net.Interfaces;
 using Finance.Net.Mappings;
 using Finance.Net.Models.DatahubIo;
+using Finance.Net.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -59,7 +60,8 @@ internal class DatahubIoService(IHttpClientFactory httpClientFactory,
                 using var reader = new StreamReader(await response.Content.ReadAsStreamAsync());
                 using var csv = new CsvReader(reader, config);
                 csv.Context.RegisterClassMap<NasdaqInstrumentMapping>();
-                return csv.GetRecords<NasdaqInstrument>().ToList();
+                var instruments = csv.GetRecords<NasdaqInstrument>().ToList();
+                return instruments.IsNullOrEmpty() ? throw new FinanceNetException("All fields empty") : instruments;
             });
         }
         catch (Exception ex)
@@ -83,7 +85,8 @@ internal class DatahubIoService(IHttpClientFactory httpClientFactory,
                 using var csv = new CsvReader(reader, config);
                 csv.Context.RegisterClassMap<SP500InstrumentMapping>();
 
-                return csv.GetRecords<SP500Instrument>().ToList();
+                var instruments = csv.GetRecords<SP500Instrument>().ToList();
+                return instruments.IsNullOrEmpty() ? throw new FinanceNetException("All fields empty") : instruments;
             });
         }
         catch (Exception ex)

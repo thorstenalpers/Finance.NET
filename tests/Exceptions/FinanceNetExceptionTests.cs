@@ -8,7 +8,6 @@ namespace Finance.Net.Tests.Exceptions;
 [Category("UnitTests")]
 public class FinanceNetExceptionTests
 {
-
     [Test]
     public void FinanceNetException_Create_NotNull()
     {

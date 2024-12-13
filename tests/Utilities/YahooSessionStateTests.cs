@@ -39,7 +39,7 @@ public class YahooSessionStateTests
         var yahooSessionState = new YahooSessionState(_mockOptions.Object);
 
         // Act
-        yahooSessionState.SetCrumb("Test");
+        yahooSessionState.SetCrumb("Test", DateTime.UtcNow);
         var result = yahooSessionState.GetCrumb();
 
         // Assert
@@ -73,13 +73,32 @@ public class YahooSessionStateTests
             Expires = DateTime.Now.AddDays(1)
         };
         yahooSessionState.GetCookieContainer().Add(cookie);
-        yahooSessionState.SetCrumb("Crumb");
+        yahooSessionState.SetCrumb("Crumb", DateTime.UtcNow);
 
         // Act
         var result = yahooSessionState.IsValid();
 
         // Assert
         Assert.That(true, Is.EqualTo(result));
+    }
+
+    [Test]
+    public void IsValid_WithOldCookies_ReturnsFalse()
+    {
+        // Arrange
+        var yahooSessionState = new YahooSessionState(_mockOptions.Object);
+        var cookie = new System.Net.Cookie("cookieName", "Value", "/", ".yahoo.com")
+        {
+            Expires = DateTime.Now.AddDays(1)
+        };
+        yahooSessionState.GetCookieContainer().Add(cookie);
+        yahooSessionState.SetCrumb("Crumb", DateTime.UtcNow.AddDays(-1));
+
+        // Act
+        var result = yahooSessionState.IsValid();
+
+        // Assert
+        Assert.That(false, Is.EqualTo(result));
     }
 
     [Test]
@@ -92,7 +111,7 @@ public class YahooSessionStateTests
             Expires = DateTime.Now.AddDays(-1)
         };
         yahooSessionState.GetCookieContainer().Add(cookie);
-        yahooSessionState.SetCrumb("Crumb");
+        yahooSessionState.SetCrumb("Crumb", DateTime.UtcNow);
 
         // Act
         var result = yahooSessionState.IsValid();

@@ -63,9 +63,16 @@ internal class AlphaVantageService(ILogger<IAlphaVantageService> logger,
                 httpResponse.EnsureSuccessStatusCode();
 
                 string jsonResponse = await httpResponse.Content.ReadAsStringAsync();
-                return jsonResponse.Contains("higher API call volume")
-                    ? throw new FinanceNetException($"higher API call volume for {symbol}")
-                    : JsonConvert.DeserializeObject<CompanyOverview>(jsonResponse);
+                if (jsonResponse.Contains("higher API call volume"))
+                {
+                    throw new FinanceNetException($"higher API call volume for {symbol}");
+                }
+                else
+                {
+                    var overview = JsonConvert.DeserializeObject<CompanyOverview>(jsonResponse);
+                    var isNullObj = Helper.AreAllFieldsNull(overview);
+                    return isNullObj ? throw new FinanceNetException("All fields empty") : overview;
+                }
             });
         }
         catch (Exception ex)
@@ -134,7 +141,7 @@ internal class AlphaVantageService(ILogger<IAlphaVantageService> logger,
                         });
                     }
                 }
-                return result;
+                return result.IsNullOrEmpty() ? throw new FinanceNetException("All fields empty") : result;
             });
         }
         catch (Exception ex)
@@ -234,7 +241,7 @@ internal class AlphaVantageService(ILogger<IAlphaVantageService> logger,
                         Volume = item.Value.Volume,
                     });
                 }
-                return result;
+                return result.IsNullOrEmpty() ? throw new FinanceNetException("All fields empty") : result;
             });
         }
         catch (Exception ex)
@@ -303,7 +310,7 @@ internal class AlphaVantageService(ILogger<IAlphaVantageService> logger,
                         });
                     }
                 }
-                return result;
+                return result.IsNullOrEmpty() ? throw new FinanceNetException("All fields empty") : result;
             });
         }
         catch (Exception ex)
