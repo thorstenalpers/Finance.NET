@@ -1,8 +1,8 @@
 name: "Nightly Tests"
 
 on:  
-  # push:
-  #   branches: [ develop ]
+  push:
+    branches: [ develop ]
   workflow_dispatch: # Manual trigger
   schedule:
     - cron: '0 2 * * *'  # Runs nightly at 2 AM UTC on main branch
