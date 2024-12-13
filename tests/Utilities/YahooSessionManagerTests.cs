@@ -244,7 +244,7 @@ public class YahooSessionManagerTests
             logger => logger.Log(
                 LogLevel.Information,
                 It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((state, t) =>
+                It.Is<It.IsAnyType>((state, _) =>
                 state.ToString() == "UI Session established successfully"),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()
@@ -253,7 +253,7 @@ public class YahooSessionManagerTests
     }
 
     [Test]
-    public async Task RefreshSessionAsync_SessionInvalid_Throws()
+    public void RefreshSessionAsync_SessionInvalid_Throws()
     {
         // Arrange
         var cookieContainer = new CookieContainer();

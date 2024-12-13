@@ -93,7 +93,7 @@ internal class AlphaVantageService(ILogger<IAlphaVantageService> logger,
         }
         if (startDate > endDate)
         {
-            throw new FinanceNetException("Startdate after Endate");
+            throw new FinanceNetException("startDate earlier than endDate");
         }
 
         try
@@ -160,20 +160,18 @@ internal class AlphaVantageService(ILogger<IAlphaVantageService> logger,
         }
         if (startDate > endDate)
         {
-            throw new FinanceNetException("Startdate after Endate");
+            throw new FinanceNetException("startDate earlier than endDate");
         }
 
         for (var currentMonth = new DateTime(startDate.Year, startDate.Month, 1); currentMonth <= endDate; currentMonth = currentMonth.AddMonths(1))
         {
-            if (currentMonth == endDate)
+            if (currentMonth == endDate &&
+                ((endDate.Value.Day == 1 && endDate.Value.DayOfWeek == DayOfWeek.Saturday) ||
+                    (endDate.Value.Day == 1 && endDate.Value.DayOfWeek == DayOfWeek.Sunday) ||
+                    (endDate.Value.Day == 2 && endDate.Value.DayOfWeek == DayOfWeek.Sunday)))
             {
                 // dont query for data which not exists (api exception)
-                if ((endDate.Value.Day == 1 && endDate.Value.DayOfWeek == DayOfWeek.Saturday) ||
-                    (endDate.Value.Day == 1 && endDate.Value.DayOfWeek == DayOfWeek.Sunday) ||
-                    (endDate.Value.Day == 2 && endDate.Value.DayOfWeek == DayOfWeek.Sunday))
-                {
-                    break;
-                }
+                break;
             }
             var currentCourses = await GetIntradayRecordsByMonthAsync(symbol, currentMonth, interval, token);
             result.AddRange(currentCourses);
@@ -262,7 +260,7 @@ internal class AlphaVantageService(ILogger<IAlphaVantageService> logger,
         }
         if (startDate > endDate)
         {
-            throw new FinanceNetException("Startdate after Endate");
+            throw new FinanceNetException("startDate earlier than endDate");
         }
         var url = Constants.AlphaVantageApiUrl + "/query?function=FX_DAILY" +
             $"&from_symbol={currency1}&to_symbol={currency2}&outputsize=full&apikey={_options.AlphaVantageApiKey}";
