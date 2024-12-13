@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Text.RegularExpressions;
 using Finance.Net.Models.AlphaVantage;
 
@@ -149,19 +147,6 @@ public static class Helper
         return allAgents[index];
     }
 
-    public static void AddCookiesToRequest(this HttpRequestMessage requestMessage, CookieCollection? cookieCollection)
-    {
-        if (cookieCollection != null && requestMessage != null && cookieCollection.Count > 0)
-        {
-            try
-            {
-                var cookieHeader = cookieCollection.ToCookieHeader();
-                requestMessage.Headers.Add("Cookie", cookieHeader);
-            }
-            catch { }
-        }
-    }
-
     public static bool AreAllFieldsNull<T>(T obj)
     {
         if (obj == null)
@@ -173,13 +158,6 @@ public static class Helper
             System.Reflection.BindingFlags.Public |
             System.Reflection.BindingFlags.NonPublic).ToList();
         return fields.All(field => field.GetValue(obj) == null);
-    }
-
-    private static string ToCookieHeader(this CookieCollection cookies)
-    {
-        return cookies == null || cookies.Count == 0
-            ? string.Empty
-            : string.Join("; ", cookies.Cast<Cookie>().Select(cookie => $"{cookie.Name}={cookie.Value}"));
     }
 
     public static string Minify(this string strXmlContent)

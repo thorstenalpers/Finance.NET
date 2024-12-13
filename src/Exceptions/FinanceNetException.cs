@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Finance.Net.Exceptions;
 
+[ExcludeFromCodeCoverage]
 public class FinanceNetException : Exception
 {
     public FinanceNetException()
