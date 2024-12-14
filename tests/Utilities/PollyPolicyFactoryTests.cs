@@ -77,4 +77,15 @@ public class PollyPolicyFactoryTests
 						It.IsAny<Func<It.IsAnyType, Exception, string>>()),
 						Times.Exactly(1));
 		}
+
+		[Test]
+		public void GetRetryPolicy_ExceptionsFlowNullLogger_Throws()
+		{
+				// Arrange + Act
+				const int retryCount = 3;
+				var policy = PollyPolicyFactory.GetRetryPolicy(retryCount, null);
+
+				// Assert
+				Assert.ThrowsAsync<FinanceNetException>(async () => await policy.ExecuteAsync<int>(() => throw new FinanceNetException("Message")));
+		}
 }

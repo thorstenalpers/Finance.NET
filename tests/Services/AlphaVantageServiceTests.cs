@@ -149,7 +149,7 @@ public class AlphaVantageServiceTests
 		}
 
 		[Test]
-		public async Task GetDailyRecordsAsync_WithData_ReturnsResult()
+		public async Task GetHistoryRecordsAsync_WithData_ReturnsResult()
 		{
 				var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "AlphaVantage", "record.json");
 				SetupHttpJsonFileResponse(filePath);
@@ -179,7 +179,7 @@ public class AlphaVantageServiceTests
 				Assert.That(result.All(e => e.AdjustedClose != null));
 		}
 		[Test]
-		public void GetDailyRecordsAsync_NoData_Throws()
+		public void GetHistoryRecordsAsync_NoData_Throws()
 		{
 				var service = new AlphaVantageService(
 						_mockLogger.Object,
@@ -195,7 +195,28 @@ public class AlphaVantageServiceTests
 		}
 
 		[Test]
-		public async Task GetIntradayRecordsAsync_WithData_ReturnsResult()
+		public void GetHistoryRecordsAsync_ApiThrottled_Throws()
+		{
+				_mockHandler
+						.Protected()
+						.Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+						.ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("Buy higher API call volume!") });
+				_mockHttpClientFactory.Setup(e => e.CreateClient(It.IsAny<string>())).Returns(new HttpClient(_mockHandler.Object));
+				var startDate = new DateTime(2024, 01, 01);
+				DateTime? endDate = null;
+
+				var service = new AlphaVantageService(
+						_mockLogger.Object,
+						_mockHttpClientFactory.Object,
+						_mockOptions.Object,
+						_mockPolicyRegistry.Object);
+
+				// Act
+				Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetHistoryRecordsAsync("IBM", startDate, endDate));
+		}
+
+		[Test]
+		public async Task GetHistoryIntradayRecordsAsync_WithData_ReturnsResult()
 		{
 				var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "AlphaVantage", "intradayRecord.json");
 				SetupHttpJsonFileResponse(filePath);
@@ -219,7 +240,7 @@ public class AlphaVantageServiceTests
 		}
 
 		[Test]
-		public void GetIntradayRecordsAsync_NoData_Throws()
+		public void GetHistoryIntradayRecordsAsync_NoData_Throws()
 		{
 				var service = new AlphaVantageService(
 						_mockLogger.Object,
@@ -235,7 +256,28 @@ public class AlphaVantageServiceTests
 		}
 
 		[Test]
-		public async Task GetDailyForexRecordsAsync_WithData_ReturnsResult()
+		public void GetHistoryIntradayRecordsAsync_ApiThrottled_Throws()
+		{
+				_mockHandler
+						.Protected()
+						.Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+						.ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("Buy higher API call volume!") });
+				_mockHttpClientFactory.Setup(e => e.CreateClient(It.IsAny<string>())).Returns(new HttpClient(_mockHandler.Object));
+				var startDate = new DateTime(2024, 01, 01);
+				DateTime? endDate = null;
+
+				var service = new AlphaVantageService(
+						_mockLogger.Object,
+						_mockHttpClientFactory.Object,
+						_mockOptions.Object,
+						_mockPolicyRegistry.Object);
+
+				// Act
+				Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetHistoryIntradayRecordsAsync("IBM", startDate, endDate, EInterval.Interval_5Min));
+		}
+
+		[Test]
+		public async Task GetHistoryForexRecordsAsync_WithData_ReturnsResult()
 		{
 				var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "AlphaVantage", "forex.json");
 				SetupHttpJsonFileResponse(filePath);
@@ -266,7 +308,7 @@ public class AlphaVantageServiceTests
 		}
 
 		[Test]
-		public void GetDailyForexRecordsAsync_NoData_Throws()
+		public void GetHistoryForexRecordsAsync_NoData_Throws()
 		{
 				var service = new AlphaVantageService(
 						_mockLogger.Object,
@@ -276,6 +318,31 @@ public class AlphaVantageServiceTests
 
 				var startDate = new DateTime(2024, 11, 01);
 				DateTime? endDate = null;
+
+				// Act
+				Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetHistoryForexRecordsAsync(
+						"EUR",
+						"USD",
+						startDate,
+						endDate));
+		}
+
+		[Test]
+		public void GetHistoryForexRecordsAsync_ApiThrottled_Throws()
+		{
+				_mockHandler
+						.Protected()
+						.Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+						.ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("Buy higher API call volume!") });
+				_mockHttpClientFactory.Setup(e => e.CreateClient(It.IsAny<string>())).Returns(new HttpClient(_mockHandler.Object));
+				var startDate = new DateTime(2024, 11, 01);
+				DateTime? endDate = null;
+
+				var service = new AlphaVantageService(
+						_mockLogger.Object,
+						_mockHttpClientFactory.Object,
+						_mockOptions.Object,
+						_mockPolicyRegistry.Object);
 
 				// Act
 				Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetHistoryForexRecordsAsync(
