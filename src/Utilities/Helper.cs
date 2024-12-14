@@ -45,10 +45,6 @@ public static class Helper
 
 		public static long? ParseLong(string? numberString)
 		{
-				if (numberString?.Count(e => e == ',') > 1)
-				{
-						throw new FormatException($"Unknown format of {numberString}");
-				}
 				var cleanedNumber = numberString?.Replace(",", "");
 				return string.IsNullOrWhiteSpace(cleanedNumber) || cleanedNumber.All(e => e == '-')
 						? null
@@ -57,10 +53,6 @@ public static class Helper
 
 		public static decimal? ParseDecimal(string? numberString)
 		{
-				if (numberString?.Count(e => e == ',') > 1)
-				{
-						throw new FormatException($"Unknown format of {numberString}");
-				}
 				var cleanedNumber = numberString?.Replace(",", "");
 				return string.IsNullOrWhiteSpace(cleanedNumber) || cleanedNumber.All(e => e == '-')
 						? null
@@ -73,7 +65,7 @@ public static class Helper
 		{
 				// otherwise has numer format such as 100.00Mio?
 				var match = new Regex("([0-9.,-]+)([A-Za-z]+)").Match(cleanedNumber);
-				if (match.Groups.Count <= 2 || string.IsNullOrEmpty(match.Groups[2].Value))
+				if (match.Groups.Count <= 2)
 				{
 						throw new FormatException($"Unknown format of {cleanedNumber}");
 				}
