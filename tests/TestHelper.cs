@@ -8,35 +8,35 @@ namespace Finance.Net.Tests;
 
 internal static class TestHelper
 {
-    public static ServiceProvider SetUpServiceProvider()
-    {
-        var services = new ServiceCollection();
-        var cfgBuilder = new ConfigurationBuilder();
-        cfgBuilder.AddUserSecrets<AlphaVantageTests>();
-        cfgBuilder.AddEnvironmentVariables();
-        var cfg = cfgBuilder.Build();
+	public static ServiceProvider SetUpServiceProvider()
+	{
+		var services = new ServiceCollection();
+		var cfgBuilder = new ConfigurationBuilder();
+		cfgBuilder.AddUserSecrets<AlphaVantageTests>();
+		cfgBuilder.AddEnvironmentVariables();
+		var cfg = cfgBuilder.Build();
 
-        services.AddSingleton<IConfiguration>(cfg);
-        services.AddFinanceNet(new FinanceNetConfiguration
-        {
-            HttpTimeout = 20,
-            HttpRetryCount = 3,
-            AlphaVantageApiKey = cfg["FinanceNet:AlphaVantageApiKey"]
-        });
-        services.AddLogging(builder =>
-        {
-            builder.AddConsole();
-            builder.SetMinimumLevel(LogLevel.Information);
-            builder.AddFilter("System.Net.Http.HttpClient", LogLevel.Warning);
-            builder.AddFilter("Finance.Net", LogLevel.Information);
+		services.AddSingleton<IConfiguration>(cfg);
+		services.AddFinanceNet(new FinanceNetConfiguration
+		{
+			HttpTimeout = 20,
+			HttpRetryCount = 3,
+			AlphaVantageApiKey = cfg["FinanceNet:AlphaVantageApiKey"]
+		});
+		services.AddLogging(builder =>
+		{
+			builder.AddConsole();
+			builder.SetMinimumLevel(LogLevel.Information);
+			builder.AddFilter("System.Net.Http.HttpClient", LogLevel.Warning);
+			builder.AddFilter("Finance.Net", LogLevel.Information);
 
-            builder.AddSimpleConsole(options =>
-            {
-                options.UseUtcTimestamp = true;
-                options.SingleLine = true;
-                options.ColorBehavior = Microsoft.Extensions.Logging.Console.LoggerColorBehavior.Enabled;
-            });
-        });
-        return services.BuildServiceProvider();
-    }
+			builder.AddSimpleConsole(options =>
+					{
+						options.UseUtcTimestamp = true;
+						options.SingleLine = true;
+						options.ColorBehavior = Microsoft.Extensions.Logging.Console.LoggerColorBehavior.Enabled;
+					});
+		});
+		return services.BuildServiceProvider();
+	}
 }

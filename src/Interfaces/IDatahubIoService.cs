@@ -11,17 +11,17 @@ namespace Finance.Net.Interfaces;
 /// </summary>
 public interface IDatahubIoService
 {
-    /// <summary>
-    /// Asynchronously retrieves a list of Nasdaq instruments from the DataHubIo API.
-    /// </summary>
-    /// <param name="token">A <see cref="CancellationToken"/> to allow cancellation of the operation.</param>
-    /// <returns>A task that represents the asynchronous operation. The task result contains an enumerable collection of <see cref="NasdaqInstrument"/> objects representing Nasdaq instruments.</returns>
-    Task<IEnumerable<NasdaqInstrument>> GetNasdaqInstrumentsAsync(CancellationToken token = default);
+	/// <summary>
+	/// Asynchronously retrieves a list of Nasdaq instruments from the DataHubIo API.
+	/// </summary>
+	/// <param name="token">A <see cref="CancellationToken"/> to allow cancellation of the operation.</param>
+	/// <returns>A task that represents the asynchronous operation. The task result contains an enumerable collection of <see cref="NasdaqInstrument"/> objects representing Nasdaq instruments.</returns>
+	Task<IEnumerable<NasdaqInstrument>> GetNasdaqInstrumentsAsync(CancellationToken token = default);
 
-    /// <summary>
-    /// Asynchronously retrieves a list of S&P 500 instruments from the DataHubIo API.
-    /// </summary>
-    /// <param name="token">A <see cref="CancellationToken"/> to allow cancellation of the operation.</param>
-    /// <returns>A task that represents the asynchronous operation. The task result contains an enumerable collection of <see cref="SP500Instrument"/> objects representing S&P 500 instruments.</returns>
-    Task<IEnumerable<SP500Instrument>> GetSP500InstrumentsAsync(CancellationToken token = default);
+	/// <summary>
+	/// Asynchronously retrieves a list of S&P 500 instruments from the DataHubIo API.
+	/// </summary>
+	/// <param name="token">A <see cref="CancellationToken"/> to allow cancellation of the operation.</param>
+	/// <returns>A task that represents the asynchronous operation. The task result contains an enumerable collection of <see cref="SP500Instrument"/> objects representing S&P 500 instruments.</returns>
+	Task<IEnumerable<SP500Instrument>> GetSP500InstrumentsAsync(CancellationToken token = default);
 }

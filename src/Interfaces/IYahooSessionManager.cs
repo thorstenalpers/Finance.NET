@@ -7,8 +7,8 @@ namespace Finance.Net.Interfaces;
 
 public interface IYahooSessionManager
 {
-    Task RefreshSessionAsync(CancellationToken token = default);
-    string? GetApiCrumb();
-    IEnumerable<Cookie> GetCookies();
-    string GetUserAgent();
+	Task RefreshSessionAsync(CancellationToken token = default);
+	string? GetApiCrumb();
+	IEnumerable<Cookie> GetCookies();
+	string GetUserAgent();
 }
