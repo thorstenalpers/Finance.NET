@@ -54,6 +54,31 @@ public class AlphaVantageServiceTests
 		}
 
 		[Test]
+		public void Constructor_Throws()
+		{
+				Assert.Throws<ArgumentNullException>(() => new AlphaVantageService(
+						null,
+						_mockHttpClientFactory.Object,
+						_mockOptions.Object,
+						_mockPolicyRegistry.Object));
+				Assert.Throws<ArgumentNullException>(() => new AlphaVantageService(
+						_mockLogger.Object,
+						null,
+						_mockOptions.Object,
+						_mockPolicyRegistry.Object));
+				Assert.Throws<ArgumentNullException>(() => new AlphaVantageService(
+						_mockLogger.Object,
+						_mockHttpClientFactory.Object,
+						null,
+						_mockPolicyRegistry.Object));
+				Assert.Throws<ArgumentNullException>(() => new AlphaVantageService(
+						_mockLogger.Object,
+						_mockHttpClientFactory.Object,
+						_mockOptions.Object,
+						null));
+		}
+
+		[Test]
 		public void Create_Static_ReturnsObject()
 		{
 				// Arrange
@@ -89,6 +114,25 @@ public class AlphaVantageServiceTests
 				// Assert
 				Assert.That(result, Is.Not.Null);
 				Assert.That(result.Symbol, Is.EqualTo("IBM"));
+		}
+
+		[Test]
+		public void GetCompanyOverviewAsync_ApiThrottled_Throws()
+		{
+				_mockHandler
+						.Protected()
+						.Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+						.ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("Buy higher API call volume!") });
+				_mockHttpClientFactory.Setup(e => e.CreateClient(It.IsAny<string>())).Returns(new HttpClient(_mockHandler.Object));
+
+				var service = new AlphaVantageService(
+						_mockLogger.Object,
+						_mockHttpClientFactory.Object,
+						_mockOptions.Object,
+						_mockPolicyRegistry.Object);
+
+				// Act
+				Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetCompanyOverviewAsync("IBM"));
 		}
 
 		[Test]

@@ -52,6 +52,31 @@ public class YahooSessionManagerTests
 		}
 
 		[Test]
+		public void Constructor_Throws()
+		{
+				Assert.Throws<ArgumentNullException>(() => new YahooSessionManager(
+						null,
+						_mockHttpClientFactory.Object,
+						_mockYahooSessionState.Object,
+						_mockPolicyRegistry.Object));
+				Assert.Throws<ArgumentNullException>(() => new YahooSessionManager(
+						_mockLogger.Object,
+						null,
+						_mockYahooSessionState.Object,
+						_mockPolicyRegistry.Object));
+				Assert.Throws<ArgumentNullException>(() => new YahooSessionManager(
+						_mockLogger.Object,
+						_mockHttpClientFactory.Object,
+						null,
+						_mockPolicyRegistry.Object));
+				Assert.Throws<ArgumentNullException>(() => new YahooSessionManager(
+						_mockLogger.Object,
+						_mockHttpClientFactory.Object,
+						_mockYahooSessionState.Object,
+						null));
+		}
+
+		[Test]
 		public void GetApiCrumb_Initialized_ReturnsSame()
 		{
 				// Arrange
@@ -59,8 +84,8 @@ public class YahooSessionManagerTests
 				_mockYahooSessionState.Setup(s => s.GetCrumb()).Returns(expected);
 
 				var manager = new YahooSessionManager(
-						_mockHttpClientFactory.Object,
 						_mockLogger.Object,
+						_mockHttpClientFactory.Object,
 						_mockYahooSessionState.Object,
 						_mockPolicyRegistry.Object);
 
@@ -80,8 +105,8 @@ public class YahooSessionManagerTests
 				_mockYahooSessionState.Setup(s => s.GetUserAgent()).Returns(expected);
 
 				var manager = new YahooSessionManager(
-						_mockHttpClientFactory.Object,
 						_mockLogger.Object,
+						_mockHttpClientFactory.Object,
 						_mockYahooSessionState.Object,
 						_mockPolicyRegistry.Object);
 
@@ -104,8 +129,8 @@ public class YahooSessionManagerTests
 				_mockYahooSessionState.Setup(s => s.GetCookieContainer()).Returns(cookieContainer);
 
 				var manager = new YahooSessionManager(
-						_mockHttpClientFactory.Object,
 						_mockLogger.Object,
+						_mockHttpClientFactory.Object,
 						_mockYahooSessionState.Object,
 						_mockPolicyRegistry.Object);
 
@@ -126,8 +151,8 @@ public class YahooSessionManagerTests
 				_mockYahooSessionState.Setup(s => s.GetCookieContainer()).Returns(new CookieContainer());
 
 				var manager = new YahooSessionManager(
-						_mockHttpClientFactory.Object,
 						_mockLogger.Object,
+						_mockHttpClientFactory.Object,
 						_mockYahooSessionState.Object,
 						_mockPolicyRegistry.Object);
 
@@ -164,8 +189,8 @@ public class YahooSessionManagerTests
 						.Returns(false)
 						.Returns(true);
 				var manager = new YahooSessionManager(
-						_mockHttpClientFactory.Object,
 						_mockLogger.Object,
+						_mockHttpClientFactory.Object,
 						_mockYahooSessionState.Object,
 						_mockPolicyRegistry.Object);
 
@@ -225,12 +250,20 @@ public class YahooSessionManagerTests
 						.ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
 						{
 								Content = new StringContent(""),
+						})
+						.ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
+						{
+								Content = new StringContent(""),
+						})
+						.ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
+						{
+								Content = new StringContent(""),
 						});
 				_mockHttpClientFactory.Setup(e => e.CreateClient(It.IsAny<string>())).Returns(new HttpClient(_mockHandler.Object));
 
 				var manager = new YahooSessionManager(
-						_mockHttpClientFactory.Object,
 						_mockLogger.Object,
+						_mockHttpClientFactory.Object,
 						_mockYahooSessionState.Object,
 						_mockPolicyRegistry.Object);
 
@@ -352,8 +385,8 @@ public class YahooSessionManagerTests
 				_mockHttpClientFactory.Setup(e => e.CreateClient(It.IsAny<string>())).Returns(new HttpClient(_mockHandler.Object));
 
 				var manager = new YahooSessionManager(
-						_mockHttpClientFactory.Object,
 						_mockLogger.Object,
+						_mockHttpClientFactory.Object,
 						_mockYahooSessionState.Object,
 						_mockPolicyRegistry.Object);
 

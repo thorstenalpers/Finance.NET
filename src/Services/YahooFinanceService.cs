@@ -42,7 +42,7 @@ internal class YahooFinanceService : IYahooFinanceService
 				_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 				_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
 				_yahooSession = yahooSession ?? throw new ArgumentNullException(nameof(yahooSession));
-				_retryPolicy = policyRegistry.Get<AsyncPolicy>(Constants.DefaultHttpRetryPolicy) ?? throw new ArgumentNullException(nameof(policyRegistry));
+				_retryPolicy = policyRegistry?.Get<AsyncPolicy>(Constants.DefaultHttpRetryPolicy) ?? throw new ArgumentNullException(nameof(policyRegistry));
 
 				// do not use IoC, so users can use Automapper independently
 				var config = new MapperConfiguration(cfg => cfg.AddProfile<YahooQuoteAutomapperProfile>());

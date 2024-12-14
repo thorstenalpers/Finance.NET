@@ -6,7 +6,6 @@ using Finance.Net.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Polly;
 using Polly.Registry;
 
 namespace Finance.Net.Extensions;
@@ -40,12 +39,7 @@ public static class ServiceCollectionExtensions
 						return new PolicyRegistry
 						{
 								{
-										Constants.DefaultHttpRetryPolicy, Policy
-												.Handle<HttpRequestException>()
-												.WaitAndRetryAsync(
-														options.Value.HttpRetryCount,
-														retryAttempt => TimeSpan.FromSeconds( retryAttempt), // delayed retry
-                            (exception, timeSpan, retryCount, _) => logger.LogWarning("Retry {RetryCount} after {TimeSpan} due to {Exception}.", retryCount, timeSpan, exception))
+										Constants.DefaultHttpRetryPolicy, PollyPolicyFactory.GetRetryPolicy(options.Value.HttpRetryCount, logger)
 								}
 						};
 				});
@@ -71,12 +65,11 @@ public static class ServiceCollectionExtensions
 						.ConfigurePrimaryHttpMessageHandler((provider) =>
 						{
 								var sessionState = provider.GetRequiredService<IYahooSessionState>();
-								var handler = new HttpClientHandler
+								return new HttpClientHandler
 								{
 										CookieContainer = sessionState.GetCookieContainer(),
 										UseCookies = true,
 								};
-								return handler;
 						});
 
 				services.AddHttpClient(Constants.XetraHttpClientName)

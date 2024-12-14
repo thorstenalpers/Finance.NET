@@ -51,6 +51,31 @@ public class XetraServiceTests
 		}
 
 		[Test]
+		public void Constructor_Throws()
+		{
+				Assert.Throws<ArgumentNullException>(() => new XetraService(
+						null,
+						_mockHttpClientFactory.Object,
+						_mockOptions.Object,
+						_mockPolicyRegistry.Object));
+				Assert.Throws<ArgumentNullException>(() => new XetraService(
+						_mockLogger.Object,
+						null,
+						_mockOptions.Object,
+						_mockPolicyRegistry.Object));
+				Assert.Throws<ArgumentNullException>(() => new XetraService(
+						_mockLogger.Object,
+						_mockHttpClientFactory.Object,
+						null,
+						_mockPolicyRegistry.Object));
+				Assert.Throws<ArgumentNullException>(() => new XetraService(
+						_mockLogger.Object,
+						_mockHttpClientFactory.Object,
+						_mockOptions.Object,
+						null));
+		}
+
+		[Test]
 		public void Create_Static_ReturnsObject()
 		{
 				// Arrange

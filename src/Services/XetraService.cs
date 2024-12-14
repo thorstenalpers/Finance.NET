@@ -42,7 +42,7 @@ internal class XetraService : IXetraService
 				_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 				_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
 				_options = options?.Value ?? throw new ArgumentNullException(nameof(options));
-				_retryPolicy = policyRegistry.Get<AsyncPolicy>(Constants.DefaultHttpRetryPolicy);
+				_retryPolicy = policyRegistry?.Get<AsyncPolicy>(Constants.DefaultHttpRetryPolicy) ?? throw new ArgumentNullException(nameof(policyRegistry));
 
 				// do not use IoC, so users can use Automapper independently
 				var config = new MapperConfiguration(cfg => cfg.AddProfile<XetraInstrumentAutomapperProfile>());
@@ -86,7 +86,7 @@ internal class XetraService : IXetraService
 								csv.Read();
 								csv.Read();
 								csv.Context.RegisterClassMap<XetraInstrumentsMapping>();
-								var records = csv.GetRecords<InstrumentItem>()?.ToList();
+								var records = csv.GetRecords<InstrumentItem>().ToList();
 
 								var instruments = _mapper.Map<List<Instrument>>(records);
 								return instruments.IsNullOrEmpty() ? throw new FinanceNetException("All fields empty") : instruments;

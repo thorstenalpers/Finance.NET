@@ -11,7 +11,7 @@ namespace Finance.Net.Utilities;
 
 internal class YahooSessionState(IOptions<FinanceNetConfiguration> options) : IYahooSessionState
 {
-		private readonly FinanceNetConfiguration _options = options.Value ?? throw new ArgumentNullException(nameof(options));
+		private readonly FinanceNetConfiguration _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
 		private string _userAgent = Helper.CreateRandomUserAgent();
 		private readonly CookieContainer _cookieContainer = new();
 		private string? _crumb;

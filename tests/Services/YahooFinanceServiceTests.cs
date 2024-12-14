@@ -58,6 +58,31 @@ public class YahooFinanceServiceTests
 		}
 
 		[Test]
+		public void Constructor_Throws()
+		{
+				Assert.Throws<ArgumentNullException>(() => new YahooFinanceService(
+						null,
+						_mockHttpClientFactory.Object,
+						_mockPolicyRegistry.Object,
+						_mockYahooSession.Object));
+				Assert.Throws<ArgumentNullException>(() => new YahooFinanceService(
+						_mockLogger.Object,
+						null,
+						_mockPolicyRegistry.Object,
+						_mockYahooSession.Object));
+				Assert.Throws<ArgumentNullException>(() => new YahooFinanceService(
+						_mockLogger.Object,
+						_mockHttpClientFactory.Object,
+						null,
+						_mockYahooSession.Object));
+				Assert.Throws<ArgumentNullException>(() => new YahooFinanceService(
+						_mockLogger.Object,
+						_mockHttpClientFactory.Object,
+						_mockPolicyRegistry.Object,
+						null));
+		}
+
+		[Test]
 		public void Create_Static_ReturnsObject()
 		{
 				// Arrange

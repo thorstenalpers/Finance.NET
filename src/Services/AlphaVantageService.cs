@@ -30,7 +30,7 @@ internal class AlphaVantageService(ILogger<IAlphaVantageService> logger,
 		private readonly IHttpClientFactory _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
 		private readonly FinanceNetConfiguration _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
 		private static ServiceProvider? s_serviceProvider = null;
-		private readonly AsyncPolicy _retryPolicy = policyRegistry.Get<AsyncPolicy>(Constants.DefaultHttpRetryPolicy);
+		private readonly AsyncPolicy _retryPolicy = policyRegistry?.Get<AsyncPolicy>(Constants.DefaultHttpRetryPolicy) ?? throw new ArgumentNullException(nameof(policyRegistry));
 
 		/// <summary>
 		/// Creates a service for interacting with the AlphaVantage API.

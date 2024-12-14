@@ -20,6 +20,12 @@ public class YahooSessionStateTests
 		}
 
 		[Test]
+		public void Constructor_Throws()
+		{
+				Assert.Throws<ArgumentNullException>(() => new YahooSessionState(null));
+		}
+
+		[Test]
 		public void GetUserAgent_Random_ReturnsValid()
 		{
 				// Arrange

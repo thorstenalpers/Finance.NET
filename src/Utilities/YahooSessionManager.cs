@@ -13,16 +13,16 @@ using Polly.Registry;
 
 namespace Finance.Net.Utilities;
 
-internal class YahooSessionManager(IHttpClientFactory httpClientFactory,
-		ILogger<IYahooSessionManager> logger,
+internal class YahooSessionManager(ILogger<IYahooSessionManager> logger,
+		IHttpClientFactory httpClientFactory,
 		IYahooSessionState sessionState,
 		IReadOnlyPolicyRegistry<string> policyRegistry) : IYahooSessionManager
 {
-		private readonly ILogger<IYahooSessionManager> _logger = logger;
+		private readonly ILogger<IYahooSessionManager> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		private readonly IYahooSessionState _sessionState = sessionState ?? throw new ArgumentNullException(nameof(sessionState));
 		private static readonly SemaphoreSlim Semaphore = new(1, 1);
 		private readonly IHttpClientFactory _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
-		private readonly AsyncPolicy _retryPolicy = policyRegistry.Get<AsyncPolicy>(Constants.DefaultHttpRetryPolicy);
+		private readonly AsyncPolicy _retryPolicy = policyRegistry?.Get<AsyncPolicy>(Constants.DefaultHttpRetryPolicy) ?? throw new ArgumentNullException(nameof(policyRegistry));
 
 		public string? GetApiCrumb()
 		{
@@ -39,10 +39,14 @@ internal class YahooSessionManager(IHttpClientFactory httpClientFactory,
 				return _sessionState.GetCookieContainer().GetCookies(new Uri(Constants.YahooBaseUrlHtml)).Cast<Cookie>();
 		}
 
+		public string GetCookieNames()
+		{
+				return string.Join(",", _sessionState.GetCookieContainer().GetCookies(new Uri(Constants.YahooBaseUrlHtml)).Cast<Cookie>().Select(e => e.Name));
+		}
+
 		public async Task RefreshSessionAsync(CancellationToken token = default)
 		{
-				var cookies = GetCookies();
-				_logger.LogDebug("cookieNames={cookies}", string.Join(", ", cookies.Select(cookie => cookie.Name)));
+				_logger.LogDebug("cookieNames={cookies}", GetCookieNames());
 
 				if (_sessionState.IsValid())
 				{
@@ -95,7 +99,7 @@ internal class YahooSessionManager(IHttpClientFactory httpClientFactory,
 				{
 						throw new FinanceNetException("Unable to get api cookies.");
 				}
-				_logger.LogDebug("cookieNames= {cookieString}", _sessionState?.GetCookieContainer()?.GetCookies(new Uri(Constants.YahooBaseUrlHtml)).Cast<Cookie>().Select(cookie => cookie.Name));
+				_logger.LogDebug("cookieNames={cookies}", GetCookieNames());
 				_logger.LogDebug("_crumb= {crumb}", crumb);
 				_logger.LogInformation("API Session established successfully");
 				return crumb;
@@ -109,6 +113,7 @@ internal class YahooSessionManager(IHttpClientFactory httpClientFactory,
 				// get consent
 				await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
 				var response = await httpClient.GetAsync(Constants.YahooBaseUrlHtml, token);
+				_logger.LogDebug("cookieNames={cookies}", GetCookieNames());
 				response.EnsureSuccessStatusCode();
 
 				var htmlContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -126,15 +131,13 @@ internal class YahooSessionManager(IHttpClientFactory httpClientFactory,
 								_logger.LogInformation("UI Session established successfully without EU consent");
 								return;
 						}
-						var cookieNames = string.Join(", ", _sessionState?.GetCookieContainer()?.GetCookies(new Uri(Constants.YahooBaseUrlHtml)).Cast<Cookie>().Select(cookie => cookie.Name));
-						throw new FinanceNetException($"Unable to retrieve csrfTokenNode and sessionIdNode, cnt={_sessionState?.GetCookieContainer()?.Count},names={cookieNames}");
+						throw new FinanceNetException($"Unable to retrieve csrfTokenNode and sessionIdNode, cnt={_sessionState?.GetCookieContainer()?.Count}");
 				}
 				var csrfToken = csrfTokenNode.GetAttribute("value");
 				var sessionId = sessionIdNode.GetAttribute("value");
 				if (string.IsNullOrEmpty(csrfToken) || string.IsNullOrEmpty(sessionId))
 				{
-						var cookieNames = string.Join(", ", _sessionState?.GetCookieContainer()?.GetCookies(new Uri(Constants.YahooBaseUrlHtml)).Cast<Cookie>().Select(cookie => cookie.Name));
-						throw new FinanceNetException($"Unable to retrieve csrfToken and sessionId, cnt={_sessionState?.GetCookieContainer()?.Count},names={cookieNames}");
+						throw new FinanceNetException($"Unable to retrieve csrfToken and sessionId, cnt={_sessionState?.GetCookieContainer()?.Count}");
 				}
 				await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
 
@@ -156,6 +159,7 @@ internal class YahooSessionManager(IHttpClientFactory httpClientFactory,
 				};
 				requestMessage.Headers.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
 				response = await httpClient.SendAsync(requestMessage, token);
+				_logger.LogDebug("cookieNames={cookies}", GetCookieNames());
 				response.EnsureSuccessStatusCode();
 				await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
 
@@ -164,8 +168,7 @@ internal class YahooSessionManager(IHttpClientFactory httpClientFactory,
 				response.EnsureSuccessStatusCode();
 				if (_sessionState.GetCookieContainer()?.Count < 3)
 				{
-						var cookieNames = string.Join(", ", GetCookies().Select(cookie => cookie.Name));
-						throw new FinanceNetException($"Unable to get ui cookies, cnt={_sessionState.GetCookieContainer()?.Count},names={cookieNames}");
+						throw new FinanceNetException($"Unable to get ui cookies, cnt={_sessionState.GetCookieContainer()?.Count}");
 				}
 				if (_sessionState?.GetCookieContainer() != null && _sessionState?.GetCookieContainer()?.Count >= 3)
 				{
