@@ -34,8 +34,23 @@ internal class DatahubIoService(IHttpClientFactory httpClientFactory,
 		/// Creates a service for interacting with the OpenData API.
 		/// Provides methods for retrieving financial instruments, market data, and other relevant information from OpenData.
 		/// </summary>
-		/// <param name="cfg">Optional: Default values to configure .Net Finance. <see cref="FinanceNetConfiguration"/> ></param>
-		public static IDatahubIoService Create(FinanceNetConfiguration? cfg = null)
+		public static IDatahubIoService Create()
+		{
+				if (s_serviceProvider == null)
+				{
+						var services = new ServiceCollection();
+						services.AddFinanceNet();
+						s_serviceProvider = services.BuildServiceProvider();
+				}
+				return s_serviceProvider.GetRequiredService<IDatahubIoService>();
+		}
+
+		/// <summary>
+		/// Creates a service for interacting with the OpenData API.
+		/// Provides methods for retrieving financial instruments, market data, and other relevant information from OpenData.
+		/// </summary>
+		/// <param name="cfg">Configure .Net Finance. <see cref="FinanceNetConfiguration"/> ></param>
+		public static IDatahubIoService Create(FinanceNetConfiguration cfg)
 		{
 				if (s_serviceProvider == null)
 				{

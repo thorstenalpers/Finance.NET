@@ -119,8 +119,12 @@ public static class Helper
 				var attribute = (DescriptionAttribute)Attribute.GetCustomAttribute(field, typeof(DescriptionAttribute));
 				return attribute.Description;
 		}
+		public static string CreateRandomUserAgent()
+		{
+				return CreateRandomUserAgent(new Random());
+		}
 
-		public static string CreateRandomUserAgent(Random? random = null)
+		public static string CreateRandomUserAgent(Random random)
 		{
 				random ??= new Random();
 				List<string> firefoxVersions = [ "133.0",

@@ -36,8 +36,23 @@ internal class AlphaVantageService(ILogger<IAlphaVantageService> logger,
 		/// Creates a service for interacting with the AlphaVantage API.
 		/// Provides methods for retrieving company data, stock records, forex data, and intraday information.
 		/// </summary>
-		/// <param name="cfg">Optional: Default values to configure .Net Finance. <see cref="FinanceNetConfiguration"/> ></param>
-		public static IAlphaVantageService Create(FinanceNetConfiguration? cfg = null)
+		public static IAlphaVantageService Create()
+		{
+				if (s_serviceProvider == null)
+				{
+						var services = new ServiceCollection();
+						services.AddFinanceNet();
+						s_serviceProvider = services.BuildServiceProvider();
+				}
+				return s_serviceProvider.GetRequiredService<IAlphaVantageService>();
+		}
+
+		/// <summary>
+		/// Creates a service for interacting with the AlphaVantage API.
+		/// Provides methods for retrieving company data, stock records, forex data, and intraday information.
+		/// </summary>
+		/// <param name="cfg">Configure .Net Finance. <see cref="FinanceNetConfiguration"/> ></param>
+		public static IAlphaVantageService Create(FinanceNetConfiguration cfg)
 		{
 				if (s_serviceProvider == null)
 				{

@@ -54,8 +54,23 @@ internal class YahooFinanceService : IYahooFinanceService
 		/// Creates a service for interacting with the Yahoo Finance API.
 		/// Provides methods for retrieving historical data, company profiles, summaries, and financial reports from Yahoo Finance.
 		/// </summary>
-		/// <param name="cfg">Optional: Default values to configure .Net Finance. <see cref="FinanceNetConfiguration"/> ></param>
-		public static IYahooFinanceService Create(FinanceNetConfiguration? cfg = null)
+		public static IYahooFinanceService Create()
+		{
+				if (s_staticServiceProvider == null)
+				{
+						var services = new ServiceCollection();
+						services.AddFinanceNet();
+						s_staticServiceProvider = services.BuildServiceProvider();
+				}
+				return s_staticServiceProvider.GetRequiredService<IYahooFinanceService>();
+		}
+
+		/// <summary>
+		/// Creates a service for interacting with the Yahoo Finance API.
+		/// Provides methods for retrieving historical data, company profiles, summaries, and financial reports from Yahoo Finance.
+		/// </summary>
+		/// <param name="cfg">Configure .Net Finance. <see cref="FinanceNetConfiguration"/> ></param>
+		public static IYahooFinanceService Create(FinanceNetConfiguration cfg)
 		{
 				if (s_staticServiceProvider == null)
 				{

@@ -53,8 +53,23 @@ internal class XetraService : IXetraService
 		/// Creates a service for interacting with the Xetra API.
 		/// Provides methods for retrieving tradable instruments, market data, and other relevant information from Xetra.
 		/// </summary>
-		/// <param name="cfg">Optional: Default values to configure .Net Finance. <see cref="FinanceNetConfiguration"/> ></param>
-		public static IXetraService Create(FinanceNetConfiguration? cfg = null)
+		public static IXetraService Create()
+		{
+				if (s_serviceProvider == null)
+				{
+						var services = new ServiceCollection();
+						services.AddFinanceNet();
+						s_serviceProvider = services.BuildServiceProvider();
+				}
+				return s_serviceProvider.GetRequiredService<IXetraService>();
+		}
+
+		/// <summary>
+		/// Creates a service for interacting with the Xetra API.
+		/// Provides methods for retrieving tradable instruments, market data, and other relevant information from Xetra.
+		/// </summary>
+		/// <param name="cfg">Configure .Net Finance. <see cref="FinanceNetConfiguration"/> ></param>
+		public static IXetraService Create(FinanceNetConfiguration cfg)
 		{
 				if (s_serviceProvider == null)
 				{
@@ -101,7 +116,7 @@ internal class XetraService : IXetraService
 		private async Task<Uri?> GetDownloadUrl(CancellationToken token = default)
 		{
 				var httpClient = _httpClientFactory.CreateClient(Constants.XetraHttpClientName);
-				var url = $"{Constants.XetraInstrumentsUrl}".ToLower();
+				var url = Constants.XetraInstrumentsUrl.ToLower();
 				var baseUri = new Uri(url);
 
 				try
@@ -125,8 +140,6 @@ internal class XetraService : IXetraService
 										throw new FinanceNetException($"Failed finding download link, found {hrefAttributes.Count()} links");
 								}
 								var relativeDownloadUrl = hrefAttributes.FirstOrDefault();
-								var uri = new Uri(url);
-								string baseAddress = $"{uri.Scheme}://{uri.Host}";
 								return new Uri(baseUri, relativeDownloadUrl);
 						});
 				}

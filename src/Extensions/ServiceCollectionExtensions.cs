@@ -16,8 +16,17 @@ public static class ServiceCollectionExtensions
 		/// Configures Finance.NET Service
 		/// </summary>
 		/// <param name="services">The service collection to configure.</param>
-		/// <param name="cfg">Optional: Default values to configure Finance.NET. <see cref="FinanceNetConfiguration"/> ></param>
-		public static void AddFinanceNet(this IServiceCollection services, FinanceNetConfiguration? cfg = null)
+		public static void AddFinanceNet(this IServiceCollection services)
+		{
+				services.AddFinanceNet(new FinanceNetConfiguration());
+		}
+
+		/// <summary>
+		/// Configures Finance.NET Service
+		/// </summary>
+		/// <param name="services">The service collection to configure.</param>
+		/// <param name="cfg">Values to configure Finance.NET. <see cref="FinanceNetConfiguration"/> ></param>
+		public static void AddFinanceNet(this IServiceCollection services, FinanceNetConfiguration cfg)
 		{
 				cfg ??= new FinanceNetConfiguration();
 
