@@ -49,6 +49,7 @@ jobs:
             exit 1
           }
           reportgenerator -reports:./TestResults/Tests/**/coverage.cobertura.xml -targetdir:./TestResults/Coverage -reporttypes:"Html;lcov"
+          coverlet "${{ env.Test_Project_Path }}" --target "dotnet" --targetargs "test" --format cobertura --output ./TestResults/Tests/coverage.cobertura.xml
       env:
           FinanceNet__AlphaVantageApiKey: ${{ secrets.ALPHAVANTAGEAPIKEY }}
 
@@ -59,7 +60,7 @@ jobs:
           -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
           -Dsonar.organization=${{ secrets.SONAR_ORG }}
           -Dsonar.login=${{ secrets.SONAR_TOKEN }}
-          -Dsonar.coverageReportPaths=./TestResults/Tests/**/coverage.cobertura.xml
+          -Dsonar.coverageReportPaths=./TestResults/Tests/coverage.cobertura.xml
 
     - name: Upload to Coveralls
       uses: coverallsapp/github-action@v2
