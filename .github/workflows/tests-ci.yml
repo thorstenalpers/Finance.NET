@@ -29,8 +29,10 @@ jobs:
       with:
         dotnet-version: 8.x
 
-    - name: Set up dotnet
-      run: dotnet tool install --global dotnet-reportgenerator-globaltool
+    - name: Set up .NET tools
+      run: |        
+        dotnet tool install --global dotnet-sonarscanner
+        dotnet tool install --global dotnet-reportgenerator-globaltool
 
     - name: Restore
       run: dotnet restore "${{ env.Solution_Name }}"
