@@ -4,7 +4,7 @@ on:
   push:
     branches: [ develop, main]
   schedule:
-    - cron: '0 2 * * *'  # Runs nightly at 2 AM UTC
+    - cron: '0 2 * * *'  # Runs each day at 2 AM UTC
 
 jobs:
   build:
