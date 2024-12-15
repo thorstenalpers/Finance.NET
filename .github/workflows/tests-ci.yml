@@ -59,13 +59,14 @@ jobs:
       env:
         CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
 
-
-    - name: SonarCloud analysis
-      run: |
-          dotnet sonarscanner begin /k:"${{ secrets.SONAR_PROJECT_KEY }}" /o:sonar.organization="${{ secrets.SONAR_ORG }}" \
-            /d:sonar.coverageReportPaths=./TestResults/Coverage/lcov.info
-          dotnet build --configuration Release
-          dotnet sonarscanner end
+    - name: Set up SonarCloud
+      uses: SonarSource/sonarqube-scan-action@v4
+      with:
+        args: >
+          -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+          -Dsonar.organization=${{ secrets.SONAR_ORG }}
+          -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+          -Dsonar.coverageReportPaths=./TestResults/Coverage/lcov.info
 
     - name: Upload to Codecov
       uses: codecov/codecov-action@v5
