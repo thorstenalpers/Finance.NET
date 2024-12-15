@@ -48,8 +48,7 @@ jobs:
             Write-Host "Tests failed"
             exit 1
           }
-          reportgenerator -reports:./TestResults/Tests/**/coverage.cobertura.xml -targetdir:./TestResults/Reports -reporttypes:"Html;lcov"
-          reportgenerator -reports:./TestResults/Tests/**/coverage.cobertura.xml -targetdir:./TestResults/SonarQube -reporttypes:SonarQube
+          reportgenerator -reports:./TestResults/Tests/**/coverage.cobertura.xml -targetdir:./TestResults/Reports -reporttypes:"Html;lcov;SonarQube"
           # coverlet "${{ env.Test_Project_Path }}" --target "dotnet" --targetargs "test" --format cobertura --output ./TestResults/Tests/coverage.cobertura.xml
       env:
           FinanceNet__AlphaVantageApiKey: ${{ secrets.ALPHAVANTAGEAPIKEY }}
@@ -61,7 +60,7 @@ jobs:
           -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
           -Dsonar.organization=${{ secrets.SONAR_ORG }}
           -Dsonar.login=${{ secrets.SONAR_TOKEN }}
-          -Dsonar.coverageReportPaths=./TestResults/Reports/lcov.info
+          -Dsonar.coverageReportPaths=./TestResults/Reports/SonarQube.xml
 
     - name: Upload to Coveralls
       uses: coverallsapp/github-action@v2
