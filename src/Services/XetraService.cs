@@ -27,125 +27,125 @@ namespace Finance.Net.Services;
 
 internal class XetraService : IXetraService
 {
-		private readonly ILogger<IXetraService> _logger;
-		private readonly IHttpClientFactory _httpClientFactory;
-		private readonly FinanceNetConfiguration _options;
-		private readonly IMapper _mapper;
-		private static ServiceProvider? s_serviceProvider = null;
-		private readonly AsyncPolicy _retryPolicy;
+	private readonly ILogger<IXetraService> _logger;
+	private readonly IHttpClientFactory _httpClientFactory;
+	private readonly FinanceNetConfiguration _options;
+	private readonly IMapper _mapper;
+	private static ServiceProvider? s_serviceProvider = null;
+	private readonly AsyncPolicy _retryPolicy;
 
-		public XetraService(ILogger<IXetraService> logger,
-												IHttpClientFactory httpClientFactory,
-												IOptions<FinanceNetConfiguration> options,
-												IReadOnlyPolicyRegistry<string> policyRegistry)
+	public XetraService(ILogger<IXetraService> logger,
+											IHttpClientFactory httpClientFactory,
+											IOptions<FinanceNetConfiguration> options,
+											IReadOnlyPolicyRegistry<string> policyRegistry)
+	{
+		_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+		_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+		_options = options?.Value ?? throw new ArgumentNullException(nameof(options));
+		_retryPolicy = policyRegistry?.Get<AsyncPolicy>(Constants.DefaultHttpRetryPolicy) ?? throw new ArgumentNullException(nameof(policyRegistry));
+
+		// do not use IoC, so users can use Automapper independently
+		var config = new MapperConfiguration(cfg => cfg.AddProfile<XetraInstrumentAutomapperProfile>());
+		_mapper = config.CreateMapper();
+	}
+
+	/// <summary>
+	/// Creates a service for interacting with the Xetra API.
+	/// Provides methods for retrieving tradable instruments, market data, and other relevant information from Xetra.
+	/// </summary>
+	public static IXetraService Create()
+	{
+		if (s_serviceProvider == null)
 		{
-				_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-				_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
-				_options = options?.Value ?? throw new ArgumentNullException(nameof(options));
-				_retryPolicy = policyRegistry?.Get<AsyncPolicy>(Constants.DefaultHttpRetryPolicy) ?? throw new ArgumentNullException(nameof(policyRegistry));
-
-				// do not use IoC, so users can use Automapper independently
-				var config = new MapperConfiguration(cfg => cfg.AddProfile<XetraInstrumentAutomapperProfile>());
-				_mapper = config.CreateMapper();
+			var services = new ServiceCollection();
+			services.AddFinanceNet();
+			s_serviceProvider = services.BuildServiceProvider();
 		}
+		return s_serviceProvider.GetRequiredService<IXetraService>();
+	}
 
-		/// <summary>
-		/// Creates a service for interacting with the Xetra API.
-		/// Provides methods for retrieving tradable instruments, market data, and other relevant information from Xetra.
-		/// </summary>
-		public static IXetraService Create()
+	/// <summary>
+	/// Creates a service for interacting with the Xetra API.
+	/// Provides methods for retrieving tradable instruments, market data, and other relevant information from Xetra.
+	/// </summary>
+	/// <param name="cfg">Configure .Net Finance. <see cref="FinanceNetConfiguration"/> ></param>
+	public static IXetraService Create(FinanceNetConfiguration cfg)
+	{
+		if (s_serviceProvider == null)
 		{
-				if (s_serviceProvider == null)
-				{
-						var services = new ServiceCollection();
-						services.AddFinanceNet();
-						s_serviceProvider = services.BuildServiceProvider();
-				}
-				return s_serviceProvider.GetRequiredService<IXetraService>();
+			var services = new ServiceCollection();
+			services.AddFinanceNet(cfg);
+			s_serviceProvider = services.BuildServiceProvider();
 		}
+		return s_serviceProvider.GetRequiredService<IXetraService>();
+	}
 
-		/// <summary>
-		/// Creates a service for interacting with the Xetra API.
-		/// Provides methods for retrieving tradable instruments, market data, and other relevant information from Xetra.
-		/// </summary>
-		/// <param name="cfg">Configure .Net Finance. <see cref="FinanceNetConfiguration"/> ></param>
-		public static IXetraService Create(FinanceNetConfiguration cfg)
+	public async Task<IEnumerable<Instrument>> GetInstruments(CancellationToken token = default)
+	{
+		var httpClient = _httpClientFactory.CreateClient(Constants.XetraHttpClientName);
+		try
 		{
-				if (s_serviceProvider == null)
+			return await _retryPolicy.ExecuteAsync(async () =>
+			{
+				var url = await GetDownloadUrl(token).ConfigureAwait(false);
+				var response = await httpClient.GetAsync(url, token).ConfigureAwait(false);
+				response.EnsureSuccessStatusCode();
+				var config = new CsvConfiguration(CultureInfo.InvariantCulture)
 				{
-						var services = new ServiceCollection();
-						services.AddFinanceNet(cfg);
-						s_serviceProvider = services.BuildServiceProvider();
-				}
-				return s_serviceProvider.GetRequiredService<IXetraService>();
-		}
+					HasHeaderRecord = true,
+					Delimiter = ";",
+				};
 
-		public async Task<IEnumerable<Instrument>> GetInstruments(CancellationToken token = default)
+				using var reader = new StreamReader(await response.Content.ReadAsStreamAsync());
+				using var csv = new CsvReader(reader, config);
+				csv.Read();
+				csv.Read();
+				csv.Context.RegisterClassMap<XetraInstrumentsMapping>();
+				var records = csv.GetRecords<InstrumentItem>().ToList();
+
+				var instruments = _mapper.Map<List<Instrument>>(records);
+				return instruments.IsNullOrEmpty() ? throw new FinanceNetException("All fields empty") : instruments;
+			});
+		}
+		catch (Exception ex)
 		{
-				var httpClient = _httpClientFactory.CreateClient(Constants.XetraHttpClientName);
-				try
-				{
-						return await _retryPolicy.ExecuteAsync(async () =>
-						{
-								var url = await GetDownloadUrl(token).ConfigureAwait(false);
-								var response = await httpClient.GetAsync(url, token).ConfigureAwait(false);
-								response.EnsureSuccessStatusCode();
-								var config = new CsvConfiguration(CultureInfo.InvariantCulture)
-								{
-										HasHeaderRecord = true,
-										Delimiter = ";",
-								};
-
-								using var reader = new StreamReader(await response.Content.ReadAsStreamAsync());
-								using var csv = new CsvReader(reader, config);
-								csv.Read();
-								csv.Read();
-								csv.Context.RegisterClassMap<XetraInstrumentsMapping>();
-								var records = csv.GetRecords<InstrumentItem>().ToList();
-
-								var instruments = _mapper.Map<List<Instrument>>(records);
-								return instruments.IsNullOrEmpty() ? throw new FinanceNetException("All fields empty") : instruments;
-						});
-				}
-				catch (Exception ex)
-				{
-						throw new FinanceNetException("Cannot fetch from Xetra", ex);
-				}
+			throw new FinanceNetException("Cannot fetch from Xetra", ex);
 		}
+	}
 
-		private async Task<Uri?> GetDownloadUrl(CancellationToken token = default)
+	private async Task<Uri?> GetDownloadUrl(CancellationToken token = default)
+	{
+		var httpClient = _httpClientFactory.CreateClient(Constants.XetraHttpClientName);
+		var url = Constants.XetraInstrumentsUrl.ToLower();
+		var baseUri = new Uri(url);
+
+		try
 		{
-				var httpClient = _httpClientFactory.CreateClient(Constants.XetraHttpClientName);
-				var url = Constants.XetraInstrumentsUrl.ToLower();
-				var baseUri = new Uri(url);
+			return await _retryPolicy.ExecuteAsync(async () =>
+			{
+				var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
+				var response = await httpClient.SendAsync(requestMessage, token).ConfigureAwait(false);
+				response.EnsureSuccessStatusCode();
 
-				try
+				var htmlContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+				_logger.LogDebug("htmlContent={htmlContent}", htmlContent.Minify());
+				var document = new AngleSharp.Html.Parser.HtmlParser().ParseDocument(htmlContent);
+
+				var urlNodes = document
+									.Body.SelectNodes("//a[contains(@class, 'download') and contains(., 'All tradable instruments')]")
+									.ToList();
+				var hrefAttributes = document.DocumentElement.SelectNodes("//a[contains(@class, 'download') and contains(., 'All tradable instruments')]/@href")?.Select(e => e.NodeValue);
+				if (hrefAttributes.Count() != 1)
 				{
-						return await _retryPolicy.ExecuteAsync(async () =>
-						{
-								var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
-								var response = await httpClient.SendAsync(requestMessage, token).ConfigureAwait(false);
-								response.EnsureSuccessStatusCode();
-
-								var htmlContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-								_logger.LogDebug("htmlContent={htmlContent}", htmlContent.Minify());
-								var document = new AngleSharp.Html.Parser.HtmlParser().ParseDocument(htmlContent);
-
-								var urlNodes = document
-										.Body.SelectNodes("//a[contains(@class, 'download') and contains(., 'All tradable instruments')]")
-										.ToList();
-								var hrefAttributes = document.DocumentElement.SelectNodes("//a[contains(@class, 'download') and contains(., 'All tradable instruments')]/@href")?.Select(e => e.NodeValue);
-								if (hrefAttributes.Count() != 1)
-								{
-										throw new FinanceNetException($"Failed finding download link, found {hrefAttributes.Count()} links");
-								}
-								var relativeDownloadUrl = hrefAttributes.FirstOrDefault();
-								return new Uri(baseUri, relativeDownloadUrl);
-						});
+					throw new FinanceNetException($"Failed finding download link, found {hrefAttributes.Count()} links");
 				}
-				catch (Exception ex)
-				{
-						throw new FinanceNetException($"Cannot fetch from {_options.DatahubIoDownloadUrlNasdaqListedSymbols}", ex);
-				}
+				var relativeDownloadUrl = hrefAttributes.FirstOrDefault();
+				return new Uri(baseUri, relativeDownloadUrl);
+			});
 		}
+		catch (Exception ex)
+		{
+			throw new FinanceNetException($"Cannot fetch from {_options.DatahubIoDownloadUrlNasdaqListedSymbols}", ex);
+		}
+	}
 }
