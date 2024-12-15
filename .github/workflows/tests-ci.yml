@@ -57,11 +57,14 @@ jobs:
       env:
         CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
 
-    - name: SonarQube Scan
+    - name: SonarQube Scan2
       uses: SonarSource/sonarqube-scan-action@v4
       with:
-        projectKey: ${{ secrets.SONAR_PROJECT_KEY }}
-        organization: ${{ secrets.SONAR_ORG }}
+        args: >
+          -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+          -Dsonar.organization=${{ secrets.SONAR_ORG }}
+          -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+          -Dsonar.coverageReportPaths=./TestResults/Coverage/lcov.info
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
