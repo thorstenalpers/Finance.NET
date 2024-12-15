@@ -1,7 +1,6 @@
 name: "CI"
 
 on:
-  workflow_dispatch: # Manual trigger
   push:
     branches: [ develop, main]
   schedule:
