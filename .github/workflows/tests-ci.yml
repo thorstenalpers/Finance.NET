@@ -33,17 +33,6 @@ jobs:
         dotnet tool install --global dotnet-sonarscanner
         dotnet tool install --global dotnet-reportgenerator-globaltool        
 
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v3
-      with:
-        languages: 'csharp' 
-        build-mode: 'none'         
-
-    - name: Run CodeQL
-      uses: github/codeql-action/analyze@v3
-      with:
-        category: '/language:csharp'
-
     - name: Restore
       run: dotnet restore "${{ env.Solution_Name }}"
 
