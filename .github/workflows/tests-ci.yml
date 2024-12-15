@@ -59,15 +59,6 @@ jobs:
           -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
           -Dsonar.organization=${{ secrets.SONAR_ORG }}
           -Dsonar.login=${{ secrets.SONAR_TOKEN }}
-          -Dsonar.coverageReportPaths=./TestResults/Coverage/lcov.info
-
-    - name: Set up SonarCloud
-      uses: SonarSource/sonarqube-scan-action@v4
-      with:
-        args: >
-          -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
-          -Dsonar.organization=${{ secrets.SONAR_ORG }}
-          -Dsonar.login=${{ secrets.SONAR_TOKEN }}
           -Dsonar.coverageReportPaths=./TestResults/Tests/**/coverage.cobertura.xml
 
     - name: Upload to Coveralls
