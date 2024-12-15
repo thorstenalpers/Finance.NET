@@ -98,8 +98,8 @@ internal class XetraService : IXetraService
 
 				using var reader = new StreamReader(await response.Content.ReadAsStreamAsync());
 				using var csv = new CsvReader(reader, config);
-				csv.Read();
-				csv.Read();
+				await csv.ReadAsync();
+				await csv.ReadAsync();
 				csv.Context.RegisterClassMap<XetraInstrumentsMapping>();
 				var records = csv.GetRecords<InstrumentItem>().ToList();
 

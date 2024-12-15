@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading;
 using Finance.Net.Models.AlphaVantage;
 
 namespace Finance.Net.Utilities;
@@ -129,7 +128,7 @@ public static class Helper
 	}
 	public static string CreateRandomUserAgent()
 	{
-		return CreateRandomUserAgent(new ThreadLocal<Random>(() => new Random()).Value);
+		return CreateRandomUserAgent(new Random());
 	}
 
 	public static string CreateRandomUserAgent(Random random)

@@ -1,9 +1,9 @@
-name: "Code Quality Scan Nightly"
+name: "CodeQL Nightly Code Scan"
 
 on:
   workflow_dispatch: # Manual trigger
   push:
-    branches: [ "main" ]
+    branches: [ develop, main]
   schedule:
     - cron: '0 2 * * *'  # Runs nightly at 2 AM UTC on main branch
 

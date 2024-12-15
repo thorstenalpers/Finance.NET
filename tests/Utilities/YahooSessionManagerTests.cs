@@ -93,7 +93,7 @@ public class YahooSessionManagerTests
 		var result = manager.GetApiCrumb();
 
 		// Assert
-		Assert.That(expected, Is.EqualTo(result));
+		Assert.That(result, Is.EqualTo(expected));
 		_mockYahooSessionState.Verify(s => s.GetCrumb(), Times.Once);
 	}
 
@@ -114,7 +114,7 @@ public class YahooSessionManagerTests
 		var result = manager.GetUserAgent();
 
 		// Assert
-		Assert.That(expected, Is.EqualTo(result));
+		Assert.That(result, Is.EqualTo(expected));
 		_mockYahooSessionState.Verify(s => s.GetUserAgent(), Times.Once);
 	}
 

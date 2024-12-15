@@ -68,7 +68,7 @@ public class YahooSessionStateTests
 		var result = yahooSessionState.IsValid();
 
 		// Assert
-		Assert.That(true, Is.EqualTo(result));
+		Assert.That(result, Is.EqualTo(true));
 	}
 
 	[Test]
@@ -87,7 +87,7 @@ public class YahooSessionStateTests
 		var result = yahooSessionState.IsValid();
 
 		// Assert
-		Assert.That(false, Is.EqualTo(result));
+		Assert.That(result, Is.EqualTo(false));
 	}
 
 	[Test]
@@ -106,6 +106,6 @@ public class YahooSessionStateTests
 		var result = yahooSessionState.IsValid();
 
 		// Assert
-		Assert.That(false, Is.EqualTo(result));
+		Assert.That(result, Is.EqualTo(false));
 	}
 }

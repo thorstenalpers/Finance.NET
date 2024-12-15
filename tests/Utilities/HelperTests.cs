@@ -197,7 +197,7 @@ public class HelperTests
 		var result = Helper.AreAllFieldsNull(model);
 
 		// Assert
-		Assert.That(true, Is.EqualTo(result));
+		Assert.That(result, Is.EqualTo(true));
 	}
 
 	[Test]
@@ -213,7 +213,7 @@ public class HelperTests
 		var result = Helper.AreAllFieldsNull(model);
 
 		// Assert
-		Assert.That(false, Is.EqualTo(result));
+		Assert.That(result, Is.EqualTo(false));
 	}
 
 	[Test]
@@ -224,6 +224,6 @@ public class HelperTests
 		var result = Helper.AreAllFieldsNull((QuoteResponse)null);
 
 		// Assert
-		Assert.That(true, Is.EqualTo(result));
+		Assert.That(result, Is.EqualTo(true));
 	}
 }
