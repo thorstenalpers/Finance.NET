@@ -38,7 +38,11 @@ public static class Helper
 		}
 		public static DateTime? UnixMillisecsToDate(long? unixTimeMilliseconds)
 		{
-				if (unixTimeMilliseconds == null) return null;
+				if (unixTimeMilliseconds == null)
+				{
+						return null;
+				}
+
 				var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 				return epoch.AddMilliseconds(unixTimeMilliseconds.Value).ToUniversalTime();
 		}
@@ -87,7 +91,10 @@ public static class Helper
 
 		public static DateTime? ParseDate(string? dateString)
 		{
-				if (string.IsNullOrWhiteSpace(dateString)) return null;
+				if (string.IsNullOrWhiteSpace(dateString))
+				{
+						return null;
+				}
 
 				// List of possible formats
 				var formats = new[]
@@ -126,7 +133,6 @@ public static class Helper
 
 		public static string CreateRandomUserAgent(Random random)
 		{
-				random ??= new Random();
 				List<string> firefoxVersions = [ "133.0",
 																				 "132.0", "132.0.1", "132.0.2",
 																				 "131.0", "131.0.1", "131.0.2",
