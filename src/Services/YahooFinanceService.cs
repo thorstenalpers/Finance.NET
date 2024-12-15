@@ -99,6 +99,7 @@ internal class YahooFinanceService : IYahooFinanceService
 		{
 			return await _retryPolicy.ExecuteAsync(async () =>
 			{
+
 				var quotes = new List<Quote>();
 				var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
 
@@ -113,7 +114,7 @@ internal class YahooFinanceService : IYahooFinanceService
 				var responseObj = parsedData.QuoteResponse ?? throw new FinanceNetException("Unexpected response from Yahoo");
 
 				var error = responseObj.Error;
-				if (responseObj == null || error != null)
+				if (error != null)
 				{
 					throw new FinanceNetException($"Received an error response from Yahoo: {error}");
 				}
@@ -234,12 +235,12 @@ internal class YahooFinanceService : IYahooFinanceService
 				var table = document.QuerySelector("table.table") ?? throw new FinanceNetException("No records found");
 
 				var headers = table.QuerySelectorAll("thead th")
-									.Select(th =>
-									{
-										th.QuerySelectorAll("span").ToList().ForEach(span => span.Remove());
-										return th.TextContent.Trim();
-									})
-									.ToList();
+										.Select(th =>
+										{
+											th.QuerySelectorAll("span").ToList().ForEach(span => span.Remove());
+											return th.TextContent.Trim();
+										})
+										.ToList();
 				for (int i = 0; i < headers.Count; i++)
 				{
 					headerMap[headers[i]] = i;
@@ -323,10 +324,10 @@ internal class YahooFinanceService : IYahooFinanceService
 				var document = new AngleSharp.Html.Parser.HtmlParser().ParseDocument(htmlContent);
 
 				var headers = document
-					.Body.SelectNodes("//div[contains(@class, 'tableHeader')]//div[contains(@class, 'column')]")
-					.Select(header => header.TextContent.Trim())
-					.Where(e => e != "Breakdown")
-					.ToList();
+						.Body.SelectNodes("//div[contains(@class, 'tableHeader')]//div[contains(@class, 'column')]")
+						.Select(header => header.TextContent.Trim())
+						.Where(e => e != "Breakdown")
+						.ToList();
 
 				headers.RemoveAll(e => e.Contains(" - "));// remove commercial column
 				foreach (var header in headers)

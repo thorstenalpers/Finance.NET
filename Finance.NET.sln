@@ -18,13 +18,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{F1FD197B-FC16-4077-9907-D1FDDFCBC34A}"
 	ProjectSection(SolutionItems) = preProject
-		.github\workflows\codescan-nightly.yml = .github\workflows\codescan-nightly.yml
 		.github\workflows\deploy-nuget.yml = .github\workflows\deploy-nuget.yml
 		.github\workflows\tests-alphavantage.yml = .github\workflows\tests-alphavantage.yml
+		.github\workflows\tests-ci.yml = .github\workflows\tests-ci.yml
 		.github\workflows\tests-datahubio.yml = .github\workflows\tests-datahubio.yml
 		.github\workflows\tests-xetra.yml = .github\workflows\tests-xetra.yml
 		.github\workflows\tests-yahoo.yml = .github\workflows\tests-yahoo.yml
-		.github\workflows\tests-ci.yml = .github\workflows\tests-ci.yml
 		.github\workflows\_tests-template.yml = .github\workflows\_tests-template.yml
 	EndProjectSection
 EndProject

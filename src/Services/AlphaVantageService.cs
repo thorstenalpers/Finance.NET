@@ -102,7 +102,7 @@ internal class AlphaVantageService(ILogger<IAlphaVantageService> logger,
 		var url = Constants.AlphaVantageApiUrl + "/query?function=TIME_SERIES_DAILY_ADJUSTED" +
 				$"&symbol={symbol}&outputsize=full&apikey={_options.AlphaVantageApiKey}";
 		Guard.Against.NullOrEmpty(symbol);
-		if (endDate == null || endDate?.Date >= DateTime.UtcNow.Date)
+		if (endDate == null || endDate.Value.Date >= DateTime.UtcNow.Date)
 		{
 			endDate = DateTime.UtcNow.Date;
 		}
@@ -169,7 +169,7 @@ internal class AlphaVantageService(ILogger<IAlphaVantageService> logger,
 	{
 		Guard.Against.NullOrEmpty(symbol);
 		var result = new List<HistoryIntradayRecord>();
-		if (endDate == null || endDate?.Date >= DateTime.UtcNow.Date)
+		if (endDate == null || endDate.Value.Date >= DateTime.UtcNow.Date)
 		{
 			endDate = DateTime.UtcNow.Date;
 		}
@@ -269,7 +269,7 @@ internal class AlphaVantageService(ILogger<IAlphaVantageService> logger,
 		Guard.Against.NullOrEmpty(currency1);
 		Guard.Against.NullOrEmpty(currency2);
 
-		if (endDate == null || endDate?.Date >= DateTime.UtcNow.Date)
+		if (endDate == null || endDate.Value.Date >= DateTime.UtcNow.Date)
 		{
 			endDate = DateTime.UtcNow.Date;
 		}
