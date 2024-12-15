@@ -1,4 +1,4 @@
-name: "CI Tests"
+name: "CI"
 
 on:
   workflow_dispatch: # Manual trigger
@@ -49,6 +49,15 @@ jobs:
           reportgenerator -reports:./TestResults/Tests/**/coverage.cobertura.xml -targetdir:./TestResults/Coverage -reporttypes:"Html;lcov"
       env:
           FinanceNet__AlphaVantageApiKey: ${{ secrets.ALPHAVANTAGEAPIKEY }}
+
+    - name: Upload to Codecov
+      uses: codecov/codecov-action@v5
+      with:
+        files: ./TestResults/Tests/**/coverage.cobertura.xml
+        flags: dotnet
+        fail_ci_if_error: true
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
     - name: Upload report to Coveralls
       uses: coverallsapp/github-action@v2
