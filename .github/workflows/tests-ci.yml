@@ -60,6 +60,7 @@ jobs:
           -Dsonar.organization=${{ secrets.SONAR_ORG }}
           -Dsonar.login=${{ secrets.SONAR_TOKEN }}
           -Dsonar.coverageReportPaths=./TestResults/Reports/SonarQube.xml
+          -Dsonar.exclusions=**/*.html,**/*.json,**/*.yaml,**/*.yml
 
     - name: Upload to Coveralls
       uses: coverallsapp/github-action@v2
