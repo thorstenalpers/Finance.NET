@@ -59,6 +59,9 @@ jobs:
 
     - name: SonarQube Scan
       uses: SonarSource/sonarqube-scan-action@v4
+      with:
+        projectKey: ${{ secrets.SONAR_PROJECT_KEY }}
+        organization: ${{ secrets.SONAR_ORG }}
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
