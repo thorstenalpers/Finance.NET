@@ -178,7 +178,7 @@ internal class AlphaVantageService(ILogger<IAlphaVantageService> logger,
 			throw new FinanceNetException("startDate earlier than endDate");
 		}
 
-		for (var currentMonth = new DateTime(startDate.Year, startDate.Month, 1); currentMonth <= endDate; currentMonth = currentMonth.AddMonths(1))
+		for (var currentMonth = new DateTime(startDate.Year, startDate.Month, 1, 0, 0, 0, DateTimeKind.Utc); currentMonth <= endDate; currentMonth = currentMonth.AddMonths(1))
 		{
 			if (currentMonth == endDate &&
 					((endDate.Value.Day == 1 && endDate.Value.DayOfWeek == DayOfWeek.Saturday) ||

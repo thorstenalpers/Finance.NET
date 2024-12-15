@@ -32,7 +32,7 @@ public class YahooFinanceTests
 	[Test]
 	public async Task GetHistoryRecordsAsync_WithDividend_Success()
 	{
-		var startDate = new DateTime(2020, 01, 01);
+		var startDate = new DateTime(2020, 01, 01, 0, 0, 0, DateTimeKind.Utc);
 		var records = await _service.GetHistoryRecordsAsync("SAP.DE", startDate);
 
 		Assert.That(records, Is.Not.Empty);

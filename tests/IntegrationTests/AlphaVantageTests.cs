@@ -85,8 +85,8 @@ public class AlphaVantageTests
 	[TestCase("TESTING.NET", Models.AlphaVantage.EInterval.Interval_15Min, false)]
 	public async Task GetHistoryIntradayRecordsAsync_ValidSymbols_ReturnsRecords(string symbol, Models.AlphaVantage.EInterval eInterval, bool shouldHave)
 	{
-		var startDay = new DateTime(2024, 12, 02);
-		var endDay = new DateTime(2024, 12, 02);
+		var startDay = new DateTime(2024, 12, 02, 0, 0, 0, DateTimeKind.Utc);
+		var endDay = new DateTime(2024, 12, 02, 0, 0, 0, DateTimeKind.Utc);
 		if (shouldHave)
 		{
 			var records = await _service.GetHistoryIntradayRecordsAsync(symbol, startDay, endDay, eInterval);
