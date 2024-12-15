@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using Finance.Net.Models.AlphaVantage;
 
 namespace Finance.Net.Utilities;
@@ -68,7 +69,7 @@ public static class Helper
 		private static decimal ParseWithMultiplier(string? cleanedNumber)
 		{
 				// otherwise has numer format such as 100.00Mio?
-				var match = new Regex("([0-9.,-]+)([A-Za-z]+)").Match(cleanedNumber);
+				var match = new Regex("([0-9.,-]+)([A-Za-z]+)", RegexOptions.None, TimeSpan.FromSeconds(30)).Match(cleanedNumber);
 				if (match.Groups.Count <= 2)
 				{
 						throw new FormatException($"Unknown format of {cleanedNumber}");
@@ -99,15 +100,15 @@ public static class Helper
 				// List of possible formats
 				var formats = new[]
 				{
-						"MMM d, yyyy",    // "Nov 1, 2024"
-						"MMM dd, yyyy",   // "Nov 01, 2024"
-            "MMMM d, yyyy",  // "November 1, 2024"
-            "MMMM dd, yyyy",  // "November 01, 2024"
-            "yyyy-MM-d",     // "2024-11-1"
-            "yyyy-MM-dd",     // "2024-11-01"
-            "yyyy/MM/d",     // "2024/11/1"
-            "yyyy/MM/dd",     // "2024/11/01"
-        };
+					"MMM d, yyyy",    // "Nov 1, 2024"
+					"MMM dd, yyyy",   // "Nov 01, 2024"
+					"MMMM d, yyyy",  // "November 1, 2024"
+					"MMMM dd, yyyy",  // "November 01, 2024"
+					"yyyy-MM-d",     // "2024-11-1"
+					"yyyy-MM-dd",     // "2024-11-01"
+					"yyyy/MM/d",     // "2024/11/1"
+					"yyyy/MM/dd",     // "2024/11/01"
+				};
 
 				// Try parsing the date using each format
 				foreach (var format in formats)
@@ -128,22 +129,22 @@ public static class Helper
 		}
 		public static string CreateRandomUserAgent()
 		{
-				return CreateRandomUserAgent(new Random());
+				return CreateRandomUserAgent(new ThreadLocal<Random>().Value);
 		}
 
 		public static string CreateRandomUserAgent(Random random)
 		{
 				List<string> firefoxVersions = [ "133.0",
-																				 "132.0", "132.0.1", "132.0.2",
-																				 "131.0", "131.0.1", "131.0.2",
-																				 "130.0", "130.0.1",
-																				 "129.0", "129.0.1", "129.0.2"];
+												"132.0", "132.0.1", "132.0.2",
+												"131.0", "131.0.1", "131.0.2",
+												"130.0", "130.0.1",
+												"129.0", "129.0.1", "129.0.2"];
 
 				List<string> operatingSystems = [
-					 "Windows NT 10.0; Win64; x64",
-						"Linux x86_64",
-						"X11; Ubuntu; Linux x86_64"
-					];
+					"Windows NT 10.0; Win64; x64",
+					"Linux x86_64",
+					"X11; Ubuntu; Linux x86_64"];
+
 				var allAgents = new List<string>();
 				foreach (var firefoxVersion in firefoxVersions)
 				{
@@ -172,6 +173,6 @@ public static class Helper
 
 		public static string Minify(this string strXmlContent)
 		{
-				return string.IsNullOrWhiteSpace(strXmlContent) ? strXmlContent : Regex.Replace(strXmlContent, @"\s+", " ");
+				return string.IsNullOrWhiteSpace(strXmlContent) ? strXmlContent : Regex.Replace(strXmlContent, @"\s+", " ", RegexOptions.None, TimeSpan.FromSeconds(30));
 		}
 }

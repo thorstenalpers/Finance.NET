@@ -398,7 +398,7 @@ internal class YahooFinanceService : IYahooFinanceService
 
 								var askElement = document.Body.SelectSingleNode("//li[span[contains(text(), 'Ask')]]/span[2]");
 								var askStr = askElement?.TextContent?.Trim();
-								askStr = Regex.Replace(askStr, @"\s*x\s*[0-9 -]+", "")?.Trim();  // remove "x 100" of e.g. "415.81 x 100"
+								askStr = Regex.Replace(askStr, @"\s*x\s*[0-9 -]+", "", RegexOptions.None, TimeSpan.FromSeconds(30))?.Trim();  // remove "x 100" of e.g. "415.81 x 100"
 								var ask = Helper.ParseDecimal(askStr);
 
 								var avgVolumeElement = document.Body.SelectSingleNode("//li[span[contains(text(), 'Avg. Volume')]]/span[2]");
@@ -409,7 +409,7 @@ internal class YahooFinanceService : IYahooFinanceService
 
 								var bidElement = document.Body.SelectSingleNode("//li[span[contains(text(), 'Bid')]]/span[2]");
 								var bidStr = bidElement?.TextContent?.Trim();
-								bidStr = Regex.Replace(bidStr, @"\s*x\s*[0-9 -]+", "")?.Trim();  // remove "x 100" of e.g. "415.81 x 100"
+								bidStr = Regex.Replace(bidStr, @"\s*x\s*[0-9 -]+", "", RegexOptions.None, TimeSpan.FromSeconds(30))?.Trim();  // remove "x 100" of e.g. "415.81 x 100"
 								var bid = Helper.ParseDecimal(bidStr);
 
 								var daysRangeElement = document.Body.SelectSingleNode("//li[span[contains(text(), 's Range')]]/span[2]");
