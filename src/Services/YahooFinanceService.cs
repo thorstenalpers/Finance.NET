@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AngleSharp.Dom;
 using AngleSharp.XPath;
+using Ardalis.GuardClauses;
 using AutoMapper;
 using Finance.Net.Exceptions;
 using Finance.Net.Extensions;
@@ -99,7 +100,7 @@ internal class YahooFinanceService : IYahooFinanceService
 								var error = responseObj.Error;
 								if (responseObj == null || error != null)
 								{
-										throw new FinanceNetException($"An error returned by Yahoo: {error}");
+										throw new FinanceNetException($"Received an error response from Yahoo: {error}");
 								}
 								if (responseObj.Result == null)
 								{
@@ -115,12 +116,13 @@ internal class YahooFinanceService : IYahooFinanceService
 										var quote = _mapper.Map<Quote>(quoteResponse);
 										quotes.Add(quote);
 								}
-								return quotes.IsNullOrEmpty() ? throw new FinanceNetException("All fields empty") : quotes;
+								Guard.Against.NullOrEmpty(quotes);
+								return quotes;
 						});
 				}
 				catch (Exception ex)
 				{
-						throw new FinanceNetException("Cannot fetch quotes", ex);
+						throw new FinanceNetException("No way to fetch quotes", ex);
 				}
 		}
 

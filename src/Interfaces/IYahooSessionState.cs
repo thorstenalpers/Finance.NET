@@ -10,5 +10,4 @@ public interface IYahooSessionState
 		CookieContainer GetCookieContainer();
 		string? GetCrumb();
 		void SetCrumb(string crumb, DateTime refreshTime);
-		void InvalidateSession();
 }

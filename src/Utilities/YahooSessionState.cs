@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
-using System.Reflection;
 
 using Finance.Net.Interfaces;
 
@@ -12,7 +11,7 @@ namespace Finance.Net.Utilities;
 internal class YahooSessionState(IOptions<FinanceNetConfiguration> options) : IYahooSessionState
 {
 		private readonly FinanceNetConfiguration _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
-		private string _userAgent = Helper.CreateRandomUserAgent();
+		private readonly string _userAgent = Helper.CreateRandomUserAgent();
 		private readonly CookieContainer _cookieContainer = new();
 		private string? _crumb;
 		private DateTime? _refreshTime;
@@ -33,30 +32,6 @@ internal class YahooSessionState(IOptions<FinanceNetConfiguration> options) : IY
 				_refreshTime = refreshTime;
 		}
 
-		public void InvalidateSession()
-		{
-				var domainTableField = typeof(CookieContainer).GetField("m_domainTable", BindingFlags.NonPublic | BindingFlags.Instance);
-				var domainTable = domainTableField?.GetValue(_cookieContainer);
-
-				var clearDomainTableMethod = domainTable?.GetType().GetMethod("Clear", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
-				clearDomainTableMethod?.Invoke(domainTable, null);
-
-				var listField = typeof(CookieContainer).GetField("m_list", BindingFlags.NonPublic | BindingFlags.Instance);
-				var list = listField?.GetValue(_cookieContainer);
-
-				var clearListMethod = list?.GetType().GetMethod("Clear", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
-				clearListMethod?.Invoke(list, null);
-
-				var capacityField = typeof(CookieContainer).GetField("m_capacity", BindingFlags.NonPublic | BindingFlags.Instance);
-				capacityField?.SetValue(_cookieContainer, 0);
-				var countField = typeof(CookieContainer).GetField("m_count", BindingFlags.NonPublic | BindingFlags.Instance);
-				countField?.SetValue(_cookieContainer, 0);
-
-				_userAgent = Helper.CreateRandomUserAgent();
-				_crumb = null;
-				_refreshTime = null;
-		}
-
 		public CookieContainer GetCookieContainer()
 		{
 				return _cookieContainer;
@@ -64,7 +39,7 @@ internal class YahooSessionState(IOptions<FinanceNetConfiguration> options) : IY
 
 		public bool IsValid()
 		{
-				var cookies = _cookieContainer?.GetCookies(new Uri(Constants.YahooBaseUrlHtml));
+				var cookies = _cookieContainer.GetCookies(new Uri(Constants.YahooBaseUrlHtml));
 				if (_refreshTime == null || cookies?.Count == null || cookies.Count == 0 || string.IsNullOrWhiteSpace(_crumb))
 				{
 						return false;

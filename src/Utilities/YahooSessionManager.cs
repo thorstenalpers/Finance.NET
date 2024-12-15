@@ -81,7 +81,6 @@ internal class YahooSessionManager(ILogger<IYahooSessionManager> logger,
 				var httpClient = _httpClientFactory.CreateClient(Constants.YahooHttpClientName);
 				httpClient.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml,application/json;q=0.9,*/*;q=0.8");
 
-				string? crumb = null;
 				var response = await httpClient.GetAsync(Constants.YahooBaseUrlAuthentication.ToLower(), token).ConfigureAwait(false);
 
 				var requestMessage = new HttpRequestMessage(HttpMethod.Get, Constants.YahooBaseUrlCrumbApi.ToLower());
@@ -89,7 +88,7 @@ internal class YahooSessionManager(ILogger<IYahooSessionManager> logger,
 				requestMessage.Headers.Add("Cookie", cookieHeader);
 
 				response = await httpClient.SendAsync(requestMessage, token).ConfigureAwait(false);
-				crumb = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+				var crumb = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 				if (string.IsNullOrEmpty(crumb) || crumb.Contains("Too Many Requests"))
 				{
 						throw new FinanceNetException("Unable to retrieve Yahoo crumb.");

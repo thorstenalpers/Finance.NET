@@ -53,23 +53,6 @@ public class YahooSessionStateTests
 		}
 
 		[Test]
-		public void InvalidateSession_Initialized_ClearsCookies()
-		{
-				// Arrange
-				var yahooSessionState = new YahooSessionState(_mockOptions.Object);
-
-				// Act
-				yahooSessionState.GetCookieContainer().Add(new System.Net.Cookie("cookieName", "Value", "/", "www.test.com"));
-				var cookiesCnt = yahooSessionState.GetCookieContainer().Count;
-				Assert.That(cookiesCnt, Is.GreaterThanOrEqualTo(1));
-				yahooSessionState.InvalidateSession();
-
-				// Assert
-				cookiesCnt = yahooSessionState.GetCookieContainer().Count;
-				Assert.That(cookiesCnt, Is.EqualTo(0));
-		}
-
-		[Test]
 		public void IsValid_WithValidCookies_ReturnsTrue()
 		{
 				// Arrange
