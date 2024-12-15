@@ -52,12 +52,14 @@ jobs:
       env:
           FinanceNet__AlphaVantageApiKey: ${{ secrets.ALPHAVANTAGEAPIKEY }}
 
-    - name: Upload coverage to Codacy
-      uses: codacy/codacy-coverage-reporter-action@v1
+    - name: Set up SonarCloud
+      uses: SonarSource/sonarqube-scan-action@v4
       with:
-        file: ./TestResults/Coverage/lcov.info 
-      env:
-        CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+        args: >
+          -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+          -Dsonar.organization=${{ secrets.SONAR_ORG }}
+          -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+          -Dsonar.coverageReportPaths=./TestResults/Coverage/lcov.info
 
     - name: Set up SonarCloud
       uses: SonarSource/sonarqube-scan-action@v4
@@ -67,15 +69,6 @@ jobs:
           -Dsonar.organization=${{ secrets.SONAR_ORG }}
           -Dsonar.login=${{ secrets.SONAR_TOKEN }}
           -Dsonar.coverageReportPaths=./TestResults/Tests/**/coverage.cobertura.xml
-
-    - name: Upload to Codecov
-      uses: codecov/codecov-action@v5
-      with:
-        files: ./TestResults/Tests/**/coverage.cobertura.xml
-        flags: dotnet
-        fail_ci_if_error: true
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
     - name: Upload to Coveralls
       uses: coverallsapp/github-action@v2
