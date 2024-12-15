@@ -61,7 +61,7 @@ jobs:
           -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
           -Dsonar.organization=${{ secrets.SONAR_ORG }}
           -Dsonar.login=${{ secrets.SONAR_TOKEN }}
-          -Dsonar.coverageReportPaths=./TestResults/sonarqubecoverage/SonarQube.xml
+          -Dsonar.coverageReportPaths=./TestResults/Coverage/lcov.info
 
     - name: Upload to Coveralls
       uses: coverallsapp/github-action@v2
