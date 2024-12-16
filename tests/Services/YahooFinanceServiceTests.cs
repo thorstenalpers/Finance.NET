@@ -116,9 +116,44 @@ public class YahooFinanceServiceTests
         Assert.That(!string.IsNullOrWhiteSpace(result.ShortName));
         Assert.That(result.MarketCap > 0);
     }
+
     [Test]
     public void GetQuoteAsync_NoResponse_Throws()
     {
+        // Arrange
+        var service = new YahooFinanceService(
+            _mockLogger.Object,
+            _mockHttpClientFactory.Object,
+            _mockPolicyRegistry.Object,
+            _mockYahooSession.Object);
+
+        // Act
+        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetQuoteAsync("IBM"));
+    }
+
+    [Test]
+    public void GetQuoteAsync_EmptyResponse_Throws()
+    {
+        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Yahoo", "quote_empty_response.json");
+        SetupHttpJsonFileResponse(filePath);
+
+        // Arrange
+        var service = new YahooFinanceService(
+            _mockLogger.Object,
+            _mockHttpClientFactory.Object,
+            _mockPolicyRegistry.Object,
+            _mockYahooSession.Object);
+
+        // Act
+        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetQuoteAsync("IBM"));
+    }
+
+    [Test]
+    public void GetQuoteAsync_ErrorResponse_Throws()
+    {
+        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Yahoo", "quote_error_response.json");
+        SetupHttpJsonFileResponse(filePath);
+
         // Arrange
         var service = new YahooFinanceService(
             _mockLogger.Object,

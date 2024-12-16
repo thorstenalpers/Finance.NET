@@ -105,7 +105,7 @@ public class YahooFinanceService : IYahooFinanceService
                 {
                     throw new FinanceNetException($"Received an error response from Yahoo: {error}");
                 }
-                if (responseObj.Result == null)
+                if (responseObj.Result == null || responseObj.Result.Length == 0)
                 {
                     return quotes;
                 }

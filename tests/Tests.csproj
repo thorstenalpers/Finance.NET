@@ -68,9 +68,15 @@
     <None Update="TestData\Yahoo\profile.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="TestData\Yahoo\quote.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+	<None Update="TestData\Yahoo\quote.json">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
+	<None Update="TestData\Yahoo\quote_empty_response.json">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
+	<None Update="TestData\Yahoo\quote_error_response.json">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
     <None Update="TestData\Yahoo\records.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
