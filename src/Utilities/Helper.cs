@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using Finance.Net.Models.AlphaVantage;
 
@@ -46,14 +47,11 @@ public static class Helper
 				{
 						return null;
 				}
-				else if (long.TryParse(cleanedNumber, out long result))
+				if (long.TryParse(cleanedNumber, out long result))
 				{
 						return result;
 				}
-				else
-				{
-						return (long)ParseWithMultiplier(cleanedNumber);
-				}
+				return (long)ParseWithMultiplier(cleanedNumber);
 		}
 
 		public static decimal? ParseDecimal(string? numberString)
@@ -63,14 +61,11 @@ public static class Helper
 				{
 						return null;
 				}
-				else if (decimal.TryParse(cleanedNumber, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal result))
+				if (decimal.TryParse(cleanedNumber, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal result))
 				{
 						return result;
 				}
-				else
-				{
-						return ParseWithMultiplier(cleanedNumber);
-				}
+				return ParseWithMultiplier(cleanedNumber);
 		}
 
 		private static decimal ParseWithMultiplier(string? cleanedNumber)
@@ -88,11 +83,11 @@ public static class Helper
 				var mulStr = match.Groups[2].Value;
 				return mulStr switch
 				{
-						"Trl." or "Trl" or "T" => result * 1000000000000000,
-						"Bio." or "Bio" or "B" => result * 1000000000000,
-						"Mrd." or "Mrd" => result * 1000000000,
-						"Mio." or "Mio" or "M" => result * 1000000,
-						"k" or "K" => result * 1000,
+						"Trl." or "Trl" or "T" => result * 1_000_000_000_000_000,
+						"Bio." or "Bio" or "B" => result * 1_000_000_000_000,
+						"Mrd." or "Mrd" => result * 1_000_000_000,
+						"Mio." or "Mio" or "M" => result * 1_000_000,
+						"k" or "K" => result * 1_000,
 						_ => throw new FormatException($"Unknown multiplikator={mulStr} of {cleanedNumber}")
 				};
 		}
@@ -136,10 +131,10 @@ public static class Helper
 		}
 		public static string CreateRandomUserAgent()
 		{
-				return CreateRandomUserAgent(new Random());
+				return CreateRandomUserAgent(RandomNumberGenerator.GetInt32);
 		}
 
-		public static string CreateRandomUserAgent(Random random)
+		public static string CreateRandomUserAgent(Func<int, int> random)
 		{
 				List<string> firefoxVersions = [ "133.0",
 												"132.0", "132.0.1", "132.0.2",
@@ -161,7 +156,7 @@ public static class Helper
 								allAgents.Add(userAgent);
 						}
 				}
-				var index = random.Next(allAgents.Count);
+				var index = random(allAgents.Count);
 				return allAgents[index];
 		}
 

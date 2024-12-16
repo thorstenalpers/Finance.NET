@@ -38,8 +38,8 @@ public class HelperTests
 				Assert.That(result, Is.EqualTo(expected));
 		}
 
-		[TestCase(1733443200, 2024, 12, 6)]
-		[TestCase(1233446400, 2009, 2, 1)]
+		[TestCase(1_733_443_200, 2024, 12, 6)]
+		[TestCase(1_233_446_400, 2009, 2, 1)]
 		[TestCase(null, null, null, null)]
 		public void UnixToDateTime_WithValidEntries_ReturnsResult(long? unixTimeSeconds, int? expectedYear, int? expectedMonth, int? expectedDay)
 		{
