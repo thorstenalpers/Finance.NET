@@ -45,12 +45,16 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       shell: bash
       run: |
-          dotnet-sonarscanner begin /k:"thorstenalpers_Finance.NET" /o:"thorstenalpers" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" \
-            /d:sonar.scanner.scanAll=false \
-            /d:sonar.sources="src" \
-            /d:sonar.tests="tests" \
-            /d:sonar.test.inclusions="tests/**/*.cs" \
-            /d:sonar.exclusions="**/*.html"
+          dotnet-sonarscanner begin 
+          /k:"thorstenalpers_Finance.NET" 
+          /o:"thorstenalpers" \
+          /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
+          /d:sonar.host.url="https://sonarcloud.io" \
+          /d:sonar.scanner.scanAll=false \
+          /d:sonar.sources="src" \
+          /d:sonar.tests="tests" \
+          /d:sonar.test.inclusions="tests/**/*.cs" \
+          /d:sonar.exclusions="**/*.html"
 
           dotnet build "${{ env.Solution_Name }}" --configuration Release --no-restore
           dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
@@ -67,24 +71,31 @@ jobs:
       env:
           FinanceNet__AlphaVantageApiKey: ${{ secrets.ALPHAVANTAGEAPIKEY }}
 
-    - name: Set up SonarCloud
-      uses: SonarSource/sonarqube-scan-action@v4
-      with:
-        args: >
-          -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
-          -Dsonar.organization=${{ secrets.SONAR_ORG }}
-          -Dsonar.token=${{ secrets.SONAR_TOKEN }}
-          -Dsonar.coverageReportPaths=./TestResults/Reports/SonarQube.xml
-          -Dsonar.sources=src
-          -Dsonar.tests=tests
-          -Dsonar.scanner.scanAll=false
-          -Dsonar.test.exclusions=tests/**
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-    - name: Trigger SonarCoud Analysis
+    - name: Upload code coverage to SonarCloud
+      shell: bash
       run: |
-        curl -u ${{ secrets.SONAR_TOKEN }} "https://sonarcloud.io/api/qualitygates/project_status?projectKey=${{ secrets.SONAR_PROJECT_KEY }}"
+        curl -u ${{ secrets.SONAR_TOKEN }} \
+          -X POST \
+          -F "file=@./TestResults/Reports/SonarQube.xml" \
+          "https://sonarcloud.io/api/qualitygates/project_status?projectKey=thorstenalpers_Finance.NET"
+        # Verify if the analysis passed
+        curl -u ${{ secrets.SONAR_TOKEN }} \
+          "https://sonarcloud.io/api/qualitygates/project_status?projectKey=thorstenalpers_Finance.NET"
+
+    # - name: Set up SonarCloud
+    #   uses: SonarSource/sonarqube-scan-action@v4
+    #   with:
+    #     args: >
+    #       -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+    #       -Dsonar.organization=${{ secrets.SONAR_ORG }}
+    #       -Dsonar.token=${{ secrets.SONAR_TOKEN }}
+    #       -Dsonar.coverageReportPaths=./TestResults/Reports/SonarQube.xml
+    #       -Dsonar.sources=src
+    #       -Dsonar.tests=tests
+    #       -Dsonar.scanner.scanAll=false
+    #       -Dsonar.test.exclusions=tests/**
+    #   env:
+    #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
     - name: Upload to Coveralls
       uses: coverallsapp/github-action@v2

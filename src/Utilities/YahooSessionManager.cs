@@ -169,7 +169,7 @@ public class YahooSessionManager(ILogger<YahooSessionManager> logger,
         {
             throw new FinanceNetException($"Unable to get ui cookies, cnt={_sessionState.GetCookieContainer()?.Count}");
         }
-        if (_sessionState?.GetCookieContainer() != null && _sessionState.GetCookieContainer().Count >= 3)
+        if (_sessionState.GetCookieContainer().Count >= 3)
         {
             _logger.LogInformation("UI Session established successfully");
         }

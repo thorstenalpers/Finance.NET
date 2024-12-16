@@ -168,8 +168,7 @@ public static class Helper
         }
         var fields = obj.GetType().GetFields(
             System.Reflection.BindingFlags.Instance |
-            System.Reflection.BindingFlags.Public |
-            System.Reflection.BindingFlags.NonPublic).ToList();
+            System.Reflection.BindingFlags.Public).ToList();
         return fields.All(field => field.GetValue(obj) == null);
     }
 
