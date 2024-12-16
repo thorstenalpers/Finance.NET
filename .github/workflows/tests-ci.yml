@@ -58,7 +58,7 @@ jobs:
           -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
           -Dsonar.organization=${{ secrets.SONAR_ORG }}
           -Dsonar.token=${{ secrets.SONAR_TOKEN }}
-          -Dsonar.coverageReportPaths=./TestResults/Reports/Cobertura.xml
+          -Dsonar.coverageReportPaths=./TestResults/Reports/SonarQube.xml
           -Dsonar.sources=src
           -Dsonar.tests=tests
           -Dsonar.test.exclusions=tests/**  # Exclude tests from main analysis
