@@ -38,13 +38,7 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
 		/// </summary>
 		public static IAlphaVantageService Create()
 		{
-				if (s_serviceProvider == null)
-				{
-						var services = new ServiceCollection();
-						services.AddFinanceNet();
-						s_serviceProvider = services.BuildServiceProvider();
-				}
-				return s_serviceProvider.GetRequiredService<IAlphaVantageService>();
+				return Create(new FinanceNetConfiguration());
 		}
 
 		/// <summary>
@@ -54,7 +48,6 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
 		/// <param name="cfg">Configure .Net Finance. <see cref="FinanceNetConfiguration"/> ></param>
 		public static IAlphaVantageService Create(FinanceNetConfiguration cfg)
 		{
-				var foo = 9;
 				if (s_serviceProvider == null)
 				{
 						var services = new ServiceCollection();

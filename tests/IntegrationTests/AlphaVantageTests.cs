@@ -24,7 +24,7 @@ public class AlphaVantageTests
 		}
 
 		[Test]
-		public async Task GetCompanyOverviewAsync_WithoutIoC_ValidSymbols_ReturnsOverview()
+		public async Task GetCompanyOverviewAsync_StaticInstance_ReturnsOverview()
 		{
 				var cfg = _serviceProvider.GetRequiredService<IOptions<FinanceNetConfiguration>>();
 
@@ -34,7 +34,6 @@ public class AlphaVantageTests
 				});
 
 				var overview = await service.GetCompanyOverviewAsync("SAP");
-
 				Assert.That(overview, Is.Not.Null);
 				Assert.That(overview.Symbol, Is.EqualTo("SAP"));
 		}

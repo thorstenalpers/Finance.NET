@@ -23,7 +23,7 @@ public class DatahubIoTests
 		}
 
 		[Test]
-		public async Task GetNasdaqInstrumentsAsync_WithoutIoC_ReturnsInstruments()
+		public async Task GetNasdaqInstrumentsAsync_StaticInstance_ReturnsInstruments()
 		{
 				var service = DatahubIoService.Create();
 				var instruments = await service.GetNasdaqInstrumentsAsync();

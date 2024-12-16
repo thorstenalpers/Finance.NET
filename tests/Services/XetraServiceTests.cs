@@ -77,14 +77,13 @@ public class XetraServiceTests
 		[Test]
 		public void Create_Static_ReturnsObject()
 		{
-				// Arrange
-				FinanceNetConfiguration cfg = null;
-
 				// Act
-				var service = XetraService.Create(cfg);
+				var service1 = XetraService.Create();
+				var service2 = XetraService.Create(new FinanceNetConfiguration());
 
 				// Assert
-				Assert.That(service, Is.Not.Null);
+				Assert.That(service1, Is.Not.Null);
+				Assert.That(service2, Is.Not.Null);
 		}
 
 		[Test]

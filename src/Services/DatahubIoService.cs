@@ -36,13 +36,7 @@ internal class DatahubIoService(IHttpClientFactory httpClientFactory,
 		/// </summary>
 		public static IDatahubIoService Create()
 		{
-				if (s_serviceProvider == null)
-				{
-						var services = new ServiceCollection();
-						services.AddFinanceNet();
-						s_serviceProvider = services.BuildServiceProvider();
-				}
-				return s_serviceProvider.GetRequiredService<IDatahubIoService>();
+				return Create(new FinanceNetConfiguration());
 		}
 
 		/// <summary>

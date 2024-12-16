@@ -56,13 +56,7 @@ public class YahooFinanceService : IYahooFinanceService
 		/// </summary>
 		public static IYahooFinanceService Create()
 		{
-				if (s_staticServiceProvider == null)
-				{
-						var services = new ServiceCollection();
-						services.AddFinanceNet();
-						s_staticServiceProvider = services.BuildServiceProvider();
-				}
-				return s_staticServiceProvider.GetRequiredService<IYahooFinanceService>();
+				return Create(new FinanceNetConfiguration());
 		}
 
 		/// <summary>

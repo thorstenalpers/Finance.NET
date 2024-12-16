@@ -55,13 +55,7 @@ public class XetraService : IXetraService
 		/// </summary>
 		public static IXetraService Create()
 		{
-				if (s_serviceProvider == null)
-				{
-						var services = new ServiceCollection();
-						services.AddFinanceNet();
-						s_serviceProvider = services.BuildServiceProvider();
-				}
-				return s_serviceProvider.GetRequiredService<IXetraService>();
+				return Create(new FinanceNetConfiguration());
 		}
 
 		/// <summary>

@@ -66,14 +66,13 @@ public class DatahubIoServiceTests
 		[Test]
 		public void Create_Static_ReturnsObject()
 		{
-				// Arrange
-				FinanceNetConfiguration cfg = null;
-
 				// Act
-				var service = DatahubIoService.Create(cfg);
+				var service1 = DatahubIoService.Create();
+				var service2 = DatahubIoService.Create(new FinanceNetConfiguration());
 
 				// Assert
-				Assert.That(service, Is.Not.Null);
+				Assert.That(service1, Is.Not.Null);
+				Assert.That(service2, Is.Not.Null);
 		}
 
 		[Test]

@@ -43,7 +43,7 @@ public class YahooFinanceTests
 		}
 
 		[Test]
-		public async Task GetProfileAsync_WithoutIoC_ReturnsProfile()
+		public async Task GetProfileAsync_StaticInstance_ReturnsProfile()
 		{
 				var service = YahooFinanceService.Create();
 				var profile = await service.GetProfileAsync("SAP.DE");

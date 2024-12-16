@@ -46,7 +46,7 @@ public class XetraTests
 		}
 
 		[Test]
-		public async Task GetTradableInstruments_WithoutIoC_ReturnsInstruments()
+		public async Task GetTradableInstruments_StaticInstance_ReturnsInstruments()
 		{
 				var service = XetraService.Create();
 				var instruments = await service.GetInstruments();
