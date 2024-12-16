@@ -47,7 +47,7 @@ public static class Helper
 				{
 						return null;
 				}
-				if (long.TryParse(cleanedNumber, out long result))
+				if (long.TryParse(cleanedNumber, out var result))
 				{
 						return result;
 				}
@@ -61,7 +61,7 @@ public static class Helper
 				{
 						return null;
 				}
-				if (decimal.TryParse(cleanedNumber, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal result))
+				if (decimal.TryParse(cleanedNumber, NumberStyles.Number, CultureInfo.InvariantCulture, out var result))
 				{
 						return result;
 				}
@@ -115,7 +115,7 @@ public static class Helper
 				// Try parsing the date using each format
 				foreach (var format in formats)
 				{
-						if (DateTime.TryParseExact(dateString, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime result))
+						if (DateTime.TryParseExact(dateString, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out var result))
 						{
 								return result;
 						}
@@ -152,7 +152,7 @@ public static class Helper
 				{
 						foreach (var operatingSystem in operatingSystems)
 						{
-								string userAgent = $"Mozilla/5.0 ({operatingSystem}; rv:{firefoxVersion}) Gecko/20100101 Firefox/{firefoxVersion}";
+								var userAgent = $"Mozilla/5.0 ({operatingSystem}; rv:{firefoxVersion}) Gecko/20100101 Firefox/{firefoxVersion}";
 								allAgents.Add(userAgent);
 						}
 				}

@@ -93,7 +93,6 @@ public class YahooFinanceService : IYahooFinanceService
 				{
 						return await _retryPolicy.ExecuteAsync(async () =>
 						{
-
 								var quotes = new List<Quote>();
 								var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
 
@@ -102,7 +101,7 @@ public class YahooFinanceService : IYahooFinanceService
 
 								var jsonContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
-								_logger.LogDebug("jsonContent={jsonContent}", jsonContent.Minify());
+								_logger.LogDebug("jsonContent={JsonContent}", jsonContent.Minify());
 
 								var parsedData = JsonConvert.DeserializeObject<QuoteResponseRoot>(jsonContent) ?? throw new FinanceNetException("Invalid data returned by Yahoo");
 								var responseObj = parsedData.QuoteResponse ?? throw new FinanceNetException("Unexpected response from Yahoo");
@@ -150,7 +149,7 @@ public class YahooFinanceService : IYahooFinanceService
 								var response = await httpClient.SendAsync(requestMessage, token).ConfigureAwait(false);
 								response.EnsureSuccessStatusCode();
 								var htmlContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-								_logger.LogDebug("htmlContent={htmlContent}", htmlContent.Minify());
+								_logger.LogDebug("htmlContent={HtmlContent}", htmlContent.Minify());
 
 								var document = new AngleSharp.Html.Parser.HtmlParser().ParseDocument(htmlContent);
 
@@ -222,7 +221,7 @@ public class YahooFinanceService : IYahooFinanceService
 								response.EnsureSuccessStatusCode();
 
 								var htmlContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-								_logger.LogDebug("htmlContent={htmlContent}", htmlContent.Minify());
+								_logger.LogDebug("htmlContent={HtmlContent}", htmlContent.Minify());
 								var document = new AngleSharp.Html.Parser.HtmlParser().ParseDocument(htmlContent);
 
 								var table = document.QuerySelector("table.table") ?? throw new FinanceNetException("No records found");
@@ -234,7 +233,7 @@ public class YahooFinanceService : IYahooFinanceService
 													return th.TextContent.Trim();
 											})
 											.ToList();
-								for (int i = 0; i < headers.Count; i++)
+								for (var i = 0; i < headers.Count; i++)
 								{
 										headerMap[headers[i]] = i;
 								}
@@ -243,8 +242,7 @@ public class YahooFinanceService : IYahooFinanceService
 										throw new FinanceNetException("Headers are missing");
 								}
 
-								var rows = table.QuerySelectorAll("tbody tr");
-								foreach (var row in rows)
+								foreach (var row in table.QuerySelectorAll("tbody tr"))
 								{
 										var cells = row.QuerySelectorAll("td").Select(td => td.TextContent.Trim()).ToArray();
 
@@ -285,7 +283,7 @@ public class YahooFinanceService : IYahooFinanceService
 										}
 										else
 										{
-												_logger.LogInformation("No records in row {row}", row.TextContent);    // e.g. date + dividend (over all columns)
+												_logger.LogInformation("No records in row {Row}", row.TextContent);    // e.g. date + dividend (over all columns)
 										}
 								}
 								return records.IsNullOrEmpty() ? throw new FinanceNetException("All fields empty") : records;
@@ -313,7 +311,7 @@ public class YahooFinanceService : IYahooFinanceService
 								response.EnsureSuccessStatusCode();
 
 								var htmlContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-								_logger.LogDebug("htmlContent={htmlContent}", htmlContent.Minify());
+								_logger.LogDebug("htmlContent={HtmlContent}", htmlContent.Minify());
 								var document = new AngleSharp.Html.Parser.HtmlParser().ParseDocument(htmlContent);
 
 								var headers = document
@@ -344,12 +342,12 @@ public class YahooFinanceService : IYahooFinanceService
 										var rowTitle = columns.First();
 										var values = columns.Skip(1).Select(Helper.ParseDecimal).ToList();
 
-										string propertyName = rowTitle.Replace(" ", "").Replace("&", "And");
+										var propertyName = rowTitle.Replace(" ", "").Replace("&", "And");
 										var propertyInfo = typeof(FinancialReport).GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
 
 										if (propertyInfo != null)
 										{
-												for (int i = 0; i < headers.Count; i++)
+												for (var i = 0; i < headers.Count; i++)
 												{
 														var header = headers[i];
 														var value = values[i];
@@ -386,7 +384,7 @@ public class YahooFinanceService : IYahooFinanceService
 								response.EnsureSuccessStatusCode();
 
 								var htmlContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-								_logger.LogDebug("htmlContent={htmlContent}", htmlContent.Minify());
+								_logger.LogDebug("htmlContent={HtmlContent}", htmlContent.Minify());
 								var document = new AngleSharp.Html.Parser.HtmlParser().ParseDocument(htmlContent);
 
 								var askElement = document.Body.SelectSingleNode("//li[span[contains(text(), 'Ask')]]/span[2]");

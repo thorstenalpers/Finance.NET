@@ -23,7 +23,7 @@ public class FinanceNetExceptionTests
 		public void FinanceNetException_WithInnerException_NotNull()
 		{
 				// Arrange
-				var exception = new Exception("Test");
+				var exception = new ArgumentNullException("Test");
 				// Act
 				var financeNetException = new FinanceNetException("message", exception);
 

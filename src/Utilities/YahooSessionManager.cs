@@ -46,7 +46,7 @@ public class YahooSessionManager(ILogger<YahooSessionManager> logger,
 
 		public async Task RefreshSessionAsync(CancellationToken token = default)
 		{
-				_logger.LogDebug("cookieNames={cookies}", GetCookieNames());
+				_logger.LogDebug("cookieNames={Cookies}", GetCookieNames());
 
 				if (_sessionState.IsValid())
 				{
@@ -98,8 +98,8 @@ public class YahooSessionManager(ILogger<YahooSessionManager> logger,
 				{
 						throw new FinanceNetException("Unable to get api cookies.");
 				}
-				_logger.LogDebug("cookieNames={cookies}", GetCookieNames());
-				_logger.LogDebug("_crumb= {crumb}", crumb);
+				_logger.LogDebug("cookieNames={Cookies}", GetCookieNames());
+				_logger.LogDebug("_crumb= {Crumb}", crumb);
 				_logger.LogInformation("API Session established successfully");
 				return crumb;
 		}
@@ -112,7 +112,7 @@ public class YahooSessionManager(ILogger<YahooSessionManager> logger,
 				// get consent
 				await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
 				var response = await httpClient.GetAsync(Constants.YahooBaseUrlHtml, token);
-				_logger.LogDebug("cookieNames={cookies}", GetCookieNames());
+				_logger.LogDebug("cookieNames={Cookies}", GetCookieNames());
 				response.EnsureSuccessStatusCode();
 
 				var htmlContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -158,7 +158,7 @@ public class YahooSessionManager(ILogger<YahooSessionManager> logger,
 				};
 				requestMessage.Headers.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
 				response = await httpClient.SendAsync(requestMessage, token);
-				_logger.LogDebug("cookieNames={cookies}", GetCookieNames());
+				_logger.LogDebug("cookieNames={Cookies}", GetCookieNames());
 				response.EnsureSuccessStatusCode();
 				await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
 

@@ -155,7 +155,7 @@ public class XetraServiceTests
 				_mockHandler
 						.Protected()
 						.Setup<Task<HttpResponseMessage>>("SendAsync",
-								ItExpr.Is<HttpRequestMessage>(req => req.RequestUri.AbsoluteUri.EndsWith(".csv", System.StringComparison.OrdinalIgnoreCase)),
+								ItExpr.Is<HttpRequestMessage>(req => req.RequestUri.AbsoluteUri.EndsWith(".csv", StringComparison.OrdinalIgnoreCase)),
 								ItExpr.IsAny<CancellationToken>())
 						.ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(csvFileContent, Encoding.UTF8, "text/csv") });
 

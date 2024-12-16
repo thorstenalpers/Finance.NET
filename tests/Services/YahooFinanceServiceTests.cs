@@ -60,7 +60,6 @@ public class YahooFinanceServiceTests
 		[Test]
 		public void Constructor_Throws()
 		{
-
 				Assert.Throws<ArgumentNullException>(() => new YahooFinanceService(
 						null,
 						_mockHttpClientFactory.Object,

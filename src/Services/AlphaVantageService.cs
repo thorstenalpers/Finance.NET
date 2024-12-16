@@ -29,7 +29,7 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
 		private readonly ILogger<AlphaVantageService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		private readonly IHttpClientFactory _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
 		private readonly FinanceNetConfiguration _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
-		private static ServiceProvider? s_serviceProvider = null;
+		private static ServiceProvider? s_serviceProvider;
 		private readonly AsyncPolicy _retryPolicy = policyRegistry?.Get<AsyncPolicy>(Constants.DefaultHttpRetryPolicy) ?? throw new ArgumentNullException(nameof(policyRegistry));
 
 		/// <summary>
@@ -71,7 +71,7 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
 								var httpResponse = await httpClient.GetAsync(url, token).ConfigureAwait(false);
 								httpResponse.EnsureSuccessStatusCode();
 
-								string jsonResponse = await httpResponse.Content.ReadAsStringAsync();
+								var jsonResponse = await httpResponse.Content.ReadAsStringAsync();
 								if (jsonResponse.Contains("higher API call volume"))
 								{
 										throw new FinanceNetException($"higher API call volume for {symbol}");
@@ -113,7 +113,7 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
 								var response = await httpClient.GetAsync(url, token).ConfigureAwait(false);
 								response.EnsureSuccessStatusCode();
 
-								string jsonResponse = await response.Content.ReadAsStringAsync();
+								var jsonResponse = await response.Content.ReadAsStringAsync();
 								if (jsonResponse.Contains("higher API call volume"))
 								{
 										throw new FinanceNetException($"higher API call volume for {symbol}");
@@ -133,7 +133,7 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
 										}
 										if (result.Any(e => e.Date == today))
 										{
-												_logger.LogWarning("Bug: Course for {Symbol} for {Date} already added!", symbol, today.ToString("yyyy-MM-dd"));
+												_logger.LogWarning("Bug: Course for {Symbol} for {Date} already added!", symbol, today.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
 										}
 										else
 										{
@@ -209,7 +209,7 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
 								var response = await httpClient.GetAsync(url, token).ConfigureAwait(false);
 								response.EnsureSuccessStatusCode();
 
-								string jsonResponse = await response.Content.ReadAsStringAsync();
+								var jsonResponse = await response.Content.ReadAsStringAsync();
 								if (jsonResponse.Contains("higher API call volume"))
 								{
 										throw new FinanceNetException($"higher API call volume for {symbol}");
@@ -283,7 +283,7 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
 								var response = await httpClient.GetAsync(url, token).ConfigureAwait(false);
 								response.EnsureSuccessStatusCode();
 
-								string jsonResponse = await response.Content.ReadAsStringAsync();
+								var jsonResponse = await response.Content.ReadAsStringAsync();
 								if (jsonResponse.Contains("higher API call volume"))
 								{
 										throw new FinanceNetException($"higher API call volume for {currency1} /{currency2}");
@@ -303,7 +303,7 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
 										}
 										if (result.Any(e => e.Date == today))
 										{
-												_logger.LogWarning("Bug: {Currency1} /{Currency2} for {Date} already added!", currency1, currency2, today.ToString("yyyy-MM-dd"));
+												_logger.LogWarning("Bug: {Currency1} /{Currency2} for {Date} already added!", currency1, currency2, today.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
 										}
 										else
 										{

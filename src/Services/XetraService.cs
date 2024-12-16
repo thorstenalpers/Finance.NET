@@ -31,7 +31,7 @@ public class XetraService : IXetraService
 		private readonly IHttpClientFactory _httpClientFactory;
 		private readonly FinanceNetConfiguration _options;
 		private readonly IMapper _mapper;
-		private static ServiceProvider? s_serviceProvider = null;
+		private static ServiceProvider? s_serviceProvider;
 		private readonly AsyncPolicy _retryPolicy;
 
 		public XetraService(ILogger<XetraService> logger,
@@ -122,7 +122,7 @@ public class XetraService : IXetraService
 								response.EnsureSuccessStatusCode();
 
 								var htmlContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-								_logger.LogDebug("htmlContent={htmlContent}", htmlContent.Minify());
+								_logger.LogDebug("htmlContent={HtmlContent}", htmlContent.Minify());
 								var document = new AngleSharp.Html.Parser.HtmlParser().ParseDocument(htmlContent);
 
 								var hrefAttributes = document.DocumentElement.SelectNodes("//a[contains(@class, 'download') and contains(., 'All tradable instruments')]/@href")?.Select(e => e.NodeValue);
