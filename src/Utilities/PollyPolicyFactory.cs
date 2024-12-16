@@ -14,6 +14,9 @@ internal static class PollyPolicyFactory
             .WaitAndRetryAsync(
                 retryCount,
                 retryAttempt => TimeSpan.FromSeconds(retryAttempt), // delayed retry, 1,2,3,..secs
-                (exception, timeSpan, retryCount, _) => logger?.LogWarning("Retry {RetryCount} after {TimeSpan} due to {Exception}.", retryCount, timeSpan, exception?.Message));
+                (exception, timeSpan, retryCount, _) =>
+                {
+                    logger?.LogWarning("Retry {RetryCount} after {TimeSpan} due to {Exception}.", retryCount, timeSpan, exception?.Message);
+                });
     }
 }
