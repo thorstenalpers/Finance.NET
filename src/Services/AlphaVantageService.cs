@@ -111,52 +111,54 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
             return await _retryPolicy.ExecuteAsync(async () =>
             {
                 var result = new List<HistoryRecord>();
-                var response = await httpClient.GetAsync(url, token).ConfigureAwait(false);
-                response.EnsureSuccessStatusCode();
 
-                var jsonResponse = await response.Content.ReadAsStringAsync();
+                var jsonResponse = await Helper.FetchJsonDocumentAsync(httpClient, _logger, url, token);
                 if (jsonResponse.Contains(Constants.YahooResponseApiLimitExceeded))
                 {
                     throw new FinanceNetException($"higher API call volume for {symbol}");
                 }
-
-                var data = JsonConvert.DeserializeObject<DailyRecordRoot>(jsonResponse);
-                if (data?.TimeSeries == null)
-                {
-                    throw new FinanceNetException($"no daily records for {symbol}");
-                }
-                foreach (var item in data.TimeSeries)
-                {
-                    var today = item.Key;
-                    if (today > endDate || today < startDate || today > endDate)
-                    {
-                        continue;
-                    }
-                    if (result.Any(e => e.Date == today))
-                    {
-                        _logger.LogWarning("Bug: Course for {Symbol} for {Date} already added!", symbol, today.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
-                    }
-                    else
-                    {
-                        result.Add(new HistoryRecord
-                        {
-                            Date = today,
-                            Open = item.Value.Open,
-                            Low = item.Value.Low,
-                            High = item.Value.High,
-                            Close = item.Value.Close,
-                            AdjustedClose = item.Value.AdjustedClose,
-                            Volume = item.Value.Volume,
-                            SplitCoefficient = item.Value.SplitCoefficient,
-                        });
-                    }
-                }
+                ParseHistoryRecords(symbol, startDate, endDate, result, jsonResponse);
                 return result.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
             });
         }
         catch (Exception ex)
         {
             throw new FinanceNetException($"No HistoryRecord found for {symbol}", ex);
+        }
+    }
+
+    private void ParseHistoryRecords(string symbol, DateTime startDate, DateTime? endDate, List<HistoryRecord> result, string jsonResponse)
+    {
+        var data = JsonConvert.DeserializeObject<DailyRecordRoot>(jsonResponse);
+        if (data?.TimeSeries == null)
+        {
+            throw new FinanceNetException($"no daily records for {symbol}");
+        }
+        foreach (var item in data.TimeSeries)
+        {
+            var today = item.Key;
+            if (today > endDate || today < startDate || today > endDate)
+            {
+                continue;
+            }
+            if (result.Any(e => e.Date == today))
+            {
+                _logger.LogWarning("Bug: Course for {Symbol} for {Date} already added!", symbol, today.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+            }
+            else
+            {
+                result.Add(new HistoryRecord
+                {
+                    Date = today,
+                    Open = item.Value.Open,
+                    Low = item.Value.Low,
+                    High = item.Value.High,
+                    Close = item.Value.Close,
+                    AdjustedClose = item.Value.AdjustedClose,
+                    Volume = item.Value.Volume,
+                    SplitCoefficient = item.Value.SplitCoefficient,
+                });
+            }
         }
     }
 
@@ -216,46 +218,51 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
                 {
                     throw new FinanceNetException($"higher API call volume for {symbol}");
                 }
-                var data = JsonConvert.DeserializeObject<IntradayRecordRoot>(jsonResponse);
-
-                var timeseries = interval switch
-                {
-                    EInterval.Interval_1Min => data?.TimeSeries1Min ?? throw new FinanceNetException($"no intraday records for {symbol}"),
-                    EInterval.Interval_5Min => data?.TimeSeries5Min ?? throw new FinanceNetException($"no intraday records for {symbol}"),
-                    EInterval.Interval_15Min => data?.TimeSeries15Min ?? throw new FinanceNetException($"no intraday records for {symbol}"),
-                    EInterval.Interval_30Min => data?.TimeSeries30Min ?? throw new FinanceNetException($"no intraday records for {symbol}"),
-                    EInterval.Interval_60Min => data?.TimeSeries60Min ?? throw new FinanceNetException($"no intraday records for {symbol}"),
-                    _ => throw new NotImplementedException(),
-                };
-                foreach (var item in timeseries)
-                {
-                    var dateTimeString = item.Key;
-                    var dateTimeSplit = dateTimeString.Split(' ');
-
-                    var date = dateTimeSplit[0];
-                    var time = dateTimeSplit[1];
-
-                    var dateTime = DateTime.ParseExact(dateTimeString, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
-
-                    result.Add(new HistoryIntradayRecord
-                    {
-                        DateOnly = date,
-                        DateTime = dateTime,
-                        TimeOnly = time,
-
-                        Open = item.Value.Open,
-                        Low = item.Value.Low,
-                        High = item.Value.High,
-                        Close = item.Value.Close,
-                        Volume = item.Value.Volume,
-                    });
-                }
+                ParseHistoryIntradayRecords(symbol, interval, result, jsonResponse);
                 return result.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
             });
         }
         catch (Exception ex)
         {
             throw new FinanceNetException($"No HistoryIntradayRecord found for {symbol}", ex);
+        }
+    }
+
+    private static void ParseHistoryIntradayRecords(string symbol, EInterval interval, List<HistoryIntradayRecord> result, string jsonResponse)
+    {
+        var data = JsonConvert.DeserializeObject<IntradayRecordRoot>(jsonResponse);
+
+        var timeseries = interval switch
+        {
+            EInterval.Interval_1Min => data?.TimeSeries1Min ?? throw new FinanceNetException($"no intraday records for {symbol}"),
+            EInterval.Interval_5Min => data?.TimeSeries5Min ?? throw new FinanceNetException($"no intraday records for {symbol}"),
+            EInterval.Interval_15Min => data?.TimeSeries15Min ?? throw new FinanceNetException($"no intraday records for {symbol}"),
+            EInterval.Interval_30Min => data?.TimeSeries30Min ?? throw new FinanceNetException($"no intraday records for {symbol}"),
+            EInterval.Interval_60Min => data?.TimeSeries60Min ?? throw new FinanceNetException($"no intraday records for {symbol}"),
+            _ => throw new NotImplementedException(),
+        };
+        foreach (var item in timeseries)
+        {
+            var dateTimeString = item.Key;
+            var dateTimeSplit = dateTimeString.Split(' ');
+
+            var date = dateTimeSplit[0];
+            var time = dateTimeSplit[1];
+
+            var dateTime = DateTime.ParseExact(dateTimeString, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+
+            result.Add(new HistoryIntradayRecord
+            {
+                DateOnly = date,
+                DateTime = dateTime,
+                TimeOnly = time,
+
+                Open = item.Value.Open,
+                Low = item.Value.Low,
+                High = item.Value.High,
+                Close = item.Value.Close,
+                Volume = item.Value.Volume,
+            });
         }
     }
 
@@ -283,49 +290,50 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
             {
                 var result = new List<HistoryForexRecord>();
 
-                var response = await httpClient.GetAsync(url, token).ConfigureAwait(false);
-                response.EnsureSuccessStatusCode();
-
-                var jsonResponse = await response.Content.ReadAsStringAsync();
+                var jsonResponse = await Helper.FetchJsonDocumentAsync(httpClient, _logger, url, token);
                 if (jsonResponse.Contains(Constants.YahooResponseApiLimitExceeded))
                 {
                     throw new FinanceNetException($"higher API call volume for {currency1} /{currency2}");
                 }
-
-                var data = JsonConvert.DeserializeObject<DailyForexRecordRoot>(jsonResponse);
-                if (data?.TimeSeries == null)
-                {
-                    throw new FinanceNetException($"no forex records for {currency1} /{currency2}");
-                }
-                foreach (var item in data.TimeSeries)
-                {
-                    var today = item.Key;
-                    if (today > endDate || today < startDate || today > endDate)
-                    {
-                        continue;
-                    }
-                    if (result.Any(e => e.Date == today))
-                    {
-                        _logger.LogWarning("Bug: {Currency1} /{Currency2} for {Date} already added!", currency1, currency2, today.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
-                    }
-                    else
-                    {
-                        result.Add(new HistoryForexRecord
-                        {
-                            Date = item.Key,
-                            Open = item.Value.Open,
-                            Low = item.Value.Low,
-                            High = item.Value.High,
-                            Close = item.Value.Close,
-                        });
-                    }
-                }
+                ParseHistoryForexRecords(currency1, currency2, startDate, endDate, result, jsonResponse);
                 return result.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
             });
         }
         catch (Exception ex)
         {
             throw new FinanceNetException($"No HistoryForexRecord found for {currency1}, {currency2}", ex);
+        }
+    }
+
+    private void ParseHistoryForexRecords(string currency1, string currency2, DateTime startDate, DateTime? endDate, List<HistoryForexRecord> result, string jsonResponse)
+    {
+        var data = JsonConvert.DeserializeObject<DailyForexRecordRoot>(jsonResponse);
+        if (data?.TimeSeries == null)
+        {
+            throw new FinanceNetException($"no forex records for {currency1} /{currency2}");
+        }
+        foreach (var item in data.TimeSeries)
+        {
+            var today = item.Key;
+            if (today > endDate || today < startDate || today > endDate)
+            {
+                continue;
+            }
+            if (result.Any(e => e.Date == today))
+            {
+                _logger.LogWarning("Bug: {Currency1} /{Currency2} for {Date} already added!", currency1, currency2, today.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+            }
+            else
+            {
+                result.Add(new HistoryForexRecord
+                {
+                    Date = item.Key,
+                    Open = item.Value.Open,
+                    Low = item.Value.Low,
+                    High = item.Value.High,
+                    Close = item.Value.Close,
+                });
+            }
         }
     }
 }
