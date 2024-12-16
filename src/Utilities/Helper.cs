@@ -191,4 +191,17 @@ public static class Helper
         logger?.LogDebug("htmlContent={HtmlContent}", htmlContent.Minify());
         return new AngleSharp.Html.Parser.HtmlParser().ParseDocument(htmlContent);
     }
+
+    public static async Task<string> FetchJsonDocumentAsync<T>(HttpClient httpClient, ILogger<T> logger, string url, CancellationToken token)
+    {
+        var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
+
+        var response = await httpClient.SendAsync(requestMessage, token).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+
+        var jsonContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+        logger?.LogDebug("jsonContent={JsonContent}", jsonContent.Minify());
+        return jsonContent;
+    }
 }

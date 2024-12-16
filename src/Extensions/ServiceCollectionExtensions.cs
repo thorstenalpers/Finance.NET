@@ -28,8 +28,6 @@ public static class ServiceCollectionExtensions
     /// <param name="cfg">Values to configure Finance.NET. <see cref="FinanceNetConfiguration"/> ></param>
     public static void AddFinanceNet(this IServiceCollection services, FinanceNetConfiguration cfg)
     {
-        cfg ??= new FinanceNetConfiguration();
-
         services.Configure<FinanceNetConfiguration>(opt =>
         {
             opt.HttpRetryCount = cfg.HttpRetryCount;
