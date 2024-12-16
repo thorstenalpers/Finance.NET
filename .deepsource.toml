@@ -16,3 +16,10 @@ enabled = true
 name = "test-coverage"
 enabled = true
 coverage_report = "./TestResults/Reports/Cobertura.xml"
+
+[coverage]
+paths = ["coverage-report/Cobertura.xml"]  # Path to your Cobertura coverage report
+language = "csharp"  # Ensure it uses the C# language
+
+[coverage.format]
+type = "cobertura"  # Specify Cobertura format
