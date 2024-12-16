@@ -36,9 +36,6 @@ jobs:
     - name: Restore
       run: dotnet restore "${{ env.Solution_Name }}"
 
-    # - name: Build
-    #   run: dotnet build "${{ env.Solution_Name }}" --configuration Release --no-restore
-
     - name: Build and Test
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -62,44 +59,6 @@ jobs:
         reportgenerator -reports:./TestResults/Tests/**/coverage.cobertura.xml -targetdir:./TestResults/Reports -reporttypes:"Html;lcov;SonarQube;Cobertura"
         
         dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
-
-    # - name: Run tests
-    #   shell: pwsh
-    #   run: |
-    #       dotnet test "${{ env.Test_Project_Path }}" --collect:"XPlat Code Coverage" --results-directory ./TestResults/Tests --configuration Release --logger "console;verbosity=detailed" 
-    #       if ($LASTEXITCODE -ne 0) {
-    #         Write-Host "Tests failed"
-    #         exit 1
-    #       }
-    #       reportgenerator -reports:./TestResults/Tests/**/coverage.cobertura.xml -targetdir:./TestResults/Reports -reporttypes:"Html;lcov;SonarQube;Cobertura"
-    #   env:
-    #       FinanceNet__AlphaVantageApiKey: ${{ secrets.ALPHAVANTAGEAPIKEY }}
-
-    # - name: Run SonarCloud analysis
-    #   env:
-    #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}  Ensure SONAR_TOKEN is set in your repository secrets
-    #   run: |
-    #     dotnet-sonarscanner begin \
-    #       /k:"thorstenalpers_Finance.NET" \
-    #       /o:"thorstenalpers" \
-    #       /d:sonar.coverage.lcov.reportPaths="**/TestResults/Reports/SonarQube.xml" \
-    #       /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
-    #       /d:sonar.host.url="https://sonarcloud.io" \
-    #       /d:sonar.scanner.scanAll=false \
-    #       /d:sonar.test.inclusions="tests/**/*.cs" \
-    #       /d:sonar.exclusions="**/*.html"        
-    #     dotnet build "${{ env.Solution_Name }}" --configuration Release --no-restore        
-    #     dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
-
-    # - name: Upload code coverage to SonarCloud
-    #   shell: bash
-    #   run: |
-    #     curl -u ${{ secrets.SONAR_TOKEN }} \
-    #       -X POST \
-    #       -F "file=./TestResults/Reports/SonarQube.xml" \
-    #       "https://sonarcloud.io/api/qualitygates/project_status?projectKey=thorstenalpers_Finance.NET"
-    #     curl -u ${{ secrets.SONAR_TOKEN }} \
-    #       "https://sonarcloud.io/api/qualitygates/project_status?projectKey=thorstenalpers_Finance.NET"
 
     - name: Upload to Coveralls
       uses: coverallsapp/github-action@v2
