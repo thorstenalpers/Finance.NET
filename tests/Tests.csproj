@@ -7,7 +7,7 @@
     <RootNamespace>Finance.Net.Tests</RootNamespace>
     <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
 	<UserSecretsId>6573a458-faf1-4777-bdaf-52764d569eee</UserSecretsId>
-    <NoWarn>1701;1702;IDE0058</NoWarn>
+    <NoWarn>1701;1702;IDE0058;CA1861</NoWarn>
     <AnalysisLevel>latest-minimum</AnalysisLevel>
   </PropertyGroup>
 

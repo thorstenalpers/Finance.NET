@@ -76,6 +76,14 @@ jobs:
       env:
         COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
 
+    - name: Upload to DeepSource1
+      run: |
+        curl https://deepsource.io/cli | sh
+        # From the root directory, run the report coverage command
+        ./bin/deepsource report --analyzer test-coverage --key csharp --value-file ./TestResults/Reports/Cobertura.xml
+      env:
+        DEEPSOURCE_DSN: ${{ secrets.DEEPSOURCE_DSN }}
+
     - name: Upload to DeepSource
       uses: deepsourcelabs/test-coverage-action@master
       with:
