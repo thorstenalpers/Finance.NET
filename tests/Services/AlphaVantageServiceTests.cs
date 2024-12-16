@@ -221,7 +221,7 @@ public class AlphaVantageServiceTests
         var startDate = new DateTime(2024, 01, 01);
 
         // Act
-        var result = await service.GetHistoryIntradayRecordsAsync("IBM", startDate);
+        var result = await service.GetHistoryIntradayRecordsAsync("IBM", startDate, null, Models.AlphaVantage.EInterval.Interval_5Min);
 
         // Assert
         Assert.That(result, Is.Not.Empty);

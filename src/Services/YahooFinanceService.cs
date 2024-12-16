@@ -195,20 +195,16 @@ public class YahooFinanceService : IYahooFinanceService
         }
     }
 
-    public Task<IEnumerable<HistoryRecord>> GetHistoryRecordsAsync(string symbol, DateTime startDate)
-    {
-        return GetHistoryRecordsAsync(symbol, startDate, DateTime.UtcNow);
-    }
-
-    public async Task<IEnumerable<HistoryRecord>> GetHistoryRecordsAsync(string symbol, DateTime startDate, DateTime endDate, CancellationToken token = default)
+    public async Task<IEnumerable<HistoryRecord>> GetHistoryRecordsAsync(string symbol, DateTime startDate, DateTime? endDate = null, CancellationToken token = default)
     {
         await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
         var httpClient = _httpClientFactory.CreateClient(Constants.YahooHttpClientName);
 
-        endDate = endDate.AddDays(1).Date;
+        endDate ??= DateTime.UtcNow.Date;
+        endDate = endDate.Value.AddDays(1).Date;
 
         var period1 = Helper.ToUnixTime(startDate.Date) ?? throw new FinanceNetException("Invalid startDate");
-        var period2 = Helper.ToUnixTime(endDate.Date) ?? throw new FinanceNetException("Invalid endDate");
+        var period2 = Helper.ToUnixTime(endDate.Value.Date) ?? throw new FinanceNetException("Invalid endDate");
 
         var url = $"{Constants.YahooBaseUrlQuoteHtml}/{symbol}/history/?period1={period1}&period2={period2}".ToLowerInvariant();
 

@@ -89,18 +89,15 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
             throw new FinanceNetException($"No company overview found for {symbol}", ex);
         }
     }
-    public Task<IEnumerable<HistoryRecord>> GetHistoryRecordsAsync(string symbol, DateTime startDate)
-    {
-        return GetHistoryRecordsAsync(symbol, startDate, DateTime.UtcNow.Date);
-    }
 
-    public async Task<IEnumerable<HistoryRecord>> GetHistoryRecordsAsync(string symbol, DateTime startDate, DateTime endDate, CancellationToken token = default)
+    public async Task<IEnumerable<HistoryRecord>> GetHistoryRecordsAsync(string symbol, DateTime startDate, DateTime? endDate = null, CancellationToken token = default)
     {
         var httpClient = _httpClientFactory.CreateClient(Constants.AlphaVantageHttpClientName);
         var url = Constants.AlphaVantageApiUrl + "/query?function=TIME_SERIES_DAILY_ADJUSTED" +
             $"&symbol={symbol}&outputsize=full&apikey={_options.AlphaVantageApiKey}";
         Guard.Against.NullOrEmpty(symbol);
-        if (endDate.Date >= DateTime.UtcNow.Date)
+        endDate ??= DateTime.UtcNow;
+        if (endDate.Value.Date >= DateTime.UtcNow.Date)
         {
             endDate = DateTime.UtcNow.Date;
         }
@@ -163,21 +160,12 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
         }
     }
 
-    public Task<IEnumerable<HistoryIntradayRecord>> GetHistoryIntradayRecordsAsync(string symbol, DateTime startDate)
-    {
-        return GetHistoryIntradayRecordsAsync(symbol, startDate, DateTime.UtcNow.Date);
-    }
-
-    public Task<IEnumerable<HistoryIntradayRecord>> GetHistoryIntradayRecordsAsync(string symbol, DateTime startDate, DateTime endDate)
-    {
-        return GetHistoryIntradayRecordsAsync(symbol, startDate, endDate, EInterval.Interval_15Min);
-    }
-
-    public async Task<IEnumerable<HistoryIntradayRecord>> GetHistoryIntradayRecordsAsync(string symbol, DateTime startDate, DateTime endDate, EInterval interval, CancellationToken token = default)
+    public async Task<IEnumerable<HistoryIntradayRecord>> GetHistoryIntradayRecordsAsync(string symbol, DateTime startDate, DateTime? endDate = null, EInterval interval = EInterval.Interval_15Min, CancellationToken token = default)
     {
         Guard.Against.NullOrEmpty(symbol);
         var result = new List<HistoryIntradayRecord>();
-        if (endDate.Date >= DateTime.UtcNow.Date)
+        endDate ??= DateTime.UtcNow.Date;
+        if (endDate.Value.Date >= DateTime.UtcNow.Date)
         {
             endDate = DateTime.UtcNow.Date;
         }
@@ -189,9 +177,9 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
         for (var currentMonth = new DateTime(startDate.Year, startDate.Month, 1, 0, 0, 0, DateTimeKind.Utc); currentMonth <= endDate; currentMonth = currentMonth.AddMonths(1))
         {
             if (currentMonth == endDate &&
-                ((endDate.Day == 1 && endDate.DayOfWeek == DayOfWeek.Saturday) ||
-                    (endDate.Day == 1 && endDate.DayOfWeek == DayOfWeek.Sunday) ||
-                    (endDate.Day == 2 && endDate.DayOfWeek == DayOfWeek.Sunday)))
+                ((endDate.Value.Day == 1 && endDate.Value.DayOfWeek == DayOfWeek.Saturday) ||
+                    (endDate.Value.Day == 1 && endDate.Value.DayOfWeek == DayOfWeek.Sunday) ||
+                    (endDate.Value.Day == 2 && endDate.Value.DayOfWeek == DayOfWeek.Sunday)))
             {
                 // dont query for data which not exists (api exception)
                 break;
@@ -271,18 +259,14 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
         }
     }
 
-    public Task<IEnumerable<HistoryForexRecord>> GetHistoryForexRecordsAsync(string currency1, string currency2, DateTime startDate)
-    {
-        return GetHistoryForexRecordsAsync(currency1, currency2, startDate, DateTime.UtcNow.Date);
-    }
-
-    public async Task<IEnumerable<HistoryForexRecord>> GetHistoryForexRecordsAsync(string currency1, string currency2, DateTime startDate, DateTime endDate, CancellationToken token = default)
+    public async Task<IEnumerable<HistoryForexRecord>> GetHistoryForexRecordsAsync(string currency1, string currency2, DateTime startDate, DateTime? endDate = null, CancellationToken token = default)
     {
         var httpClient = _httpClientFactory.CreateClient(Constants.AlphaVantageHttpClientName);
         Guard.Against.NullOrEmpty(currency1);
         Guard.Against.NullOrEmpty(currency2);
 
-        if (endDate.Date >= DateTime.UtcNow.Date)
+        endDate ??= DateTime.UtcNow.Date;
+        if (endDate.Value.Date >= DateTime.UtcNow.Date)
         {
             endDate = DateTime.UtcNow.Date;
         }
