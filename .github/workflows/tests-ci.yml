@@ -78,7 +78,7 @@ jobs:
           -Dsonar.sources=src
           -Dsonar.tests=tests
           -Dsonar.scanner.scanAll=false
-          -Dsonar.test.exclusions=tests/**  # Exclude tests from main analysis
+          -Dsonar.test.exclusions=tests/**
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
@@ -92,22 +92,7 @@ jobs:
         path-to-lcov: ./TestResults/Reports/lcov.info
       env:
         COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
-
-    - name: Upload to DeepSource1
-      run: |
-        curl https://deepsource.io/cli | sh
-        # From the root directory, run the report coverage command
-        ./bin/deepsource report --analyzer test-coverage --key csharp --value-file ./TestResults/Reports/Cobertura.xml
-      env:
-        DEEPSOURCE_DSN: ${{ secrets.DEEPSOURCE_DSN }}
-
-    - name: Upload to DeepSource
-      uses: deepsourcelabs/test-coverage-action@master
-      with:
-        key: python
-        coverage-file: ./TestResults/Reports/Cobertura.xml
-        dsn: ${{ secrets.DEEPSOURCE_DSN }}
-
+           
     - name: Upload to GitHub
       uses: actions/upload-artifact@v4.4.3
       with:
