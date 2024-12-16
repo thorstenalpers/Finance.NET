@@ -84,7 +84,7 @@ jobs:
           /d:sonar.test.inclusions="tests/**/*.cs" \
           /d:sonar.exclusions="**/*.html"        
         dotnet build "${{ env.Solution_Name }}" --configuration Release --no-restore        
-        dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+        dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
     # - name: Upload code coverage to SonarCloud
     #   shell: bash
