@@ -7,9 +7,9 @@ namespace Finance.Net.Models.AlphaVantage.Dtos;
 
 internal record DailyRecordRoot
 {
-	[JsonProperty("Meta Data")]
-	public Dictionary<string, string>? MetaData { get; set; }
+    [JsonProperty("Meta Data")]
+    public Dictionary<string, string>? MetaData { get; set; }
 
-	[JsonProperty("Time Series (Daily)")]
-	public Dictionary<DateTime, DailyRecordItem>? TimeSeries { get; set; }
+    [JsonProperty("Time Series (Daily)")]
+    public Dictionary<DateTime, DailyRecordItem>? TimeSeries { get; set; }
 }
