@@ -45,23 +45,23 @@ public class ServiceCollectionExtensionsTests
         Assert.That(resolvedCfg.DatahubIoDownloadUrlNasdaqListedSymbols, Is.EqualTo(cfg.DatahubIoDownloadUrlNasdaqListedSymbols));
 
         var clientDatahubIo = clientFactory.CreateClient(Constants.DatahubIoHttpClientName);
-        var userAgent = clientDatahubIo.DefaultRequestHeaders.GetValues("User-Agent").FirstOrDefault();
+        var userAgent = clientDatahubIo.DefaultRequestHeaders.GetValues(Constants.HeaderNameUserAgent).FirstOrDefault();
         Assert.That(userAgent, Is.Not.Empty);
         Assert.That(TimeSpan.FromSeconds(cfg.HttpTimeout), Is.EqualTo(clientDatahubIo.Timeout));
 
         var clientAlphaVantage = clientFactory.CreateClient(Constants.AlphaVantageHttpClientName);
-        userAgent = clientAlphaVantage.DefaultRequestHeaders.GetValues("User-Agent").FirstOrDefault();
+        userAgent = clientAlphaVantage.DefaultRequestHeaders.GetValues(Constants.HeaderNameUserAgent).FirstOrDefault();
         Assert.That(userAgent, Is.Not.Empty);
         Assert.That(TimeSpan.FromSeconds(cfg.HttpTimeout), Is.EqualTo(clientAlphaVantage.Timeout));
 
         var clientXetra = clientFactory.CreateClient(Constants.XetraHttpClientName);
-        userAgent = clientXetra.DefaultRequestHeaders.GetValues("User-Agent").FirstOrDefault();
+        userAgent = clientXetra.DefaultRequestHeaders.GetValues(Constants.HeaderNameUserAgent).FirstOrDefault();
         Assert.That(userAgent, Is.Not.Empty);
         Assert.That(TimeSpan.FromSeconds(cfg.HttpTimeout), Is.EqualTo(clientXetra.Timeout));
 
         var clientYahoo = clientFactory.CreateClient(Constants.YahooHttpClientName);
         Assert.That(clientYahoo, Is.Not.Null);
-        userAgent = clientYahoo.DefaultRequestHeaders.GetValues("User-Agent").FirstOrDefault();
+        userAgent = clientYahoo.DefaultRequestHeaders.GetValues(Constants.HeaderNameUserAgent).FirstOrDefault();
         Assert.That(userAgent, Is.Not.Empty);
         Assert.That(TimeSpan.FromSeconds(cfg.HttpTimeout), Is.EqualTo(clientYahoo.Timeout));
     }
@@ -91,23 +91,23 @@ public class ServiceCollectionExtensionsTests
         Assert.That(resolvedCfg.DatahubIoDownloadUrlNasdaqListedSymbols, Is.EqualTo(cfg.DatahubIoDownloadUrlNasdaqListedSymbols));
 
         var clientDatahubIo = clientFactory.CreateClient(Constants.DatahubIoHttpClientName);
-        var userAgent = clientDatahubIo.DefaultRequestHeaders.GetValues("User-Agent").FirstOrDefault();
+        var userAgent = clientDatahubIo.DefaultRequestHeaders.GetValues(Constants.HeaderNameUserAgent).FirstOrDefault();
         Assert.That(userAgent, Is.Not.Empty);
         Assert.That(TimeSpan.FromSeconds(cfg.HttpTimeout), Is.EqualTo(clientDatahubIo.Timeout));
 
         var clientAlphaVantage = clientFactory.CreateClient(Constants.AlphaVantageHttpClientName);
-        userAgent = clientAlphaVantage.DefaultRequestHeaders.GetValues("User-Agent").FirstOrDefault();
+        userAgent = clientAlphaVantage.DefaultRequestHeaders.GetValues(Constants.HeaderNameUserAgent).FirstOrDefault();
         Assert.That(userAgent, Is.Not.Empty);
         Assert.That(TimeSpan.FromSeconds(cfg.HttpTimeout), Is.EqualTo(clientAlphaVantage.Timeout));
 
         var clientXetra = clientFactory.CreateClient(Constants.XetraHttpClientName);
-        userAgent = clientXetra.DefaultRequestHeaders.GetValues("User-Agent").FirstOrDefault();
+        userAgent = clientXetra.DefaultRequestHeaders.GetValues(Constants.HeaderNameUserAgent).FirstOrDefault();
         Assert.That(userAgent, Is.Not.Empty);
         Assert.That(TimeSpan.FromSeconds(cfg.HttpTimeout), Is.EqualTo(clientXetra.Timeout));
 
         var clientYahoo = clientFactory.CreateClient(Constants.YahooHttpClientName);
         Assert.That(clientYahoo, Is.Not.Null);
-        userAgent = clientYahoo.DefaultRequestHeaders.GetValues("User-Agent").FirstOrDefault();
+        userAgent = clientYahoo.DefaultRequestHeaders.GetValues(Constants.HeaderNameUserAgent).FirstOrDefault();
         Assert.That(userAgent, Is.Not.Empty);
         Assert.That(TimeSpan.FromSeconds(cfg.HttpTimeout), Is.EqualTo(clientYahoo.Timeout));
     }

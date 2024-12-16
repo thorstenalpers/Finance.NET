@@ -79,7 +79,7 @@ public class YahooSessionManager(ILogger<YahooSessionManager> logger,
     private async Task<string> CreateApiCookiesAndCrumb(CancellationToken token)
     {
         var httpClient = _httpClientFactory.CreateClient(Constants.YahooHttpClientName);
-        httpClient.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml,application/json;q=0.9,*/*;q=0.8");
+        httpClient.DefaultRequestHeaders.Add(Constants.HeaderNameAccept, "text/html,application/xhtml+xml,application/xml,application/json;q=0.9,*/*;q=0.8");
 
         var response = await httpClient.GetAsync(Constants.YahooBaseUrlAuthentication.ToLowerInvariant(), token).ConfigureAwait(false);
 
@@ -107,7 +107,7 @@ public class YahooSessionManager(ILogger<YahooSessionManager> logger,
     private async Task CreateUiCookies(CancellationToken token)
     {
         var httpClient = _httpClientFactory.CreateClient(Constants.YahooHttpClientName);
-        httpClient.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml,application/json;q=0.9,*/*;q=0.8");
+        httpClient.DefaultRequestHeaders.Add(Constants.HeaderNameAccept, "text/html,application/xhtml+xml,application/xml,application/json;q=0.9,*/*;q=0.8");
 
         // get consent
         await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
@@ -156,7 +156,7 @@ public class YahooSessionManager(ILogger<YahooSessionManager> logger,
         {
             Content = new FormUrlEncodedContent(postData)
         };
-        requestMessage.Headers.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+        requestMessage.Headers.Add(Constants.HeaderNameAccept, "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
         response = await httpClient.SendAsync(requestMessage, token);
         _logger.LogDebug("cookieNames={Cookies}", GetCookieNames());
         response.EnsureSuccessStatusCode();

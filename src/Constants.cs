@@ -4,6 +4,12 @@ internal static class Constants
 {
     public const string DefaultHttpRetryPolicy = "DefaultHttpRetryPolicy";
 
+    public const string HeaderNameAccept = "Accept";
+    public const string HeaderNameAcceptLanguage = "Accept-Language";
+    public const string HeaderNameUserAgent = "User-Agent";
+
+    public const string HeaderValueAcceptLanguage = "en-US,en;q=0.5";
+
     /// <summary> Base url for Yahoo UI content </summary>
     public const string YahooBaseUrlQuoteHtml = "https://finance.yahoo.com/quote";
 
