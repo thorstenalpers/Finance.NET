@@ -175,6 +175,6 @@ public static class Helper
 
     public static string? Minify(this string strXmlContent)
     {
-        return strXmlContent == null ? null : Regex.Replace(strXmlContent ?? "", @"\s+", " ", RegexOptions.None, TimeSpan.FromSeconds(30));
+        return strXmlContent == null ? null : Regex.Replace(strXmlContent, @"\s+", " ", RegexOptions.None, TimeSpan.FromSeconds(30));
     }
 }
