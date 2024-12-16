@@ -51,6 +51,16 @@ jobs:
       env:
           FinanceNet__AlphaVantageApiKey: ${{ secrets.ALPHAVANTAGEAPIKEY }}
 
+    - name: Build and analyze
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_APIKEY }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      shell: powershell
+      run: |
+          .\.sonar\scanner\dotnet-sonarscanner begin /k:"thorstenalpers_Finance.NET" /o:"thorstenalpers" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
+          dotnet build "${{ env.Solution_Name }}" --configuration Release --no-restore
+          .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+
     - name: Set up SonarCloud
       uses: SonarSource/sonarqube-scan-action@v4
       with:
