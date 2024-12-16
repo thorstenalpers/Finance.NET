@@ -1,4 +1,4 @@
-name: "CI"
+name: "Tests"
 
 on:
   push:
@@ -45,7 +45,7 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       shell: bash
       run: |
-          dotnet-sonarscanner begin 
+          dotnet-sonarscanner begin  \
           /k:"thorstenalpers_Finance.NET" 
           /o:"thorstenalpers" \
           /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
