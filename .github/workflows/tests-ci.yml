@@ -75,7 +75,7 @@ jobs:
         dotnet-sonarscanner begin \
           /k:"thorstenalpers_Finance.NET" \
           /o:"thorstenalpers" \
-          /d:sonar.cs.opencover.reportsPaths="**/TestResults/**/coverage.cobertura.xml"
+          /d:sonar.cs.opencover.reportsPaths="**/TestResults/**/coverage.cobertura.xml" \
           /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
           /d:sonar.host.url="https://sonarcloud.io" \
           /d:sonar.scanner.scanAll=false \
