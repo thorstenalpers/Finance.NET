@@ -3,7 +3,5 @@ version = 1
 [[analyzers]]
 name = "csharp"
 enabled = true
-exclude_patterns = ["tests/*", "**/*.html", "**/*.json"]
-test_patterns = [
-"tests/**/*.cs" 
-]
+exclude_patterns = ["tests/**/*.cs", "tests/*", "**/*.html", "**/*.json"]
+test_patterns = ["tests/**/*.cs" ]
