@@ -49,13 +49,16 @@ jobs:
             /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
             /d:sonar.host.url="https://sonarcloud.io" \
             /d:sonar.scanner.scanAll=false \
-            /d:sonar.exclusions="**/*.html"
+            /d:sonar.exclusions="**/*.html" \
+            /d:sonar.verbose=true \
+            /d:sonar.coverageReportPaths="./TestResults/Reports/SonarQube.xml"
 
         dotnet build "${{ env.Solution_Name }}" --configuration Release --no-restore        
         dotnet test "${{ env.Test_Project_Path }}" --collect:"XPlat Code Coverage" --results-directory ./TestResults/Tests --configuration Release --logger "console;verbosity=detailed" --filter "TestCategory=Unit"
 
+        reportgenerator -reports:./TestResults/Tests/**/coverage.cobertura.xml -targetdir:./TestResults/Reports -reporttypes:"Html;lcov;SonarQube;Cobertura"
+        
         dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
-
 
     # - name: Run tests
     #   shell: pwsh
