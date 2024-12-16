@@ -2,3 +2,8 @@ version = 1
 
 [[analyzers]]
 name = "csharp"
+enabled = true
+
+[analyzers.meta]
+exclude_patterns = ["tests/*", "**/*.html", "**/*.json"]
+
