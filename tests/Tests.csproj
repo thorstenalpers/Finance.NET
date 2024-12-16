@@ -77,6 +77,9 @@
 	<None Update="TestData\Yahoo\quote_error_response.json">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</None>
+	<None Update="TestData\Yahoo\quote_invalid_response.json">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
     <None Update="TestData\Yahoo\records.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

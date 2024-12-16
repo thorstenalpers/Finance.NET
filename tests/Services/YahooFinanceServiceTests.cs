@@ -166,6 +166,23 @@ public class YahooFinanceServiceTests
     }
 
     [Test]
+    public void GetQuoteAsync_InvalidResponse_Throws()
+    {
+        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Yahoo", "quote_invalid_response.json");
+        SetupHttpJsonFileResponse(filePath);
+
+        // Arrange
+        var service = new YahooFinanceService(
+            _mockLogger.Object,
+            _mockHttpClientFactory.Object,
+            _mockPolicyRegistry.Object,
+            _mockYahooSession.Object);
+
+        // Act
+        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetQuoteAsync("SAP"));
+    }
+
+    [Test]
     public async Task GetQuotesAsync_WithResponse_ReturnsResult()
     {
         // Arrange
