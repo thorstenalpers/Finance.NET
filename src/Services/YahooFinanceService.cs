@@ -106,7 +106,7 @@ public class YahooFinanceService : IYahooFinanceService
                 }
                 if (responseObj.Result == null || responseObj.Result.Length == 0)
                 {
-                    return quotes;
+                    throw new FinanceNetException("No response from Yahoo");
                 }
 
                 foreach (var quoteResponse in responseObj.Result)
