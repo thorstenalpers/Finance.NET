@@ -80,6 +80,7 @@ public class PollyPolicyFactoryTests
     {
         // Arrange + Act
         const int retryCount = 3;
+        var test = 0;
         var policy = PollyPolicyFactory.GetRetryPolicy(retryCount, null);
 
         // Assert
