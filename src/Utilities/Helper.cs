@@ -11,97 +11,97 @@ namespace Finance.Net.Utilities;
 
 public static class Helper
 {
-		public static bool IsNullOrEmpty<T>(this IEnumerable<T> list)
+	public static bool IsNullOrEmpty<T>(this IEnumerable<T> list)
+	{
+		return list?.Any() != true;
+	}
+
+	public static long? ToUnixTime(DateTime? dateTime)
+	{
+		if (dateTime == null)
 		{
-				return list?.Any() != true;
+			return null;
 		}
 
-		public static long? ToUnixTime(DateTime? dateTime)
-		{
-				if (dateTime == null)
-				{
-						return null;
-				}
+		return (long)(dateTime.Value - DateTime.UnixEpoch).TotalSeconds;
+	}
 
-				return (long)(dateTime.Value - DateTime.UnixEpoch).TotalSeconds;
+	public static DateTime? UnixToDateTime(long? unixTimeSeconds)
+	{
+		return unixTimeSeconds == null ? null : DateTime.UnixEpoch.AddSeconds(unixTimeSeconds.Value).ToUniversalTime();
+	}
+	public static DateTime? UnixMillisecsToDate(long? unixTimeMilliseconds)
+	{
+		if (unixTimeMilliseconds == null)
+		{
+			return null;
 		}
 
-		public static DateTime? UnixToDateTime(long? unixTimeSeconds)
-		{
-				return unixTimeSeconds == null ? null : DateTime.UnixEpoch.AddSeconds(unixTimeSeconds.Value).ToUniversalTime();
-		}
-		public static DateTime? UnixMillisecsToDate(long? unixTimeMilliseconds)
-		{
-				if (unixTimeMilliseconds == null)
-				{
-						return null;
-				}
+		return DateTime.UnixEpoch.AddMilliseconds(unixTimeMilliseconds.Value).ToUniversalTime();
+	}
 
-				return DateTime.UnixEpoch.AddMilliseconds(unixTimeMilliseconds.Value).ToUniversalTime();
-		}
-
-		public static long? ParseLong(string? numberString)
+	public static long? ParseLong(string? numberString)
+	{
+		var cleanedNumber = numberString?.Replace(",", "");
+		if (string.IsNullOrWhiteSpace(cleanedNumber) || cleanedNumber.All(e => e == '-'))
 		{
-				var cleanedNumber = numberString?.Replace(",", "");
-				if (string.IsNullOrWhiteSpace(cleanedNumber) || cleanedNumber.All(e => e == '-'))
-				{
-						return null;
-				}
-				if (long.TryParse(cleanedNumber, out var result))
-				{
-						return result;
-				}
-				return (long)ParseWithMultiplier(cleanedNumber);
+			return null;
 		}
-
-		public static decimal? ParseDecimal(string? numberString)
+		if (long.TryParse(cleanedNumber, out var result))
 		{
-				var cleanedNumber = numberString?.Replace(",", "");
-				if (string.IsNullOrWhiteSpace(cleanedNumber) || cleanedNumber.All(e => e == '-'))
-				{
-						return null;
-				}
-				if (decimal.TryParse(cleanedNumber, NumberStyles.Number, CultureInfo.InvariantCulture, out var result))
-				{
-						return result;
-				}
-				return ParseWithMultiplier(cleanedNumber);
+			return result;
 		}
+		return (long)ParseWithMultiplier(cleanedNumber);
+	}
 
-		private static decimal ParseWithMultiplier(string? cleanedNumber)
+	public static decimal? ParseDecimal(string? numberString)
+	{
+		var cleanedNumber = numberString?.Replace(",", "");
+		if (string.IsNullOrWhiteSpace(cleanedNumber) || cleanedNumber.All(e => e == '-'))
 		{
-				// otherwise has numer format such as 100.00Mio?
-				var match = new Regex("([0-9.,-]+)([A-Za-z]+)", RegexOptions.None, TimeSpan.FromSeconds(30)).Match(cleanedNumber);
-				if (match.Groups.Count <= 2)
-				{
-						throw new FormatException($"Unknown format of {cleanedNumber}");
-				}
-				if (!decimal.TryParse(match.Groups[1].Value, NumberStyles.Number, CultureInfo.InvariantCulture, out var result))
-				{
-						throw new FormatException($"Unknown format of {cleanedNumber}");
-				}
-				var mulStr = match.Groups[2].Value;
-				return mulStr switch
-				{
-						"Trl." or "Trl" or "T" => result * 1_000_000_000_000_000,
-						"Bio." or "Bio" or "B" => result * 1_000_000_000_000,
-						"Mrd." or "Mrd" => result * 1_000_000_000,
-						"Mio." or "Mio" or "M" => result * 1_000_000,
-						"k" or "K" => result * 1_000,
-						_ => throw new FormatException($"Unknown multiplikator={mulStr} of {cleanedNumber}")
-				};
+			return null;
+		}
+		if (decimal.TryParse(cleanedNumber, NumberStyles.Number, CultureInfo.InvariantCulture, out var result))
+		{
+			return result;
+		}
+		return ParseWithMultiplier(cleanedNumber);
+	}
+
+	private static decimal ParseWithMultiplier(string? cleanedNumber)
+	{
+		// otherwise has numer format such as 100.00Mio?
+		var match = new Regex("([0-9.,-]+)([A-Za-z]+)", RegexOptions.None, TimeSpan.FromSeconds(30)).Match(cleanedNumber);
+		if (match.Groups.Count <= 2)
+		{
+			throw new FormatException($"Unknown format of {cleanedNumber}");
+		}
+		if (!decimal.TryParse(match.Groups[1].Value, NumberStyles.Number, CultureInfo.InvariantCulture, out var result))
+		{
+			throw new FormatException($"Unknown format of {cleanedNumber}");
+		}
+		var mulStr = match.Groups[2].Value;
+		return mulStr switch
+		{
+			"Trl." or "Trl" or "T" => result * 1_000_000_000_000_000,
+			"Bio." or "Bio" or "B" => result * 1_000_000_000_000,
+			"Mrd." or "Mrd" => result * 1_000_000_000,
+			"Mio." or "Mio" or "M" => result * 1_000_000,
+			"k" or "K" => result * 1_000,
+			_ => throw new FormatException($"Unknown multiplikator={mulStr} of {cleanedNumber}")
+		};
+	}
+
+	public static DateTime? ParseDate(string? dateString)
+	{
+		if (string.IsNullOrWhiteSpace(dateString))
+		{
+			return null;
 		}
 
-		public static DateTime? ParseDate(string? dateString)
+		// List of possible formats
+		var formats = new[]
 		{
-				if (string.IsNullOrWhiteSpace(dateString))
-				{
-						return null;
-				}
-
-				// List of possible formats
-				var formats = new[]
-				{
 					"MMM d, yyyy",    // "Nov 1, 2024"
 					"MMM dd, yyyy",   // "Nov 01, 2024"
 					"MMMM d, yyyy",  // "November 1, 2024"
@@ -112,69 +112,69 @@ public static class Helper
 					"yyyy/MM/dd",     // "2024/11/01"
 				};
 
-				// Try parsing the date using each format
-				foreach (var format in formats)
-				{
-						if (DateTime.TryParseExact(dateString, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out var result))
-						{
-								return result;
-						}
-				}
-				throw new FormatException($"Invalid date format {dateString}");
+		// Try parsing the date using each format
+		foreach (var format in formats)
+		{
+			if (DateTime.TryParseExact(dateString, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out var result))
+			{
+				return result;
+			}
 		}
+		throw new FormatException($"Invalid date format {dateString}");
+	}
 
-		public static string GetDescription(this EInterval value)
-		{
-				var field = value.GetType().GetField(value.ToString());
-				var attribute = (DescriptionAttribute)Attribute.GetCustomAttribute(field, typeof(DescriptionAttribute));
-				return attribute.Description;
-		}
-		public static string CreateRandomUserAgent()
-		{
-				return CreateRandomUserAgent(RandomNumberGenerator.GetInt32);
-		}
+	public static string GetDescription(this EInterval value)
+	{
+		var field = value.GetType().GetField(value.ToString());
+		var attribute = (DescriptionAttribute)Attribute.GetCustomAttribute(field, typeof(DescriptionAttribute));
+		return attribute.Description;
+	}
+	public static string CreateRandomUserAgent()
+	{
+		return CreateRandomUserAgent(RandomNumberGenerator.GetInt32);
+	}
 
-		public static string CreateRandomUserAgent(Func<int, int> random)
-		{
-				List<string> firefoxVersions = [ "133.0",
+	public static string CreateRandomUserAgent(Func<int, int> random)
+	{
+		List<string> firefoxVersions = [ "133.0",
 												"132.0", "132.0.1", "132.0.2",
 												"131.0", "131.0.1", "131.0.2",
 												"130.0", "130.0.1",
 												"129.0", "129.0.1", "129.0.2"];
 
-				List<string> operatingSystems = [
-					"Windows NT 10.0; Win64; x64",
+		List<string> operatingSystems = [
+			"Windows NT 10.0; Win64; x64",
 					"Linux x86_64",
 					"X11; Ubuntu; Linux x86_64"];
 
-				var allAgents = new List<string>();
-				foreach (var firefoxVersion in firefoxVersions)
-				{
-						foreach (var operatingSystem in operatingSystems)
-						{
-								var userAgent = $"Mozilla/5.0 ({operatingSystem}; rv:{firefoxVersion}) Gecko/20100101 Firefox/{firefoxVersion}";
-								allAgents.Add(userAgent);
-						}
-				}
-				var index = random(allAgents.Count);
-				return allAgents[index];
-		}
-
-		public static bool AreAllFieldsNull<T>(T obj)
+		var allAgents = new List<string>();
+		foreach (var firefoxVersion in firefoxVersions)
 		{
-				if (obj is null)
-				{
-						return true;
-				}
-				var fields = obj.GetType().GetFields(
-						System.Reflection.BindingFlags.Instance |
-						System.Reflection.BindingFlags.Public |
-						System.Reflection.BindingFlags.NonPublic).ToList();
-				return fields.All(field => field.GetValue(obj) == null);
+			foreach (var operatingSystem in operatingSystems)
+			{
+				var userAgent = $"Mozilla/5.0 ({operatingSystem}; rv:{firefoxVersion}) Gecko/20100101 Firefox/{firefoxVersion}";
+				allAgents.Add(userAgent);
+			}
 		}
+		var index = random(allAgents.Count);
+		return allAgents[index];
+	}
 
-		public static string? Minify(this string strXmlContent)
+	public static bool AreAllFieldsNull<T>(T obj)
+	{
+		if (obj is null)
 		{
-				return strXmlContent == null ? null : Regex.Replace(strXmlContent ?? "", @"\s+", " ", RegexOptions.None, TimeSpan.FromSeconds(30));
+			return true;
 		}
+		var fields = obj.GetType().GetFields(
+				System.Reflection.BindingFlags.Instance |
+				System.Reflection.BindingFlags.Public |
+				System.Reflection.BindingFlags.NonPublic).ToList();
+		return fields.All(field => field.GetValue(obj) == null);
+	}
+
+	public static string? Minify(this string strXmlContent)
+	{
+		return strXmlContent == null ? null : Regex.Replace(strXmlContent ?? "", @"\s+", " ", RegexOptions.None, TimeSpan.FromSeconds(30));
+	}
 }
