@@ -48,9 +48,11 @@ jobs:
             /o:"thorstenalpers" \
             /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
             /d:sonar.host.url="https://sonarcloud.io" \
+            /d:sonar.sources="src" \
+            /d:sonar.tests="tests" \
+            /d:sonar.test.inclusions="tests/**/*.cs" \
             /d:sonar.scanner.scanAll=false \
             /d:sonar.exclusions="**/*.html" \
-            /d:sonar.verbose=true \
             /d:sonar.coverageReportPaths="./TestResults/Reports/SonarQube.xml"
 
         dotnet build "${{ env.Solution_Name }}" --configuration Release --no-restore        
@@ -101,7 +103,7 @@ jobs:
     - name: Upload to Coveralls
       uses: coverallsapp/github-action@v2
       with:
-        path-to-lcov: ./TestResults/Reports/SonarQube.xml
+        path-to-lcov: ./TestResults/Reports/lcov.info
       env:
         COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
            
