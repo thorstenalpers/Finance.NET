@@ -20,7 +20,7 @@ internal static class TestHelper
         services.AddFinanceNet(new FinanceNetConfiguration
         {
             HttpTimeout = 20,
-            HttpRetryCount = 3,
+            HttpRetryCount = 5,
             AlphaVantageApiKey = cfg["FinanceNet:AlphaVantageApiKey"]
         });
         services.AddLogging(builder =>

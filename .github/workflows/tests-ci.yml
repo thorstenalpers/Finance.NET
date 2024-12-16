@@ -36,10 +36,10 @@ jobs:
     - name: Restore
       run: dotnet restore "${{ env.Solution_Name }}"
 
-    - name: Build
-      run: dotnet build "${{ env.Solution_Name }}" --configuration Release --no-restore
+    # - name: Build
+    #   run: dotnet build "${{ env.Solution_Name }}" --configuration Release --no-restore
 
-    - name: Run SonarCloud analysis and upload coverage
+    - name: Build and Test
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: |
