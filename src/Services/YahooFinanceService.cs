@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using AngleSharp.Dom;
+using AngleSharp.Html.Dom;
 using AngleSharp.XPath;
 using Ardalis.GuardClauses;
 using AutoMapper;
@@ -145,13 +146,7 @@ public class YahooFinanceService : IYahooFinanceService
         {
             return await _retryPolicy.ExecuteAsync(async () =>
             {
-                var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
-                var response = await httpClient.SendAsync(requestMessage, token).ConfigureAwait(false);
-                response.EnsureSuccessStatusCode();
-                var htmlContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                _logger.LogDebug("htmlContent={HtmlContent}", htmlContent.Minify());
-
-                var document = new AngleSharp.Html.Parser.HtmlParser().ParseDocument(htmlContent);
+                var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, token);
 
                 var descriptionElement = document.Body.SelectSingleNode("//section[header/h3[contains(text(), 'Description')]]/p");
                 var corporateGovernanceElements = document.Body.SelectNodes("//section[header/h3[contains(text(), 'Corporate Governance')]]/div");
@@ -216,16 +211,8 @@ public class YahooFinanceService : IYahooFinanceService
                 var expectedHeaderSet = new HashSet<string>(["Date", "Open", "High", "Low", "Close", "Adj Close", "Volume"]);
                 var headerMap = new Dictionary<string, int>();
 
-                var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
-                var response = await httpClient.SendAsync(requestMessage, token).ConfigureAwait(false);
-                response.EnsureSuccessStatusCode();
-
-                var htmlContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                _logger.LogDebug("htmlContent={HtmlContent}", htmlContent.Minify());
-                var document = new AngleSharp.Html.Parser.HtmlParser().ParseDocument(htmlContent);
-
+                var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, token);
                 var table = document.QuerySelector("table.table") ?? throw new FinanceNetException("No records found");
-
                 var headers = table.QuerySelectorAll("thead th")
                       .Select(th =>
                       {
@@ -306,19 +293,13 @@ public class YahooFinanceService : IYahooFinanceService
             return await _retryPolicy.ExecuteAsync(async () =>
             {
                 var result = new Dictionary<string, FinancialReport>();
-                var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
-                var response = await httpClient.SendAsync(requestMessage, token).ConfigureAwait(false);
-                response.EnsureSuccessStatusCode();
-
-                var htmlContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                _logger.LogDebug("htmlContent={HtmlContent}", htmlContent.Minify());
-                var document = new AngleSharp.Html.Parser.HtmlParser().ParseDocument(htmlContent);
+                var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, token);
 
                 var headers = document
-              .Body.SelectNodes("//div[contains(@class, 'tableHeader')]//div[contains(@class, 'column')]")
-              .Select(header => header.TextContent.Trim())
-              .Where(e => e != "Breakdown")
-              .ToList();
+                    .Body.SelectNodes("//div[contains(@class, 'tableHeader')]//div[contains(@class, 'column')]")
+                    .Select(header => header.TextContent.Trim())
+                    .Where(e => e != "Breakdown")
+                    .ToList();
 
                 headers.RemoveAll(e => e.Contains(" - "));// remove commercial column
                 foreach (var header in headers)
@@ -327,8 +308,8 @@ public class YahooFinanceService : IYahooFinanceService
                 }
 
                 var rows = document
-            .Body.SelectNodes("//div[contains(@class, 'tableBody')]//div[contains(@class, 'row ')]")
-            .ToList();
+                    .Body.SelectNodes("//div[contains(@class, 'tableBody')]//div[contains(@class, 'row ')]")
+                    .ToList();
 
                 foreach (var row in rows)
                 {
@@ -379,13 +360,7 @@ public class YahooFinanceService : IYahooFinanceService
         {
             return await _retryPolicy.ExecuteAsync(async () =>
             {
-                var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
-                var response = await httpClient.SendAsync(requestMessage, token).ConfigureAwait(false);
-                response.EnsureSuccessStatusCode();
-
-                var htmlContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                _logger.LogDebug("htmlContent={HtmlContent}", htmlContent.Minify());
-                var document = new AngleSharp.Html.Parser.HtmlParser().ParseDocument(htmlContent);
+                var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, token);
 
                 var askElement = document.Body.SelectSingleNode("//li[span[contains(text(), 'Ask')]]/span[2]");
                 var askStr = askElement?.TextContent?.Trim();
@@ -479,5 +454,16 @@ public class YahooFinanceService : IYahooFinanceService
         {
             throw new FinanceNetException("No summary found", ex);
         }
+    }
+
+    private async Task<IHtmlDocument> FetchHtmlDocumentAsync(HttpClient httpClient, string url, CancellationToken token)
+    {
+        var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
+        var response = await httpClient.SendAsync(requestMessage, token).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+
+        var htmlContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+        _logger.LogDebug("htmlContent={HtmlContent}", htmlContent.Minify());
+        return new AngleSharp.Html.Parser.HtmlParser().ParseDocument(htmlContent);
     }
 }

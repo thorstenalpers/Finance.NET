@@ -3,10 +3,15 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
+using System.Net.Http;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
+using AngleSharp.Html.Dom;
 using Finance.Net.Models.AlphaVantage;
+using Microsoft.Extensions.Logging;
 
 namespace Finance.Net.Utilities;
 
@@ -174,5 +179,16 @@ public static class Helper
     public static string? Minify(this string strXmlContent)
     {
         return strXmlContent == null ? null : Regex.Replace(strXmlContent, @"\s+", " ", RegexOptions.None, TimeSpan.FromSeconds(30));
+    }
+
+    public static async Task<IHtmlDocument> FetchHtmlDocumentAsync<T>(HttpClient httpClient, ILogger<T> logger, string url, CancellationToken token)
+    {
+        var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
+        var response = await httpClient.SendAsync(requestMessage, token).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+
+        var htmlContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+        logger?.LogDebug("htmlContent={HtmlContent}", htmlContent.Minify());
+        return new AngleSharp.Html.Parser.HtmlParser().ParseDocument(htmlContent);
     }
 }

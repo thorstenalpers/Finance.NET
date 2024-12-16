@@ -111,18 +111,13 @@ public class YahooSessionManager(ILogger<YahooSessionManager> logger,
 
         // get consent
         await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
-        var response = await httpClient.GetAsync(Constants.YahooBaseUrlHtml, token);
-        _logger.LogDebug("cookieNames={Cookies}", GetCookieNames());
-        response.EnsureSuccessStatusCode();
-
-        var htmlContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-        var document = new AngleSharp.Html.Parser.HtmlParser().ParseDocument(htmlContent);
+        var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, Constants.YahooBaseUrlHtml, token);
         var csrfTokenNode = document.QuerySelector("input[name='csrfToken']");
         var sessionIdNode = document.QuerySelector("input[name='sessionId']");
         if (csrfTokenNode == null || sessionIdNode == null)
         {
-            response = await httpClient.GetAsync(Constants.YahooBaseUrlHtml, token);
-            response.EnsureSuccessStatusCode();
+            var responseConsent = await httpClient.GetAsync(Constants.YahooBaseUrlHtml, token);
+            responseConsent.EnsureSuccessStatusCode();
 
             // no EU consent, call from coming outside of EU
             if (_sessionState.GetCookieContainer().Count >= 3)
@@ -157,7 +152,7 @@ public class YahooSessionManager(ILogger<YahooSessionManager> logger,
             Content = new FormUrlEncodedContent(postData)
         };
         requestMessage.Headers.Add(Constants.HeaderNameAccept, "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
-        response = await httpClient.SendAsync(requestMessage, token);
+        var response = await httpClient.SendAsync(requestMessage, token);
         _logger.LogDebug("cookieNames={Cookies}", GetCookieNames());
         response.EnsureSuccessStatusCode();
         await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);

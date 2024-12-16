@@ -117,14 +117,7 @@ public class XetraService : IXetraService
         {
             return await _retryPolicy.ExecuteAsync(async () =>
             {
-                var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
-                var response = await httpClient.SendAsync(requestMessage, token).ConfigureAwait(false);
-                response.EnsureSuccessStatusCode();
-
-                var htmlContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                _logger.LogDebug("htmlContent={HtmlContent}", htmlContent.Minify());
-                var document = new AngleSharp.Html.Parser.HtmlParser().ParseDocument(htmlContent);
-
+                var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, token);
                 var hrefAttributes = document.DocumentElement.SelectNodes("//a[contains(@class, 'download') and contains(., 'All tradable instruments')]/@href")?.Select(e => e.NodeValue);
                 if (hrefAttributes.Count() != 1)
                 {
