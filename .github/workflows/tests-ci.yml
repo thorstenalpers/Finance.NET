@@ -45,8 +45,8 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       shell: bash
       run: |
-          dotnet-sonarscanner begin  \
-          /k:"thorstenalpers_Finance.NET" 
+          dotnet-sonarscanner begin \
+          /k:"thorstenalpers_Finance.NET" \
           /o:"thorstenalpers" \
           /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
           /d:sonar.host.url="https://sonarcloud.io" \
