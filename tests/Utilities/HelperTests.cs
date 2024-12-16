@@ -115,6 +115,7 @@ public class HelperTests
     [TestCase("1.1klb")]
     [TestCase("-1--")]
     [TestCase("-1.9,0.1")]
+    [TestCase("1-00Mega")]
     public void ParseDecimal_WithInvalidEntries_Throws(string numberString)
     {
         Assert.Throws<FormatException>(() => Helper.ParseDecimal(numberString));
