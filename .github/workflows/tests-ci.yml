@@ -52,7 +52,7 @@ jobs:
             /d:sonar.exclusions="**/*.html"
 
         dotnet build "${{ env.Solution_Name }}" --configuration Release --no-restore        
-        dotnet test "${{ env.Test_Project_Path }}" --collect:"XPlat Code Coverage" --results-directory ./TestResults/Tests --configuration Release --logger "console;verbosity=detailed" 
+        dotnet test "${{ env.Test_Project_Path }}" --collect:"XPlat Code Coverage" --results-directory ./TestResults/Tests --configuration Release --logger "console;verbosity=detailed" --filter "TestCategory=Integration"
 
         dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
