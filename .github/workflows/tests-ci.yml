@@ -68,6 +68,26 @@ jobs:
       env:
           FinanceNet__AlphaVantageApiKey: ${{ secrets.ALPHAVANTAGEAPIKEY }}
 
+    - name: Run SonarCloud analysis and upload coverage
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: |
+        dotnet-sonarscanner begin \
+            /k:"thorstenalpers_Finance.NET" \
+            /o:"thorstenalpers" \
+            /d:sonar.coverage.lcov.reportPaths="**/TestResults/Reports/lcov.info" \
+            /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
+            /d:sonar.host.url="https://sonarcloud.io" \
+            /d:sonar.scanner.scanAll=false \
+            /d:sonar.sources="src" \
+            /d:sonar.tests="tests" \
+            /d:sonar.test.inclusions="tests/**/*.cs" \
+            /d:sonar.exclusions="**/*.html"
+
+        dotnet build "${{ env.Solution_Name }}" --configuration Release --no-restore        
+    
+        dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+
     - name: Run SonarCloud analysis
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}  # Ensure SONAR_TOKEN is set in your repository secrets
