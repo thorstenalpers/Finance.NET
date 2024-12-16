@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
 using AngleSharp.XPath;
-using Ardalis.GuardClauses;
 using AutoMapper;
 using Finance.Net.Exceptions;
 using Finance.Net.Extensions;
@@ -119,7 +118,6 @@ public class YahooFinanceService : IYahooFinanceService
                     var quote = _mapper.Map<Quote>(quoteResponse);
                     quotes.Add(quote);
                 }
-                Guard.Against.NullOrEmpty(quotes);
                 return quotes;
             });
         }

@@ -96,14 +96,15 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
         var url = Constants.AlphaVantageApiUrl + "/query?function=TIME_SERIES_DAILY_ADJUSTED" +
             $"&symbol={symbol}&outputsize=full&apikey={_options.AlphaVantageApiKey}";
         Guard.Against.NullOrEmpty(symbol);
+        if (startDate > endDate)
+        {
+            throw new FinanceNetException("startDate earlier than endDate");
+        }
+
         endDate ??= DateTime.UtcNow;
         if (endDate.Value.Date >= DateTime.UtcNow.Date)
         {
             endDate = DateTime.UtcNow.Date;
-        }
-        if (startDate > endDate)
-        {
-            throw new FinanceNetException("startDate earlier than endDate");
         }
 
         try
@@ -166,14 +167,14 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
     {
         Guard.Against.NullOrEmpty(symbol);
         var result = new List<HistoryIntradayRecord>();
+        if (startDate > endDate)
+        {
+            throw new FinanceNetException("startDate earlier than endDate");
+        }
         endDate ??= DateTime.UtcNow.Date;
         if (endDate.Value.Date >= DateTime.UtcNow.Date)
         {
             endDate = DateTime.UtcNow.Date;
-        }
-        if (startDate > endDate)
-        {
-            throw new FinanceNetException("startDate earlier than endDate");
         }
 
         for (var currentMonth = new DateTime(startDate.Year, startDate.Month, 1, 0, 0, 0, DateTimeKind.Utc); currentMonth <= endDate; currentMonth = currentMonth.AddMonths(1))
@@ -271,15 +272,15 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
         var httpClient = _httpClientFactory.CreateClient(Constants.AlphaVantageHttpClientName);
         Guard.Against.NullOrEmpty(currency1);
         Guard.Against.NullOrEmpty(currency2);
+        if (startDate > endDate)
+        {
+            throw new FinanceNetException("startDate earlier than endDate");
+        }
 
         endDate ??= DateTime.UtcNow.Date;
         if (endDate.Value.Date >= DateTime.UtcNow.Date)
         {
             endDate = DateTime.UtcNow.Date;
-        }
-        if (startDate > endDate)
-        {
-            throw new FinanceNetException("startDate earlier than endDate");
         }
         var url = Constants.AlphaVantageApiUrl + "/query?function=FX_DAILY" +
             $"&from_symbol={currency1}&to_symbol={currency2}&outputsize=full&apikey={_options.AlphaVantageApiKey}";
