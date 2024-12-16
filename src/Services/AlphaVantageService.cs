@@ -38,6 +38,7 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
     /// </summary>
     public static IAlphaVantageService Create()
     {
+        var foo = 9;
         return Create(new FinanceNetConfiguration());
     }
 

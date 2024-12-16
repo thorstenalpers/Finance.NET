@@ -71,6 +71,13 @@ jobs:
       env:
         COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
 
+    - name: Upload to DeepSource
+      uses: deepsourcelabs/test-coverage-action@master
+      with:
+        key: python
+        coverage-file: ./TestResults/Reports/lcov.info
+        dsn: ${{ secrets.DEEPSOURCE_DSN }}
+
     - name: Upload to GitHub
       uses: actions/upload-artifact@v4.4.3
       with:
