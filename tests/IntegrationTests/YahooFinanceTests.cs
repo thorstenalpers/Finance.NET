@@ -82,7 +82,7 @@ public class YahooFinanceTests
     [TestCase("MSFT", true)]      // Microsoft Corporation (Nasdaq)
     [TestCase("SAP", true)]       // SAP SE (Nasdaq)
     [TestCase("SAP.DE", true)]    // SAP SE (Xetra)
-    [TestCase("8058.T", true)]    // Mitsubishi (Tokyo)
+    [TestCase("6758.T", true)]     // Sony  (Tokyo)
     [TestCase("VOO", false)]       // Vanguard S&P 500 ETF
     [TestCase("EURUSD=X", false)]  // Euro to USD
     public async Task GetProfileAsync_ValidSymbols_ReturnsProfile(string symbol, bool shouldHaveProfile)
