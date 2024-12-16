@@ -75,12 +75,10 @@ jobs:
         dotnet-sonarscanner begin \
             /k:"thorstenalpers_Finance.NET" \
             /o:"thorstenalpers" \
-            /d:sonar.coverage.lcov.reportPaths="**/TestResults/Reports/lcov.info" \
+            /d:sonar.coverage.lcov.reportPaths="**/TestResults/Reports/SonarQube.xml" \
             /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
             /d:sonar.host.url="https://sonarcloud.io" \
             /d:sonar.scanner.scanAll=false \
-            /d:sonar.sources="src" \
-            /d:sonar.tests="tests" \
             /d:sonar.test.inclusions="tests/**/*.cs" \
             /d:sonar.exclusions="**/*.html"
 
@@ -99,8 +97,6 @@ jobs:
           /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
           /d:sonar.host.url="https://sonarcloud.io" \
           /d:sonar.scanner.scanAll=false \
-          /d:sonar.sources="src" \
-          /d:sonar.tests="tests" \
           /d:sonar.test.inclusions="tests/**/*.cs" \
           /d:sonar.exclusions="**/*.html"        
         dotnet build "${{ env.Solution_Name }}" --configuration Release --no-restore        
