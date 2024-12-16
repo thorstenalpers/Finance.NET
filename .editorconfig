@@ -418,7 +418,6 @@ dotnet_diagnostic.CA1848.severity = silent
 
 dotnet_style_uses_blank_line_between = false
 
-# Default severity for all analyzer diagnostics
 dotnet_style_allow_multiple_blank_lines_experimental = true:silent
 
 
@@ -429,4 +428,4 @@ dotnet_diagnostic.RCS1036.severity = warning
 dotnet_diagnostic.RCS1129.severity = warning
 
 # RCS1246: Use element access
-dotnet_diagnostic.RCS1246.severity = none
+dotnet_diagnostic.RCS1246.severity = warning

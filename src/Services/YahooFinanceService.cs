@@ -339,7 +339,7 @@ public class YahooFinanceService : IYahooFinanceService
                         throw new FinanceNetException($"Unknown table format of {url} html");
                     }
 
-                    var rowTitle = columns.First();
+                    var rowTitle = columns[0];
                     var values = columns.Skip(1).Select(Helper.ParseDecimal).ToList();
 
                     var propertyName = rowTitle.Replace(" ", "").Replace("&", "And");
