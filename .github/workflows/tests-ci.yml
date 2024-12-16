@@ -47,7 +47,7 @@ jobs:
             Write-Host "Tests failed"
             exit 1
           }
-          reportgenerator -reports:./TestResults/Tests/**/coverage.cobertura.xml -targetdir:./TestResults/Reports -reporttypes:"Html;lcov;SonarQube"
+          reportgenerator -reports:./TestResults/Tests/**/coverage.cobertura.xml -targetdir:./TestResults/Reports -reporttypes:"Html;lcov;SonarQube;Cobertura"
       env:
           FinanceNet__AlphaVantageApiKey: ${{ secrets.ALPHAVANTAGEAPIKEY }}
 
@@ -58,7 +58,7 @@ jobs:
           -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
           -Dsonar.organization=${{ secrets.SONAR_ORG }}
           -Dsonar.token=${{ secrets.SONAR_TOKEN }}
-          -Dsonar.coverageReportPaths=./TestResults/Reports/SonarQube.xml
+          -Dsonar.coverageReportPaths=./TestResults/Reports/Cobertura.xml
           -Dsonar.sources=src
           -Dsonar.tests=tests
           -Dsonar.test.exclusions=tests/**  # Exclude tests from main analysis
@@ -80,7 +80,7 @@ jobs:
       uses: deepsourcelabs/test-coverage-action@master
       with:
         key: python
-        coverage-file: ./TestResults/Reports/lcov.info
+        coverage-file: ./TestResults/Reports/Cobertura.xml
         dsn: ${{ secrets.DEEPSOURCE_DSN }}
 
     - name: Upload to GitHub
