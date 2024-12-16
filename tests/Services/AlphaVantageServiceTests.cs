@@ -171,6 +171,7 @@ public class AlphaVantageServiceTests
         Assert.That(result.All(e => e.Volume != null));
         Assert.That(result.All(e => e.AdjustedClose != null));
     }
+
     [Test]
     public void GetHistoryRecordsAsync_NoData_Throws()
     {
@@ -184,6 +185,23 @@ public class AlphaVantageServiceTests
 
         // Act
         Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetHistoryRecordsAsync("IBM", startDate));
+    }
+
+
+    [Test]
+    public void GetHistoryRecordsAsync_StartdateAfterEnddate_Throws()
+    {
+        var service = new AlphaVantageService(
+            _mockLogger.Object,
+            _mockHttpClientFactory.Object,
+            _mockOptions.Object,
+            _mockPolicyRegistry.Object);
+
+        var startDate = new DateTime(2024, 02, 01);
+        var endDate = new DateTime(2024, 01, 01);
+
+        // Act
+        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetHistoryRecordsAsync("IBM", startDate, endDate));
     }
 
     [Test]
@@ -265,6 +283,42 @@ public class AlphaVantageServiceTests
     }
 
     [Test]
+    public void GetHistoryIntradayRecordsAsync_StartdateAfterEnddate_Throws()
+    {
+        var service = new AlphaVantageService(
+            _mockLogger.Object,
+            _mockHttpClientFactory.Object,
+            _mockOptions.Object,
+            _mockPolicyRegistry.Object);
+
+        var startDate = new DateTime(2024, 02, 01);
+        var endDate = new DateTime(2024, 01, 01);
+
+        // Act
+        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetHistoryIntradayRecordsAsync("IBM", startDate, endDate));
+    }
+
+    [Test]
+    public void GetHistoryIntradayRecordsAsync_IvalidInterval_Throws()
+    {
+        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "AlphaVantage", "intradayRecord.json");
+        SetupHttpJsonFileResponse(filePath);
+
+        var service = new AlphaVantageService(
+            _mockLogger.Object,
+            _mockHttpClientFactory.Object,
+            _mockOptions.Object,
+            _mockPolicyRegistry.Object);
+
+        var startDate = new DateTime(2024, 01, 01);
+        var endDate = new DateTime(2024, 02, 01);
+        var interval = (Models.AlphaVantage.EInterval)100;
+
+        // Act
+        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetHistoryIntradayRecordsAsync("IBM", startDate, endDate, interval));
+    }
+
+    [Test]
     public async Task GetHistoryForexRecordsAsync_WithData_ReturnsResult()
     {
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "AlphaVantage", "forex.json");
@@ -323,6 +377,23 @@ public class AlphaVantageServiceTests
 
         // Act
         Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetHistoryForexRecordsAsync("EUR", "USD", startDate));
+    }
+
+
+    [Test]
+    public void GetHistoryForexRecordsAsync_StartdateAfterEnddate_Throws()
+    {
+        var service = new AlphaVantageService(
+            _mockLogger.Object,
+            _mockHttpClientFactory.Object,
+            _mockOptions.Object,
+            _mockPolicyRegistry.Object);
+
+        var startDate = new DateTime(2024, 02, 01);
+        var endDate = new DateTime(2024, 01, 01);
+
+        // Act
+        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetHistoryForexRecordsAsync("EUR", "USD", startDate, endDate));
     }
 
     private void SetupHttpJsonFileResponse(string filePath)

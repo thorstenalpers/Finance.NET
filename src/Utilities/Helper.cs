@@ -132,6 +132,7 @@ public static class Helper
     public static string GetDescription(this EInterval value)
     {
         var field = value.GetType().GetField(value.ToString());
+        if (field == null) return "";
         var attribute = (DescriptionAttribute)Attribute.GetCustomAttribute(field, typeof(DescriptionAttribute));
         return attribute.Description;
     }
