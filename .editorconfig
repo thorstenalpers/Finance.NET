@@ -429,3 +429,5 @@ dotnet_diagnostic.RCS1129.severity = warning
 
 # RCS1246: Use element access
 dotnet_diagnostic.RCS1246.severity = warning
+
+dotnet_diagnostic.S1075.severity = silent

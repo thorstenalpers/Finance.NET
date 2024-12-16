@@ -82,33 +82,33 @@ public static class ServiceCollectionExtensions
             });
 
         services.AddHttpClient(Constants.XetraHttpClientName)
-            .ConfigureHttpClient((Action<HttpClient>)(client =>
+            .ConfigureHttpClient(client =>
             {
                 var userAgent = Helper.CreateRandomUserAgent();
                 client.DefaultRequestHeaders.Add(Constants.HeaderNameUserAgent, userAgent);
                 client.DefaultRequestHeaders.Add(Constants.HeaderNameAccept, "text/html,application/xhtml+xml,application/xml,application/json;q=0.9,*/*;q=0.8");
-                client.DefaultRequestHeaders.Add((string)Constants.HeaderNameAcceptLanguage, Constants.HeaderValueAcceptLanguage);
+                client.DefaultRequestHeaders.Add(Constants.HeaderNameAcceptLanguage, Constants.HeaderValueAcceptLanguage);
                 client.Timeout = TimeSpan.FromSeconds(cfg.HttpTimeout);
-            }));
+            });
 
         services.AddHttpClient(Constants.AlphaVantageHttpClientName)
-            .ConfigureHttpClient((Action<HttpClient>)(client =>
+            .ConfigureHttpClient(client =>
             {
                 var userAgent = Helper.CreateRandomUserAgent();
                 client.DefaultRequestHeaders.Add(Constants.HeaderNameUserAgent, userAgent);
                 client.DefaultRequestHeaders.Add(Constants.HeaderNameAccept, "text/html,application/xhtml+xml,application/xml,application/json;q=0.9,*/*;q=0.8");
-                client.DefaultRequestHeaders.Add((string)Constants.HeaderNameAcceptLanguage, Constants.HeaderValueAcceptLanguage);
+                client.DefaultRequestHeaders.Add(Constants.HeaderNameAcceptLanguage, Constants.HeaderValueAcceptLanguage);
                 client.Timeout = TimeSpan.FromSeconds(cfg.HttpTimeout);
-            }));
+            });
 
         services.AddHttpClient(Constants.DatahubIoHttpClientName)
-            .ConfigureHttpClient((Action<HttpClient>)(client =>
+            .ConfigureHttpClient(client =>
             {
                 var userAgent = Helper.CreateRandomUserAgent();
                 client.DefaultRequestHeaders.Add(Constants.HeaderNameUserAgent, userAgent);
                 client.DefaultRequestHeaders.Add(Constants.HeaderNameAccept, "text/html,application/xhtml+xml,application/xml,application/json;q=0.9,*/*;q=0.8");
-                client.DefaultRequestHeaders.Add((string)Constants.HeaderNameAcceptLanguage, Constants.HeaderValueAcceptLanguage);
+                client.DefaultRequestHeaders.Add(Constants.HeaderNameAcceptLanguage, Constants.HeaderValueAcceptLanguage);
                 client.Timeout = TimeSpan.FromSeconds(cfg.HttpTimeout);
-            }));
+            });
     }
 }
