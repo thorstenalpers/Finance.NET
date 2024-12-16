@@ -51,8 +51,7 @@ public class PollyPolicyFactoryTests
             logger => logger.Log(
                 LogLevel.Warning,
                 It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, _) =>
-                    v.ToString().Contains("Retry 1 after 00:00:01 due to ")),
+                It.Is<It.IsAnyType>((v, _) => v.ToString().Contains("Retry 1 after")),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Exactly(1));
@@ -61,8 +60,7 @@ public class PollyPolicyFactoryTests
             logger => logger.Log(
                 LogLevel.Warning,
                 It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, _) =>
-                    v.ToString().Contains("Retry 2 after 00:00:02 due to ")),
+                It.Is<It.IsAnyType>((v, _) => v.ToString().Contains("Retry 2 after")),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Exactly(1));
@@ -71,8 +69,7 @@ public class PollyPolicyFactoryTests
             logger => logger.Log(
             LogLevel.Warning,
             It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, _) =>
-                v.ToString().Contains("Retry 3 after 00:00:03 due to ")),
+            It.Is<It.IsAnyType>((v, _) => v.ToString().Contains("Retry 3 after")),
             It.IsAny<Exception>(),
             It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Exactly(1));

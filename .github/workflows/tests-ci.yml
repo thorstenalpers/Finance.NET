@@ -63,6 +63,8 @@ jobs:
           -Dsonar.exclusions=**/*.html,**/*.json,**/*.yaml,**/*.yml,**/tests/**
           -Dsonar.language=cs
           -Dsonar.sources=.
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
     - name: Upload to Coveralls
       uses: coverallsapp/github-action@v2

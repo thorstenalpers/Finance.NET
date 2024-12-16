@@ -11,3 +11,8 @@ exclude_patterns = [
 [[analyzers]]
 name = "csharp"
 enabled = true
+
+[[analyzers]]
+name = "test-coverage"
+enabled = true
+coverage_report = "./TestResults/Reports/lcov.info"
