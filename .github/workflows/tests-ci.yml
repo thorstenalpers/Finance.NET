@@ -47,7 +47,8 @@ jobs:
           /o:"thorstenalpers" \
           /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
           /d:sonar.host.url="https://sonarcloud.io" \
-          /d:sonar.scanner.scanAll=false
+          /d:sonar.scanner.scanAll=false \
+          /d:sonar.exclusions="**/*.html"
 
           dotnet build "${{ env.Solution_Name }}" --configuration Release --no-restore
           dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
