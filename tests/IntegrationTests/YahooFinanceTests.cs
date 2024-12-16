@@ -55,7 +55,7 @@ public class YahooFinanceTests
     [TestCase("MSFT", true)]      // Microsoft Corporation (Nasdaq)
     [TestCase("IBM", true)]       // IBM (Nasdaq)
     [TestCase("SAP.DE", true)]    // SAP SE (Xetra)
-    [TestCase("6758.T", true)]    // Sony Group Corporation (Tokyo)
+    [TestCase("8058.T", true)]    // Mitsubishi (Tokyo)
     [TestCase("VOO", true)]       // Vanguard S&P 500 ETF
     [TestCase("EURUSD=X", true)]  // Euro to USD
     [TestCase("TESTING.NET", false)]
@@ -82,7 +82,7 @@ public class YahooFinanceTests
     [TestCase("MSFT", true)]      // Microsoft Corporation (Nasdaq)
     [TestCase("SAP", true)]       // SAP SE (Nasdaq)
     [TestCase("SAP.DE", true)]    // SAP SE (Xetra)
-    [TestCase("6758.T", true)]    // Sony Group Corporation (Tokyo)
+    [TestCase("8058.T", true)]    // Mitsubishi (Tokyo)
     [TestCase("VOO", false)]       // Vanguard S&P 500 ETF
     [TestCase("EURUSD=X", false)]  // Euro to USD
     public async Task GetProfileAsync_ValidSymbols_ReturnsProfile(string symbol, bool shouldHaveProfile)
@@ -110,7 +110,7 @@ public class YahooFinanceTests
     [TestCase("MSFT", true)]      // Microsoft Corporation (Nasdaq)
     [TestCase("SAP", true)]       // SAP SE (Nasdaq)
     [TestCase("SAP.DE", true)]    // SAP SE (Xetra)
-    [TestCase("6758.T", true)]    // Sony Group Corporation (Tokyo)
+    [TestCase("8058.T", true)]    // Mitsubishi (Tokyo)
     [TestCase("VOO", true)]       // Vanguard S&P 500 ETF
     [TestCase("EURUSD=X", true)]  // Euro to USD
     [TestCase("TESTING.NET", false)]
@@ -136,7 +136,7 @@ public class YahooFinanceTests
     [TestCase("MSFT", true)]      // Microsoft Corporation (Nasdaq)
     [TestCase("SAP", true)]       // SAP SE (Nasdaq)
     [TestCase("SAP.DE", true)]    // SAP SE (Xetra)
-    [TestCase("6758.T", true)]    // Sony Group Corporation (Tokyo)
+    [TestCase("8058.T", true)]    // Mitsubishi (Tokyo)
     [TestCase("VOO", true)]       // Vanguard S&P 500 ETF
     [TestCase("EURUSD=X", true)]  // Euro to USD
     [TestCase("TESTING.NET", false)]
@@ -157,7 +157,7 @@ public class YahooFinanceTests
     [TestCase("MSFT", true)]      // Microsoft Corporation (Nasdaq)
     [TestCase("IBM", true)]       // IBM (Nasdaq)
     [TestCase("SAP.DE", true)]    // SAP SE (Xetra)
-    [TestCase("6758.T", true)]    // Sony Group Corporation (Tokyo)
+    [TestCase("8058.T", true)]    // Mitsubishi (Tokyo)
     [TestCase("VOO", false)]       // Vanguard S&P 500 ETF
     [TestCase("EURUSD=X", false)]  // Euro to USD
     public async Task GetFinancialReportsAsync_ValidSymbols_ReturnsReports(string symbol, bool shouldHaveReport)

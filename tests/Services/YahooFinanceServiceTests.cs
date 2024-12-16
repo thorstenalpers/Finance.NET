@@ -204,10 +204,9 @@ public class YahooFinanceServiceTests
             _mockYahooSession.Object);
 
         DateTime startDate = default;
-        DateTime? endDate = null;
 
         // Act
-        var result = await service.GetHistoryRecordsAsync("IBM", startDate, endDate);
+        var result = await service.GetHistoryRecordsAsync("IBM", startDate);
 
         // Assert
         Assert.That(result, Is.Not.Empty);
@@ -228,10 +227,9 @@ public class YahooFinanceServiceTests
             _mockYahooSession.Object);
 
         DateTime startDate = default;
-        DateTime? endDate = null;
 
         // Act
-        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetHistoryRecordsAsync("IBM", startDate, endDate));
+        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetHistoryRecordsAsync("IBM", startDate));
     }
 
     [Test]

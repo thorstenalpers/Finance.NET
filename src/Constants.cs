@@ -8,6 +8,9 @@ internal static class Constants
     public const string HeaderNameAcceptLanguage = "Accept-Language";
     public const string HeaderNameUserAgent = "User-Agent";
 
+    public const string YahooResponseApiLimitExceeded = "higher API call volume";
+
+    public const string ValidationMsgAllFieldsEmpty = "All fields empty";
     public const string HeaderValueAcceptLanguage = "en-US,en;q=0.5";
 
     /// <summary> Base url for Yahoo UI content </summary>

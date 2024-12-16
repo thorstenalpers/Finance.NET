@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using Finance.Net.Models.AlphaVantage;
@@ -160,17 +161,14 @@ public static class Helper
         return allAgents[index];
     }
 
-    public static bool AreAllFieldsNull<T>(T obj)
+    public static bool AreAllPropertiesNull<T>(T obj)
     {
         if (obj is null)
         {
             return true;
         }
-        var fields = obj.GetType().GetFields(
-            System.Reflection.BindingFlags.Instance |
-            System.Reflection.BindingFlags.Public |
-            System.Reflection.BindingFlags.NonPublic).ToList();
-        return fields.All(field => field.GetValue(obj) == null);
+        var properties = obj.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public);
+        return properties.All(e => e.GetValue(obj) == null);
     }
 
     public static string? Minify(this string strXmlContent)

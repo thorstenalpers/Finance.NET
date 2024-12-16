@@ -186,7 +186,7 @@ public class YahooFinanceService : IYahooFinanceService
                     Phone = phone,
                     Website = website
                 };
-                return Helper.AreAllFieldsNull(result) ? throw new FinanceNetException("All fields empty") : result;
+                return Helper.AreAllPropertiesNull(result) ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
             });
         }
         catch (Exception ex)
@@ -195,16 +195,20 @@ public class YahooFinanceService : IYahooFinanceService
         }
     }
 
-    public async Task<IEnumerable<HistoryRecord>> GetHistoryRecordsAsync(string symbol, DateTime startDate, DateTime? endDate = null, CancellationToken token = default)
+    public Task<IEnumerable<HistoryRecord>> GetHistoryRecordsAsync(string symbol, DateTime startDate)
+    {
+        return GetHistoryRecordsAsync(symbol, startDate, DateTime.UtcNow);
+    }
+
+    public async Task<IEnumerable<HistoryRecord>> GetHistoryRecordsAsync(string symbol, DateTime startDate, DateTime endDate, CancellationToken token = default)
     {
         await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
         var httpClient = _httpClientFactory.CreateClient(Constants.YahooHttpClientName);
 
-        endDate ??= DateTime.UtcNow;
-        endDate = endDate.Value.AddDays(1).Date;
+        endDate = endDate.AddDays(1).Date;
 
         var period1 = Helper.ToUnixTime(startDate.Date) ?? throw new FinanceNetException("Invalid startDate");
-        var period2 = Helper.ToUnixTime(endDate.Value.Date) ?? throw new FinanceNetException("Invalid endDate");
+        var period2 = Helper.ToUnixTime(endDate.Date) ?? throw new FinanceNetException("Invalid endDate");
 
         var url = $"{Constants.YahooBaseUrlQuoteHtml}/{symbol}/history/?period1={period1}&period2={period2}".ToLowerInvariant();
 
@@ -286,7 +290,7 @@ public class YahooFinanceService : IYahooFinanceService
                         _logger.LogInformation("No records in row {Row}", row.TextContent);    // e.g. date + dividend (over all columns)
                     }
                 }
-                return records.IsNullOrEmpty() ? throw new FinanceNetException("All fields empty") : records;
+                return records.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : records;
             });
         }
         catch (Exception ex)
@@ -360,7 +364,7 @@ public class YahooFinanceService : IYahooFinanceService
                         _logger.LogWarning("Unknown row property {RowTitle}.", rowTitle);
                     }
                 }
-                return result.IsNullOrEmpty() ? throw new FinanceNetException("All fields empty") : result;
+                return result.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
             });
         }
         catch (Exception ex)
@@ -472,7 +476,7 @@ public class YahooFinanceService : IYahooFinanceService
                     WeekRange52_Max = weekRange52_Max,
                     WeekRange52_Min = weekRange52_Min
                 };
-                return Helper.AreAllFieldsNull(result) ? throw new FinanceNetException("All fields empty") : result;
+                return Helper.AreAllPropertiesNull(result) ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
             });
         }
         catch (Exception ex)

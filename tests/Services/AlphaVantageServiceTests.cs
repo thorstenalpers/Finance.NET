@@ -7,7 +7,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Finance.Net.Exceptions;
-using Finance.Net.Models.AlphaVantage;
 using Finance.Net.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -159,13 +158,9 @@ public class AlphaVantageServiceTests
             _mockPolicyRegistry.Object);
 
         var startDate = new DateTime(2024, 01, 01);
-        DateTime? endDate = null;
 
         // Act
-        var result = await service.GetHistoryRecordsAsync(
-            "IBM",
-            startDate,
-            endDate);
+        var result = await service.GetHistoryRecordsAsync("IBM", startDate);
 
         // Assert
         Assert.That(result, Is.Not.Empty);
@@ -186,10 +181,9 @@ public class AlphaVantageServiceTests
             _mockPolicyRegistry.Object);
 
         var startDate = new DateTime(2024, 01, 01);
-        DateTime? endDate = null;
 
         // Act
-        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetHistoryRecordsAsync("IBM", startDate, endDate));
+        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetHistoryRecordsAsync("IBM", startDate));
     }
 
     [Test]
@@ -201,7 +195,6 @@ public class AlphaVantageServiceTests
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("Buy higher API call volume!") });
         _mockHttpClientFactory.Setup(e => e.CreateClient(It.IsAny<string>())).Returns(new HttpClient(_mockHandler.Object));
         var startDate = new DateTime(2024, 01, 01);
-        DateTime? endDate = null;
 
         var service = new AlphaVantageService(
             _mockLogger.Object,
@@ -210,7 +203,7 @@ public class AlphaVantageServiceTests
             _mockPolicyRegistry.Object);
 
         // Act
-        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetHistoryRecordsAsync("IBM", startDate, endDate));
+        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetHistoryRecordsAsync("IBM", startDate));
     }
 
     [Test]
@@ -226,10 +219,9 @@ public class AlphaVantageServiceTests
             _mockPolicyRegistry.Object);
 
         var startDate = new DateTime(2024, 01, 01);
-        DateTime? endDate = null;
 
         // Act
-        var result = await service.GetHistoryIntradayRecordsAsync("IBM", startDate, endDate, EInterval.Interval_5Min);
+        var result = await service.GetHistoryIntradayRecordsAsync("IBM", startDate);
 
         // Assert
         Assert.That(result, Is.Not.Empty);
@@ -247,10 +239,9 @@ public class AlphaVantageServiceTests
             _mockPolicyRegistry.Object);
 
         var startDate = new DateTime(2024, 01, 01);
-        DateTime? endDate = null;
 
         // Act
-        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetHistoryIntradayRecordsAsync("IBM", startDate, endDate, EInterval.Interval_5Min));
+        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetHistoryIntradayRecordsAsync("IBM", startDate));
     }
 
     [Test]
@@ -262,7 +253,6 @@ public class AlphaVantageServiceTests
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("Buy higher API call volume!") });
         _mockHttpClientFactory.Setup(e => e.CreateClient(It.IsAny<string>())).Returns(new HttpClient(_mockHandler.Object));
         var startDate = new DateTime(2024, 01, 01);
-        DateTime? endDate = null;
 
         var service = new AlphaVantageService(
             _mockLogger.Object,
@@ -271,7 +261,7 @@ public class AlphaVantageServiceTests
             _mockPolicyRegistry.Object);
 
         // Act
-        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetHistoryIntradayRecordsAsync("IBM", startDate, endDate, EInterval.Interval_5Min));
+        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetHistoryIntradayRecordsAsync("IBM", startDate));
     }
 
     [Test]
@@ -287,14 +277,9 @@ public class AlphaVantageServiceTests
             _mockPolicyRegistry.Object);
 
         var startDate = new DateTime(2024, 11, 01);
-        DateTime? endDate = null;
 
         // Act
-        var result = await service.GetHistoryForexRecordsAsync(
-            "EUR",
-            "USD",
-            startDate,
-            endDate);
+        var result = await service.GetHistoryForexRecordsAsync("EUR", "USD", startDate);
 
         // Assert
         Assert.That(result, Is.Not.Empty);
@@ -315,14 +300,9 @@ public class AlphaVantageServiceTests
             _mockPolicyRegistry.Object);
 
         var startDate = new DateTime(2024, 11, 01);
-        DateTime? endDate = null;
 
         // Act
-        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetHistoryForexRecordsAsync(
-            "EUR",
-            "USD",
-            startDate,
-            endDate));
+        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetHistoryForexRecordsAsync("EUR", "USD", startDate));
     }
 
     [Test]
@@ -334,7 +314,6 @@ public class AlphaVantageServiceTests
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("Buy higher API call volume!") });
         _mockHttpClientFactory.Setup(e => e.CreateClient(It.IsAny<string>())).Returns(new HttpClient(_mockHandler.Object));
         var startDate = new DateTime(2024, 11, 01);
-        DateTime? endDate = null;
 
         var service = new AlphaVantageService(
             _mockLogger.Object,
@@ -343,11 +322,7 @@ public class AlphaVantageServiceTests
             _mockPolicyRegistry.Object);
 
         // Act
-        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetHistoryForexRecordsAsync(
-            "EUR",
-            "USD",
-            startDate,
-            endDate));
+        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetHistoryForexRecordsAsync("EUR", "USD", startDate));
     }
 
     private void SetupHttpJsonFileResponse(string filePath)

@@ -98,7 +98,7 @@ public class XetraService : IXetraService
                 var records = csv.GetRecords<InstrumentItem>().ToList();
 
                 var instruments = _mapper.Map<List<Instrument>>(records);
-                return instruments.IsNullOrEmpty() ? throw new FinanceNetException("All fields empty") : instruments;
+                return instruments.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : instruments;
             });
         }
         catch (Exception ex)

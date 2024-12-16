@@ -194,7 +194,7 @@ public class HelperTests
         var model = new QuoteResponse();
 
         // Act
-        var result = Helper.AreAllFieldsNull(model);
+        var result = Helper.AreAllPropertiesNull(model);
 
         // Assert
         Assert.That(result, Is.EqualTo(true));
@@ -210,7 +210,7 @@ public class HelperTests
         };
 
         // Act
-        var result = Helper.AreAllFieldsNull(model);
+        var result = Helper.AreAllPropertiesNull(model);
 
         // Assert
         Assert.That(result, Is.EqualTo(false));
@@ -221,7 +221,7 @@ public class HelperTests
     {
         // Arrange
         // Act
-        var result = Helper.AreAllFieldsNull((QuoteResponse)null);
+        var result = Helper.AreAllPropertiesNull((QuoteResponse)null);
 
         // Assert
         Assert.That(result, Is.EqualTo(true));

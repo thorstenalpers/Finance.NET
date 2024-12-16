@@ -33,10 +33,18 @@ public interface IYahooFinanceService
     /// </summary>
     /// <param name="symbol">The symbol of the quote (e.g., "AAPL" for Apple).</param>
     /// <param name="startDate">The start date for retrieving historical records.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains an enumerable of YahooRecord objects for the given symbol and date range.</returns>
+    Task<IEnumerable<HistoryRecord>> GetHistoryRecordsAsync(string symbol, DateTime startDate);
+
+    /// <summary>
+    /// Retrieves historical data records for a specific quote from Yahoo Finance.
+    /// </summary>
+    /// <param name="symbol">The symbol of the quote (e.g., "AAPL" for Apple).</param>
+    /// <param name="startDate">The start date for retrieving historical records.</param>
     /// <param name="endDate">Optional end date for retrieving historical records. If not provided, the current date will be used.</param>
     /// <param name="token">A <see cref="CancellationToken"/> to allow cancellation of the operation.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains an enumerable of YahooRecord objects for the given symbol and date range.</returns>
-    Task<IEnumerable<HistoryRecord>> GetHistoryRecordsAsync(string symbol, DateTime startDate, DateTime? endDate = null, CancellationToken token = default);
+    Task<IEnumerable<HistoryRecord>> GetHistoryRecordsAsync(string symbol, DateTime startDate, DateTime endDate, CancellationToken token = default);
 
     /// <summary>
     /// Retrieves the profile data for a specific symbol from Yahoo Finance.

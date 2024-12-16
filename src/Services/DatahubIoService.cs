@@ -70,7 +70,7 @@ internal class DatahubIoService(IHttpClientFactory httpClientFactory,
                 using var csv = new CsvReader(reader, config);
                 csv.Context.RegisterClassMap<NasdaqInstrumentMapping>();
                 var instruments = csv.GetRecords<NasdaqInstrument>().ToList();
-                return instruments.IsNullOrEmpty() ? throw new FinanceNetException("All fields empty") : instruments;
+                return instruments.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : instruments;
             });
         }
         catch (Exception ex)
@@ -95,7 +95,7 @@ internal class DatahubIoService(IHttpClientFactory httpClientFactory,
                 csv.Context.RegisterClassMap<SP500InstrumentMapping>();
 
                 var instruments = csv.GetRecords<SP500Instrument>().ToList();
-                return instruments.IsNullOrEmpty() ? throw new FinanceNetException("All fields empty") : instruments;
+                return instruments.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : instruments;
             });
         }
         catch (Exception ex)

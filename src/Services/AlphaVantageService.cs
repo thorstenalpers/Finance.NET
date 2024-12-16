@@ -72,15 +72,15 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
                 httpResponse.EnsureSuccessStatusCode();
 
                 var jsonResponse = await httpResponse.Content.ReadAsStringAsync();
-                if (jsonResponse.Contains("higher API call volume"))
+                if (jsonResponse.Contains(Constants.YahooResponseApiLimitExceeded))
                 {
                     throw new FinanceNetException($"higher API call volume for {symbol}");
                 }
                 else
                 {
                     var overview = JsonConvert.DeserializeObject<CompanyOverview>(jsonResponse);
-                    var isNullObj = Helper.AreAllFieldsNull(overview);
-                    return isNullObj ? throw new FinanceNetException("All fields empty") : overview;
+                    var isNullObj = Helper.AreAllPropertiesNull(overview);
+                    return isNullObj ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : overview;
                 }
             });
         }
@@ -89,14 +89,18 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
             throw new FinanceNetException($"No company overview found for {symbol}", ex);
         }
     }
+    public Task<IEnumerable<HistoryRecord>> GetHistoryRecordsAsync(string symbol, DateTime startDate)
+    {
+        return GetHistoryRecordsAsync(symbol, startDate, DateTime.UtcNow.Date);
+    }
 
-    public async Task<IEnumerable<HistoryRecord>> GetHistoryRecordsAsync(string symbol, DateTime startDate, DateTime? endDate = null, CancellationToken token = default)
+    public async Task<IEnumerable<HistoryRecord>> GetHistoryRecordsAsync(string symbol, DateTime startDate, DateTime endDate, CancellationToken token = default)
     {
         var httpClient = _httpClientFactory.CreateClient(Constants.AlphaVantageHttpClientName);
         var url = Constants.AlphaVantageApiUrl + "/query?function=TIME_SERIES_DAILY_ADJUSTED" +
             $"&symbol={symbol}&outputsize=full&apikey={_options.AlphaVantageApiKey}";
         Guard.Against.NullOrEmpty(symbol);
-        if (endDate == null || endDate.Value.Date >= DateTime.UtcNow.Date)
+        if (endDate.Date >= DateTime.UtcNow.Date)
         {
             endDate = DateTime.UtcNow.Date;
         }
@@ -114,7 +118,7 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
                 response.EnsureSuccessStatusCode();
 
                 var jsonResponse = await response.Content.ReadAsStringAsync();
-                if (jsonResponse.Contains("higher API call volume"))
+                if (jsonResponse.Contains(Constants.YahooResponseApiLimitExceeded))
                 {
                     throw new FinanceNetException($"higher API call volume for {symbol}");
                 }
@@ -127,7 +131,7 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
                 foreach (var item in data.TimeSeries)
                 {
                     var today = item.Key;
-                    if (today > (endDate ?? startDate) || today < startDate || today > endDate)
+                    if (today > endDate || today < startDate || today > endDate)
                     {
                         continue;
                     }
@@ -150,7 +154,7 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
                         });
                     }
                 }
-                return result.IsNullOrEmpty() ? throw new FinanceNetException("All fields empty") : result;
+                return result.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
             });
         }
         catch (Exception ex)
@@ -159,11 +163,21 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
         }
     }
 
-    public async Task<IEnumerable<HistoryIntradayRecord>> GetHistoryIntradayRecordsAsync(string symbol, DateTime startDate, DateTime? endDate = null, EInterval interval = EInterval.Interval_15Min, CancellationToken token = default)
+    public Task<IEnumerable<HistoryIntradayRecord>> GetHistoryIntradayRecordsAsync(string symbol, DateTime startDate)
+    {
+        return GetHistoryIntradayRecordsAsync(symbol, startDate, DateTime.UtcNow.Date);
+    }
+
+    public Task<IEnumerable<HistoryIntradayRecord>> GetHistoryIntradayRecordsAsync(string symbol, DateTime startDate, DateTime endDate)
+    {
+        return GetHistoryIntradayRecordsAsync(symbol, startDate, endDate, EInterval.Interval_15Min);
+    }
+
+    public async Task<IEnumerable<HistoryIntradayRecord>> GetHistoryIntradayRecordsAsync(string symbol, DateTime startDate, DateTime endDate, EInterval interval, CancellationToken token = default)
     {
         Guard.Against.NullOrEmpty(symbol);
         var result = new List<HistoryIntradayRecord>();
-        if (endDate == null || endDate.Value.Date >= DateTime.UtcNow.Date)
+        if (endDate.Date >= DateTime.UtcNow.Date)
         {
             endDate = DateTime.UtcNow.Date;
         }
@@ -175,9 +189,9 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
         for (var currentMonth = new DateTime(startDate.Year, startDate.Month, 1, 0, 0, 0, DateTimeKind.Utc); currentMonth <= endDate; currentMonth = currentMonth.AddMonths(1))
         {
             if (currentMonth == endDate &&
-                ((endDate.Value.Day == 1 && endDate.Value.DayOfWeek == DayOfWeek.Saturday) ||
-                    (endDate.Value.Day == 1 && endDate.Value.DayOfWeek == DayOfWeek.Sunday) ||
-                    (endDate.Value.Day == 2 && endDate.Value.DayOfWeek == DayOfWeek.Sunday)))
+                ((endDate.Day == 1 && endDate.DayOfWeek == DayOfWeek.Saturday) ||
+                    (endDate.Day == 1 && endDate.DayOfWeek == DayOfWeek.Sunday) ||
+                    (endDate.Day == 2 && endDate.DayOfWeek == DayOfWeek.Sunday)))
             {
                 // dont query for data which not exists (api exception)
                 break;
@@ -210,7 +224,7 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
                 response.EnsureSuccessStatusCode();
 
                 var jsonResponse = await response.Content.ReadAsStringAsync();
-                if (jsonResponse.Contains("higher API call volume"))
+                if (jsonResponse.Contains(Constants.YahooResponseApiLimitExceeded))
                 {
                     throw new FinanceNetException($"higher API call volume for {symbol}");
                 }
@@ -248,7 +262,7 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
                         Volume = item.Value.Volume,
                     });
                 }
-                return result.IsNullOrEmpty() ? throw new FinanceNetException("All fields empty") : result;
+                return result.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
             });
         }
         catch (Exception ex)
@@ -257,13 +271,18 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
         }
     }
 
-    public async Task<IEnumerable<HistoryForexRecord>> GetHistoryForexRecordsAsync(string currency1, string currency2, DateTime startDate, DateTime? endDate = null, CancellationToken token = default)
+    public Task<IEnumerable<HistoryForexRecord>> GetHistoryForexRecordsAsync(string currency1, string currency2, DateTime startDate)
+    {
+        return GetHistoryForexRecordsAsync(currency1, currency2, startDate, DateTime.UtcNow.Date);
+    }
+
+    public async Task<IEnumerable<HistoryForexRecord>> GetHistoryForexRecordsAsync(string currency1, string currency2, DateTime startDate, DateTime endDate, CancellationToken token = default)
     {
         var httpClient = _httpClientFactory.CreateClient(Constants.AlphaVantageHttpClientName);
         Guard.Against.NullOrEmpty(currency1);
         Guard.Against.NullOrEmpty(currency2);
 
-        if (endDate == null || endDate.Value.Date >= DateTime.UtcNow.Date)
+        if (endDate.Date >= DateTime.UtcNow.Date)
         {
             endDate = DateTime.UtcNow.Date;
         }
@@ -284,7 +303,7 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
                 response.EnsureSuccessStatusCode();
 
                 var jsonResponse = await response.Content.ReadAsStringAsync();
-                if (jsonResponse.Contains("higher API call volume"))
+                if (jsonResponse.Contains(Constants.YahooResponseApiLimitExceeded))
                 {
                     throw new FinanceNetException($"higher API call volume for {currency1} /{currency2}");
                 }
@@ -297,7 +316,7 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
                 foreach (var item in data.TimeSeries)
                 {
                     var today = item.Key;
-                    if (today > (endDate ?? startDate) || today < startDate || today > endDate)
+                    if (today > endDate || today < startDate || today > endDate)
                     {
                         continue;
                     }
@@ -317,7 +336,7 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
                         });
                     }
                 }
-                return result.IsNullOrEmpty() ? throw new FinanceNetException("All fields empty") : result;
+                return result.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
             });
         }
         catch (Exception ex)
