@@ -283,203 +283,7 @@ internal static class YahooHtmlParser
         };
     }
 
-    public static List<SymbolInfo> ParseCryptos<T>(IHtmlDocument document, ILogger<T> logger)
-    {
-        var result = new List<SymbolInfo>();
-        var expectedHeaderSet = new HashSet<string>(["Symbol"]);
-        var headerMap = new Dictionary<string, int>();
-
-        var table = document.QuerySelector("table.markets-table") ?? throw new FinanceNetException("No table found");
-        var headers = table.QuerySelectorAll("thead th")
-              .Select(th =>
-              {
-                  th.QuerySelectorAll("span").ToList().ForEach(span => span.Remove());
-                  return th.TextContent.Trim();
-              })
-              .ToList();
-        for (var i = 0; i < headers.Count; i++)
-        {
-            headerMap[headers[i]] = i;
-        }
-        if (!expectedHeaderSet.IsSubsetOf(headerMap.Keys))
-        {
-            throw new FinanceNetException("Headers are missing");
-        }
-
-        foreach (var row in table.QuerySelectorAll("tbody tr"))
-        {
-            var cells = row.QuerySelectorAll("td").Select(td => td.TextContent.Trim()).ToArray();
-            if (cells.Length >= 3)
-            {
-                var symbol = cells[headerMap["Symbol"]];
-                if (symbol == null)
-                {
-                    logger.LogWarning("invalid symbol {Symbol}", symbol);
-                    continue;
-                }
-
-                result.Add(new SymbolInfo
-                {
-                    Symbol = symbol,
-                    InstrumentType = EInstrumentType.Crypto
-                });
-            }
-            else
-            {
-                logger.LogWarning("Invalid row {Row}", row.TextContent);
-            }
-        }
-        return result;
-    }
-
-    public static List<SymbolInfo> ParseStocks<T>(IHtmlDocument document, ILogger<T> logger)
-    {
-        var result = new List<SymbolInfo>();
-        var expectedHeaderSet = new HashSet<string>(["Symbol"]);
-        var headerMap = new Dictionary<string, int>();
-
-        var table = document.QuerySelector("table.markets-table") ?? throw new FinanceNetException("No table found");
-        var headers = table.QuerySelectorAll("thead th")
-              .Select(th =>
-              {
-                  th.QuerySelectorAll("span").ToList().ForEach(span => span.Remove());
-                  return th.TextContent.Trim();
-              })
-              .ToList();
-        for (var i = 0; i < headers.Count; i++)
-        {
-            headerMap[headers[i]] = i;
-        }
-        if (!expectedHeaderSet.IsSubsetOf(headerMap.Keys))
-        {
-            throw new FinanceNetException("Headers are missing");
-        }
-
-        foreach (var row in table.QuerySelectorAll("tbody tr"))
-        {
-            var cells = row.QuerySelectorAll("td").Select(td => td.TextContent.Trim()).ToArray();
-            if (cells.Length >= 4)
-            {
-                var symbol = cells[headerMap["Symbol"]];
-                if (symbol == null)
-                {
-                    logger.LogWarning("invalid symbol {Symbol}", symbol);
-                    continue;
-                }
-
-                result.Add(new SymbolInfo
-                {
-                    Symbol = symbol,
-                    InstrumentType = EInstrumentType.Stock
-                });
-            }
-            else
-            {
-                logger.LogWarning("Invalid row {Row}", row.TextContent);
-            }
-        }
-        return result;
-    }
-
-    public static List<SymbolInfo> ParseForex<T>(IHtmlDocument document, ILogger<T> logger)
-    {
-        var result = new List<SymbolInfo>();
-        var expectedHeaderSet = new HashSet<string>(["Symbol"]);
-        var headerMap = new Dictionary<string, int>();
-
-        var table = document.QuerySelector("table.markets-table") ?? throw new FinanceNetException("No table found");
-        var headers = table.QuerySelectorAll("thead th")
-              .Select(th =>
-              {
-                  th.QuerySelectorAll("span").ToList().ForEach(span => span.Remove());
-                  return th.TextContent.Trim();
-              })
-              .ToList();
-        for (var i = 0; i < headers.Count; i++)
-        {
-            headerMap[headers[i]] = i;
-        }
-        if (!expectedHeaderSet.IsSubsetOf(headerMap.Keys))
-        {
-            throw new FinanceNetException("Headers are missing");
-        }
-
-        foreach (var row in table.QuerySelectorAll("tbody tr"))
-        {
-            var cells = row.QuerySelectorAll("td").Select(td => td.TextContent.Trim()).ToArray();
-            if (cells.Length >= 2)
-            {
-                var symbol = cells[headerMap["Symbol"]];
-                if (symbol == null)
-                {
-                    logger.LogWarning("invalid symbol {Symbol}", symbol);
-                    continue;
-                }
-
-                result.Add(new SymbolInfo
-                {
-                    Symbol = symbol,
-                    InstrumentType = EInstrumentType.Forex
-                });
-            }
-            else
-            {
-                logger.LogWarning("Invalid row {Row}", row.TextContent);
-            }
-        }
-        return result;
-    }
-
-    public static List<SymbolInfo> ParseIndices<T>(IHtmlDocument document, ILogger<T> logger)
-    {
-        var result = new List<SymbolInfo>();
-        var expectedHeaderSet = new HashSet<string>(["Symbol"]);
-        var headerMap = new Dictionary<string, int>();
-
-        var table = document.QuerySelector("table.markets-table") ?? throw new FinanceNetException("No table found");
-        var headers = table.QuerySelectorAll("thead th")
-              .Select(th =>
-              {
-                  th.QuerySelectorAll("span").ToList().ForEach(span => span.Remove());
-                  return th.TextContent.Trim();
-              })
-              .ToList();
-        for (var i = 0; i < headers.Count; i++)
-        {
-            headerMap[headers[i]] = i;
-        }
-        if (!expectedHeaderSet.IsSubsetOf(headerMap.Keys))
-        {
-            throw new FinanceNetException("Headers are missing");
-        }
-
-        foreach (var row in table.QuerySelectorAll("tbody tr"))
-        {
-            var cells = row.QuerySelectorAll("td").Select(td => td.TextContent.Trim()).ToArray();
-            if (cells.Length >= 3)
-            {
-                var symbol = cells[headerMap["Symbol"]];
-                if (symbol == null)
-                {
-                    logger.LogWarning("invalid symbol {Symbol}", symbol);
-                    continue;
-                }
-
-                result.Add(new SymbolInfo
-                {
-                    Symbol = symbol,
-                    InstrumentType = EInstrumentType.Index
-                });
-            }
-            else
-            {
-                logger.LogWarning("Invalid row {Row}", row.TextContent);
-            }
-        }
-        return result;
-    }
-
-    public static List<SymbolInfo> ParseETFs<T>(IHtmlDocument document, ILogger<T> logger)
+    public static List<SymbolInfo> ParseSymbols<T>(IHtmlDocument document, EInstrumentType type, ILogger<T> logger)
     {
         var result = new List<SymbolInfo>();
         var expectedHeaderSet = new HashSet<string>(["Symbol"]);
@@ -506,7 +310,7 @@ internal static class YahooHtmlParser
         {
             var cells = row.QuerySelectorAll("td").Select(td => td.TextContent.Trim()).ToArray();
 
-            if (cells.Length >= 3)
+            if (cells.Length >= 1)
             {
                 var symbol = cells[headerMap["Symbol"]];
                 if (symbol == null)
@@ -518,7 +322,7 @@ internal static class YahooHtmlParser
                 result.Add(new SymbolInfo
                 {
                     Symbol = symbol,
-                    InstrumentType = EInstrumentType.ETF
+                    InstrumentType = type
                 });
             }
             else

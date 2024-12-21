@@ -236,7 +236,7 @@ public class YahooFinanceService : IYahooFinanceService
                 var items = await _retryPolicy.ExecuteAsync(async () =>
                 {
                     var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, token);
-                    var result = YahooHtmlParser.ParseCryptos(document, _logger);
+                    var result = YahooHtmlParser.ParseSymbols(document, EInstrumentType.Crypto, _logger);
                     return Helper.AreAllPropertiesNull(result) ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
                 });
                 result.AddRange(items.Where(e => e.Symbol != null));
@@ -271,7 +271,7 @@ public class YahooFinanceService : IYahooFinanceService
                 var items = await _retryPolicy.ExecuteAsync(async () =>
                 {
                     var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, token);
-                    var result = YahooHtmlParser.ParseStocks(document, _logger);
+                    var result = YahooHtmlParser.ParseSymbols(document, EInstrumentType.Stock, _logger);
                     return Helper.AreAllPropertiesNull(result) ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
                 });
                 result.AddRange(items.Where(e => e.Symbol != null));
@@ -303,7 +303,7 @@ public class YahooFinanceService : IYahooFinanceService
             return await _retryPolicy.ExecuteAsync(async () =>
             {
                 var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, token);
-                var result = YahooHtmlParser.ParseForex(document, _logger);
+                var result = YahooHtmlParser.ParseSymbols(document, EInstrumentType.Forex, _logger);
                 return Helper.AreAllPropertiesNull(result) ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
             });
         }
@@ -324,7 +324,7 @@ public class YahooFinanceService : IYahooFinanceService
             return await _retryPolicy.ExecuteAsync(async () =>
             {
                 var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, token);
-                var result = YahooHtmlParser.ParseIndices(document, _logger);
+                var result = YahooHtmlParser.ParseSymbols(document, EInstrumentType.Index, _logger);
                 return Helper.AreAllPropertiesNull(result) ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
             });
         }
@@ -348,7 +348,7 @@ public class YahooFinanceService : IYahooFinanceService
                 var items = await _retryPolicy.ExecuteAsync(async () =>
                 {
                     var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, token);
-                    var result = YahooHtmlParser.ParseETFs(document, _logger);
+                    var result = YahooHtmlParser.ParseSymbols(document, EInstrumentType.ETF, _logger);
                     return Helper.AreAllPropertiesNull(result) ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
                 });
                 result.AddRange(items.Where(e => e.Symbol != null));
@@ -376,16 +376,14 @@ public class YahooFinanceService : IYahooFinanceService
         await Task.Delay(TimeSpan.FromSeconds(1), token);
 
         var instrumentMethods = new Dictionary<EInstrumentType, Func<CancellationToken, Task<IEnumerable<SymbolInfo>>>>
-    {
-        { EInstrumentType.Stock, GetStocksAsync },
-        { EInstrumentType.ETF, GetETFsAsync },
-        { EInstrumentType.Crypto, GetCryptosAsync },
-        { EInstrumentType.Index, GetIndicesAsync },
-        { EInstrumentType.Forex, GetForexAsync }
-    };
-
-        // If type is null, process all instrument types
-        var typesToProcess = type.HasValue ? [type.Value] : instrumentMethods.Keys.ToList();
+        {
+            { EInstrumentType.Stock, GetStocksAsync },
+            { EInstrumentType.ETF, GetETFsAsync },
+            { EInstrumentType.Crypto, GetCryptosAsync },
+            { EInstrumentType.Index, GetIndicesAsync },
+            { EInstrumentType.Forex, GetForexAsync }
+        };
+        var typesToProcess = type != null ? [type.Value] : instrumentMethods.Keys.ToList(); // null => all
 
         foreach (var instrumentType in typesToProcess)
         {
@@ -399,7 +397,6 @@ public class YahooFinanceService : IYahooFinanceService
                 _logger.LogWarning(ex, "Failed to load {Type}", instrumentType);
             }
         }
-
         return !result.IsNullOrEmpty() ? result : throw new FinanceNetException("No symbols found");
     }
 }

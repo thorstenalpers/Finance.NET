@@ -110,11 +110,11 @@ public class XetraService : IXetraService
                     {
                         continue;
                     }
-                    var isin = Regex.IsMatch(item.ISIN, @"^\d+$") ?
+                    var isin = Regex.IsMatch(item.ISIN, @"^\d+$", RegexOptions.None, TimeSpan.FromSeconds(30)) ?
                         item.ProductID :
                         item.ISIN;  // bug in csv (comma in instrument names) => next column has value
 
-                    var instrumentType = Regex.IsMatch(item.InstrumentType, "^[a-zA-Z]+$") ?
+                    var instrumentType = Regex.IsMatch(item.InstrumentType, "^[a-zA-Z]+$", RegexOptions.None, TimeSpan.FromSeconds(30)) ?
                         item.InstrumentType :
                         item.TickSize1; // bug in csv (comma in instrument names) => next column has value
 
