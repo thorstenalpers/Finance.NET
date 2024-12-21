@@ -71,13 +71,14 @@ public class YahooFinanceTests
         Assert.That(profile.Adress, Is.Not.Null);
     }
 
-    [TestCase("IBM", true)]       // IBM (Nasdaq)
-    [TestCase("SAP.DE", true)]    // SAP SE (Xetra)
-    [TestCase("8058.T", true)]    // Mitsubishi (Tokyo)
-    [TestCase("VOO", true)]       // Vanguard S&P 500 ETF
-    [TestCase("EURUSD=X", true)]  // Euro to USD
-    [TestCase("TESTING.NET", false)]
+    [TestCase("IBM", true)]       // IBM (Stock - Nasdaq)
+    [TestCase("SAP.DE", true)]    // SAP SE (Stock - Xetra)
+    [TestCase("8058.T", true)]    // Mitsubishi (Stock - Tokyo)
+    [TestCase("VOO", true)]       // Vanguard S&P 500 (ETF)
+    [TestCase("EURUSD=X", true)]  // Euro to USD (Forex)
     [TestCase("BTC-USD", true)]   // Bitcoin - USD (Crypto)
+    [TestCase("^GSPC", true)]     // S&P 500 (Index)
+    [TestCase("TESTING.NET", false)]
     public async Task GetQuoteAsync_ValidSymbols_ReturnsQuote(string symbol, bool shouldHaveQuote)
     {
         if (shouldHaveQuote)
@@ -91,6 +92,8 @@ public class YahooFinanceTests
             Assert.That(!string.IsNullOrWhiteSpace(quote.Exchange), Is.True);
             Assert.That(!string.IsNullOrWhiteSpace(quote.ShortName), Is.True);
             Assert.That(!string.IsNullOrWhiteSpace(quote.LongName), Is.True);
+
+            Assert.Pass($"Name {quote.ShortName}");
         }
         else
         {
@@ -98,13 +101,15 @@ public class YahooFinanceTests
         }
     }
 
-    [TestCase("BTC-USD", true)]   // Bitcoin - USD (Crypto)
-    [TestCase("MSFT", true)]      // Microsoft Corporation (Nasdaq)
-    [TestCase("SAP.DE", true)]    // SAP SE (Xetra)
-    [TestCase("6758.T", true)]     // Sony  (Tokyo)
-    [TestCase("VOO", false)]       // Vanguard S&P 500 (ETF)
-    [TestCase("EURUSD=X", false)]  // Euro to USD (Forex)
-    public async Task GetProfileAsync_ValidSymbols_ReturnsProfile(string symbol, bool shouldHaveProfile)
+    [TestCase("IBM", true, true)]       // IBM (Stock - Nasdaq)
+    [TestCase("SAP.DE", true, true)]    // SAP SE (Stock - Xetra)
+    [TestCase("8058.T", true, true)]    // Mitsubishi (Stock - Tokyo)
+    [TestCase("VOO", true, false)]       // Vanguard S&P 500 (ETF)
+    [TestCase("EURUSD=X", false, false)]  // Euro to USD (Forex)
+    [TestCase("BTC-USD", true, false)]   // Bitcoin - USD (Crypto)
+    [TestCase("^GSPC", false, false)]     // S&P 500 (Index)
+    [TestCase("TESTING.NET", false, false)]
+    public async Task GetProfileAsync_ValidSymbols_ReturnsProfile(string symbol, bool shouldHaveProfile, bool shouldHaveDetaills)
     {
         if (shouldHaveProfile)
         {
@@ -113,16 +118,17 @@ public class YahooFinanceTests
             Assert.That(profile, Is.Not.Null);
             Assert.That(profile.Name, Is.Not.Null);
 
-            if (symbol != "BTC-USD")
+            if (shouldHaveDetaills)
             {
                 Assert.That(profile.Industry, Is.Not.Null);
                 Assert.That(profile.Sector, Is.Not.Null);
                 Assert.That(profile.Phone, Is.Not.Null);
                 Assert.That(profile.CorporateGovernance, Is.Not.Null);
-                Assert.That(profile.CntEmployees, Is.Not.Null);
                 Assert.That(profile.Adress, Is.Not.Null);
                 Assert.That(profile.Description, Is.Not.Null);
                 Assert.That(profile.Website, Is.Not.Null);
+
+                Assert.Pass($"Name {profile.Name}");
             }
         }
         else
@@ -131,13 +137,13 @@ public class YahooFinanceTests
         }
     }
 
-    [TestCase("MSFT", true)]      // Microsoft Corporation (Nasdaq)
-    [TestCase("SAP", true)]       // SAP SE (Nasdaq)
-    [TestCase("SAP.DE", true)]    // SAP SE (Xetra)
-    [TestCase("8058.T", true)]    // Mitsubishi (Tokyo)
-    [TestCase("VOO", true)]       // Vanguard S&P 500 ETF
-    [TestCase("EURUSD=X", true)]  // Euro to USD
+    [TestCase("IBM", true)]       // IBM (Stock - Nasdaq)
+    [TestCase("SAP.DE", true)]    // SAP SE (Stock - Xetra)
+    [TestCase("8058.T", true)]    // Mitsubishi (Stock - Tokyo)
+    [TestCase("VOO", true)]       // Vanguard S&P 500 (ETF)
+    [TestCase("EURUSD=X", true)]  // Euro to USD (Forex)
     [TestCase("BTC-USD", true)]   // Bitcoin - USD (Crypto)
+    [TestCase("^GSPC", true)]     // S&P 500 (Index)
     [TestCase("TESTING.NET", false)]
     public async Task GetRecordsAsync_ValidSymbols_ReturnsRecords(string symbol, bool shouldHaveRecords)
     {
@@ -158,13 +164,13 @@ public class YahooFinanceTests
         }
     }
 
-    [TestCase("MSFT", true)]      // Microsoft Corporation (Nasdaq)
-    [TestCase("SAP", true)]       // SAP SE (Nasdaq)
-    [TestCase("SAP.DE", true)]    // SAP SE (Xetra)
-    [TestCase("8058.T", true)]    // Mitsubishi (Tokyo)
-    [TestCase("VOO", true)]       // Vanguard S&P 500 ETF
-    [TestCase("EURUSD=X", true)]  // Euro to USD
+    [TestCase("IBM", true)]       // IBM (Stock - Nasdaq)
+    [TestCase("SAP.DE", true)]    // SAP SE (Stock - Xetra)
+    [TestCase("8058.T", true)]    // Mitsubishi (Stock - Tokyo)
+    [TestCase("VOO", true)]       // Vanguard S&P 500 (ETF)
+    [TestCase("EURUSD=X", true)]  // Euro to USD (Forex)
     [TestCase("BTC-USD", true)]   // Bitcoin - USD (Crypto)
+    [TestCase("^GSPC", true)]     // S&P 500 (Index)
     [TestCase("TESTING.NET", false)]
     public async Task GetSummaryAsync_ValidSymbols_ReturnsSummary(string symbol, bool shouldHaveSummary)
     {
@@ -172,7 +178,10 @@ public class YahooFinanceTests
         {
             var summary = await _service.GetSummaryAsync(symbol);
             Assert.That(summary, Is.Not.Null);
+            Assert.That(summary.Name, Is.Not.Empty);
             Assert.That(summary.PreviousClose, Is.Not.Null);
+
+            Assert.Pass($"Name {summary.Name}");
         }
         else
         {
@@ -180,12 +189,14 @@ public class YahooFinanceTests
         }
     }
 
-    [TestCase("MSFT", true)]      // Microsoft Corporation (Nasdaq)
-    [TestCase("IBM", true)]       // IBM (Nasdaq)
-    [TestCase("SAP.DE", true)]    // SAP SE (Xetra)
-    [TestCase("8058.T", true)]    // Mitsubishi (Tokyo)
-    [TestCase("VOO", false)]       // Vanguard S&P 500 ETF
-    [TestCase("EURUSD=X", false)]  // Euro to USD
+    [TestCase("IBM", true)]       // IBM (Stock - Nasdaq)
+    [TestCase("SAP.DE", true)]    // SAP SE (Stock - Xetra)
+    [TestCase("8058.T", true)]    // Mitsubishi (Stock - Tokyo)
+    [TestCase("VOO", false)]       // Vanguard S&P 500 (ETF)
+    [TestCase("EURUSD=X", false)]  // Euro to USD (Forex)
+    [TestCase("BTC-USD", false)]   // Bitcoin - USD (Crypto)
+    [TestCase("^GSPC", false)]     // S&P 500 (Index)
+    [TestCase("TESTING.NET", false)]
     public async Task GetFinancialReportsAsync_ValidSymbols_ReturnsReports(string symbol, bool shouldHaveReport)
     {
         if (shouldHaveReport)

@@ -18,7 +18,8 @@ internal static class YahooHtmlParser
 {
     public static Profile ParseProfile<T>(IHtmlDocument document, ILogger<T> logger)
     {
-        var descriptionElement = document.Body.SelectSingleNode("//section[header/h3[contains(text(), 'Description')]]/p");
+        var nameElement = document.Body.SelectSingleNode("//section/h1");
+        var descriptionElement = document.Body.SelectSingleNode("//section[header/h3[contains(text(), 'Description') or contains(text(), 'Summary')]]/p\n");
         var corporateGovernanceElements = document.Body.SelectNodes("//section[header/h3[contains(text(), 'Corporate Governance')]]/div");
         var cntEmployeesElement = document.Body.SelectSingleNode("//dt[contains(text(), 'Employees')]/following-sibling::dd");
         var industryElement = document.Body.SelectSingleNode("//dt[contains(text(), 'Industry')]/following-sibling::a");
@@ -27,7 +28,6 @@ internal static class YahooHtmlParser
         var websiteElement = document.Body.SelectSingleNode("//a[@aria-label='website link']");
         var addressElements = document.Body.SelectNodes("//div[contains(@class, 'address')]/div");
         var addressNameElement = document.Body.SelectSingleNode("//div[contains(@class, 'address')]/../../..//h3");
-        var nameElement = document.Body.SelectSingleNode("//section[contains(@data-testid, 'asset-profile')]/header/h3");
 
         var description = descriptionElement?.TextContent?.Trim();
         var corporateGovernance = corporateGovernanceElements.IsNullOrEmpty() ? null : string.Join("\n", corporateGovernanceElements.Select(div => div.TextContent.Trim()).Where(e => !string.IsNullOrWhiteSpace(e)));
@@ -39,7 +39,7 @@ internal static class YahooHtmlParser
         var addressLocation = addressElements.IsNullOrEmpty() ? null : string.Join("\n", addressElements.Select(div => div.TextContent.Trim()));
         var addressName = addressNameElement?.TextContent?.Trim();
         var address = string.IsNullOrEmpty(addressName) ? addressLocation : addressName + "\n" + addressLocation;
-        var name = nameElement?.TextContent?.Trim();
+        var name = Helper.RemoveSymbolHeader(nameElement?.TextContent?.Trim());
 
         var cntEmployeesNumber = Helper.ParseLong(cntEmployees);
 
@@ -187,9 +187,12 @@ internal static class YahooHtmlParser
 
     public static Summary ParseSummary<T>(IHtmlDocument document, ILogger<T> logger)
     {
+        var nameElement = document.Body.SelectSingleNode("//section/h1");
+        var name = Helper.RemoveSymbolHeader(nameElement?.TextContent?.Trim());
+
         var askElement = document.Body.SelectSingleNode("//li[span[contains(text(), 'Ask')]]/span[2]");
         var askStr = askElement?.TextContent?.Trim();
-        askStr = Regex.Replace(askStr, @"\s*x\s*[0-9 -]+", "", RegexOptions.None, TimeSpan.FromSeconds(30))?.Trim();  // remove "x 100" of e.g. "415.81 x 100"
+        askStr = askStr == null ? null : Regex.Replace(askStr, @"\s*x\s*[0-9 -]+", "", RegexOptions.None, TimeSpan.FromSeconds(30))?.Trim();  // remove "x 100" of e.g. "415.81 x 100"
         var ask = Helper.ParseDecimal(askStr);
 
         var avgVolumeElement = document.Body.SelectSingleNode("//li[span[contains(text(), 'Avg. Volume')]]/span[2]");
@@ -200,7 +203,7 @@ internal static class YahooHtmlParser
 
         var bidElement = document.Body.SelectSingleNode("//li[span[contains(text(), 'Bid')]]/span[2]");
         var bidStr = bidElement?.TextContent?.Trim();
-        bidStr = Regex.Replace(bidStr, @"\s*x\s*[0-9 -]+", "", RegexOptions.None, TimeSpan.FromSeconds(30))?.Trim();  // remove "x 100" of e.g. "415.81 x 100"
+        bidStr = bidStr == null ? null : Regex.Replace(bidStr, @"\s*x\s*[0-9 -]+", "", RegexOptions.None, TimeSpan.FromSeconds(30))?.Trim();  // remove "x 100" of e.g. "415.81 x 100"
         var bid = Helper.ParseDecimal(bidStr);
 
         var daysRangeElement = document.Body.SelectSingleNode("//li[span[contains(text(), 's Range')]]/span[2]");
@@ -256,6 +259,7 @@ internal static class YahooHtmlParser
 
         return new Summary
         {
+            Name = name,
             Ask = ask,
             AvgVolume = avgVolume,
             Beta_5Y_Monthly = beta_5Y_Monthly,

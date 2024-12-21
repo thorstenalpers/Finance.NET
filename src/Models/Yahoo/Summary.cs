@@ -8,6 +8,11 @@ namespace Finance.Net.Models.Yahoo;
 public record Summary
 {
     /// <summary>
+    /// Name of asset.
+    /// </summary>
+    public string? Name { get; set; }
+
+    /// <summary>
     /// A notice indicating the market's open or close time.
     /// </summary>
     public string? MarketTimeNotice { get; set; }

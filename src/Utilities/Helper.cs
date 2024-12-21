@@ -36,6 +36,12 @@ internal static class Helper
         return unixTimeMilliseconds == null ? null : DateTime.UnixEpoch.AddMilliseconds(unixTimeMilliseconds.Value).ToUniversalTime();
     }
 
+    public static string? RemoveSymbolHeader(string? str)
+    {
+        return string.IsNullOrEmpty(str) ? null : Regex.Replace(str, @"\s\([^)]+\)$", "", RegexOptions.None, TimeSpan.FromSeconds(30))?.Trim();
+    }
+
+
     public static long? ParseLong(string? numberString)
     {
         var cleanedNumber = numberString?.Replace(",", "");
