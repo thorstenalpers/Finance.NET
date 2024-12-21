@@ -3,7 +3,7 @@ using Finance.Net.Models.DatahubIo;
 
 namespace Finance.Net.Mappings;
 
-public class NasdaqInstrumentMapping : ClassMap<NasdaqInstrument>
+internal class NasdaqInstrumentMapping : ClassMap<NasdaqInstrument>
 {
     public NasdaqInstrumentMapping()
     {

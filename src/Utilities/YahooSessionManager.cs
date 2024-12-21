@@ -13,7 +13,7 @@ using Polly.Registry;
 
 namespace Finance.Net.Utilities;
 
-public class YahooSessionManager(ILogger<YahooSessionManager> logger,
+internal class YahooSessionManager(ILogger<YahooSessionManager> logger,
     IHttpClientFactory httpClientFactory,
     IYahooSessionState sessionState,
     IReadOnlyPolicyRegistry<string> policyRegistry) : IYahooSessionManager
@@ -86,6 +86,7 @@ public class YahooSessionManager(ILogger<YahooSessionManager> logger,
         var requestMessage = new HttpRequestMessage(HttpMethod.Get, Constants.YahooBaseUrlCrumbApi.ToLowerInvariant());
         var cookieHeader = response.Headers.GetValues("Set-Cookie").FirstOrDefault();
         requestMessage.Headers.Add("Cookie", cookieHeader);
+        await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
 
         response = await httpClient.SendAsync(requestMessage, token).ConfigureAwait(false);
         var crumb = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -160,6 +161,7 @@ public class YahooSessionManager(ILogger<YahooSessionManager> logger,
         // finalize
         response = await httpClient.GetAsync(Constants.YahooBaseUrlHtml, token);
         response.EnsureSuccessStatusCode();
+        await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
         if (_sessionState.GetCookieContainer()?.Count < 3)
         {
             throw new FinanceNetException($"Unable to get ui cookies, cnt={_sessionState.GetCookieContainer()?.Count}");

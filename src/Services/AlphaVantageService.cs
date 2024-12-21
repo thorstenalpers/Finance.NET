@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Ardalis.GuardClauses;
+using Finance.Net.Enums;
 using Finance.Net.Exceptions;
 using Finance.Net.Extensions;
 using Finance.Net.Interfaces;
@@ -21,6 +22,7 @@ using Polly.Registry;
 
 namespace Finance.Net.Services;
 
+/// <inheritdoc />
 public class AlphaVantageService(ILogger<AlphaVantageService> logger,
   IHttpClientFactory httpClientFactory,
   IOptions<FinanceNetConfiguration> options,
@@ -57,7 +59,8 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
         return s_serviceProvider.GetRequiredService<IAlphaVantageService>();
     }
 
-    public async Task<CompanyOverview?> GetCompanyOverviewAsync(string symbol, CancellationToken token = default)
+    /// <inheritdoc />
+    public async Task<Profile?> GetProfileAsync(string symbol, CancellationToken token = default)
     {
         var httpClient = _httpClientFactory.CreateClient(Constants.AlphaVantageHttpClientName);
         var url = Constants.AlphaVantageApiUrl + "/query?function=OVERVIEW" +
@@ -78,7 +81,7 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
                 }
                 else
                 {
-                    var overview = JsonConvert.DeserializeObject<CompanyOverview>(jsonResponse);
+                    var overview = JsonConvert.DeserializeObject<Profile>(jsonResponse);
                     var isNullObj = Helper.AreAllPropertiesNull(overview);
                     return isNullObj ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : overview;
                 }
@@ -90,7 +93,8 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
         }
     }
 
-    public async Task<IEnumerable<HistoryRecord>> GetHistoryRecordsAsync(string symbol, DateTime startDate, DateTime? endDate = null, CancellationToken token = default)
+    /// <inheritdoc />
+    public async Task<IEnumerable<Record>> GetRecordsAsync(string symbol, DateTime startDate, DateTime? endDate = null, CancellationToken token = default)
     {
         var httpClient = _httpClientFactory.CreateClient(Constants.AlphaVantageHttpClientName);
         var url = Constants.AlphaVantageApiUrl + "/query?function=TIME_SERIES_DAILY_ADJUSTED" +
@@ -100,18 +104,16 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
         {
             throw new FinanceNetException("startDate earlier than endDate");
         }
-
         endDate ??= DateTime.UtcNow;
         if (endDate.Value.Date >= DateTime.UtcNow.Date)
         {
             endDate = DateTime.UtcNow.Date;
         }
-
         try
         {
             return await _retryPolicy.ExecuteAsync(async () =>
             {
-                var result = new List<HistoryRecord>();
+                var result = new List<Record>();
 
                 var jsonResponse = await Helper.FetchJsonDocumentAsync(httpClient, _logger, url, token);
                 if (jsonResponse.Contains(Constants.YahooResponseApiLimitExceeded))
@@ -128,7 +130,7 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
         }
     }
 
-    private void ParseHistoryRecords(string symbol, DateTime startDate, DateTime? endDate, List<HistoryRecord> result, string jsonResponse)
+    private void ParseHistoryRecords(string symbol, DateTime startDate, DateTime? endDate, List<Record> result, string jsonResponse)
     {
         var data = JsonConvert.DeserializeObject<DailyRecordRoot>(jsonResponse);
         if (data?.TimeSeries == null)
@@ -137,7 +139,7 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
         }
         foreach (var item in data.TimeSeries)
         {
-            var today = item.Key;
+            var today = item.Key.Date;
             if (today > endDate || today < startDate || today > endDate)
             {
                 continue;
@@ -148,7 +150,7 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
             }
             else
             {
-                result.Add(new HistoryRecord
+                result.Add(new Record
                 {
                     Date = today,
                     Open = item.Value.Open,
@@ -163,10 +165,11 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
         }
     }
 
-    public async Task<IEnumerable<HistoryIntradayRecord>> GetHistoryIntradayRecordsAsync(string symbol, DateTime startDate, DateTime? endDate = null, EInterval interval = EInterval.Interval_15Min, CancellationToken token = default)
+    /// <inheritdoc />
+    public async Task<IEnumerable<IntradayRecord>> GetIntradayRecordsAsync(string symbol, DateTime startDate, DateTime? endDate = null, EInterval interval = EInterval.Interval_15Min, CancellationToken token = default)
     {
         Guard.Against.NullOrEmpty(symbol);
-        var result = new List<HistoryIntradayRecord>();
+        var result = new List<IntradayRecord>();
         if (startDate > endDate)
         {
             throw new FinanceNetException("startDate earlier than endDate");
@@ -195,7 +198,7 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
             : result.Where(e => e.DateTime >= startDate).ToList();
     }
 
-    private async Task<List<HistoryIntradayRecord>> GetIntradayRecordsByMonthAsync(string symbol, DateTime month, EInterval interval, CancellationToken token = default)
+    private async Task<List<IntradayRecord>> GetIntradayRecordsByMonthAsync(string symbol, DateTime month, EInterval interval, CancellationToken token = default)
     {
         var httpClient = _httpClientFactory.CreateClient(Constants.AlphaVantageHttpClientName);
         var url = Constants.AlphaVantageApiUrl + "/query?function=TIME_SERIES_INTRADAY" +
@@ -210,7 +213,7 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
         {
             return await _retryPolicy.ExecuteAsync(async () =>
             {
-                var result = new List<HistoryIntradayRecord>();
+                var result = new List<IntradayRecord>();
                 var response = await httpClient.GetAsync(url, token).ConfigureAwait(false);
                 response.EnsureSuccessStatusCode();
 
@@ -229,7 +232,7 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
         }
     }
 
-    private static void ParseHistoryIntradayRecords(string symbol, EInterval interval, List<HistoryIntradayRecord> result, string jsonResponse)
+    private static void ParseHistoryIntradayRecords(string symbol, EInterval interval, List<IntradayRecord> result, string jsonResponse)
     {
         var data = JsonConvert.DeserializeObject<IntradayRecordRoot>(jsonResponse);
 
@@ -252,7 +255,7 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
 
             var dateTime = DateTime.ParseExact(dateTimeString, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
 
-            result.Add(new HistoryIntradayRecord
+            result.Add(new IntradayRecord
             {
                 DateOnly = date,
                 DateTime = dateTime,
@@ -267,7 +270,8 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
         }
     }
 
-    public async Task<IEnumerable<HistoryForexRecord>> GetHistoryForexRecordsAsync(string currency1, string currency2, DateTime startDate, DateTime? endDate = null, CancellationToken token = default)
+    /// <inheritdoc />
+    public async Task<IEnumerable<ForexRecord>> GetForexRecordsAsync(string currency1, string currency2, DateTime startDate, DateTime? endDate = null, CancellationToken token = default)
     {
         var httpClient = _httpClientFactory.CreateClient(Constants.AlphaVantageHttpClientName);
         Guard.Against.NullOrEmpty(currency1);
@@ -289,7 +293,7 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
         {
             return await _retryPolicy.ExecuteAsync(async () =>
             {
-                var result = new List<HistoryForexRecord>();
+                var result = new List<ForexRecord>();
 
                 var jsonResponse = await Helper.FetchJsonDocumentAsync(httpClient, _logger, url, token);
                 if (jsonResponse.Contains(Constants.YahooResponseApiLimitExceeded))
@@ -306,7 +310,7 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
         }
     }
 
-    private void ParseHistoryForexRecords(string currency1, string currency2, DateTime startDate, DateTime? endDate, List<HistoryForexRecord> result, string jsonResponse)
+    private void ParseHistoryForexRecords(string currency1, string currency2, DateTime startDate, DateTime? endDate, List<ForexRecord> result, string jsonResponse)
     {
         var data = JsonConvert.DeserializeObject<DailyForexRecordRoot>(jsonResponse);
         if (data?.TimeSeries == null)
@@ -326,7 +330,7 @@ public class AlphaVantageService(ILogger<AlphaVantageService> logger,
             }
             else
             {
-                result.Add(new HistoryForexRecord
+                result.Add(new ForexRecord
                 {
                     Date = item.Key,
                     Open = item.Value.Open,

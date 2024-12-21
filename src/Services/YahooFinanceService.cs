@@ -2,14 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Reflection;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using AngleSharp.Dom;
-using AngleSharp.Html.Dom;
-using AngleSharp.XPath;
 using AutoMapper;
+using Finance.Net.Enums;
 using Finance.Net.Exceptions;
 using Finance.Net.Extensions;
 using Finance.Net.Interfaces;
@@ -25,6 +21,7 @@ using Polly.Registry;
 
 namespace Finance.Net.Services;
 
+/// <inheritdoc />
 public class YahooFinanceService : IYahooFinanceService
 {
     private readonly ILogger<YahooFinanceService> _logger;
@@ -34,6 +31,7 @@ public class YahooFinanceService : IYahooFinanceService
     private static ServiceProvider? s_staticServiceProvider;
     private readonly AsyncPolicy _retryPolicy;
 
+    /// <inheritdoc />
     public YahooFinanceService(
         ILogger<YahooFinanceService> logger,
         IHttpClientFactory httpClientFactory,
@@ -75,12 +73,14 @@ public class YahooFinanceService : IYahooFinanceService
         return s_staticServiceProvider.GetRequiredService<IYahooFinanceService>();
     }
 
+    /// <inheritdoc />
     public async Task<Quote> GetQuoteAsync(string symbol, CancellationToken token = default)
     {
         var symbols = await GetQuotesAsync([symbol], token);
         return symbols.FirstOrDefault(e => e.Symbol == symbol);
     }
 
+    /// <inheritdoc />
     public async Task<IEnumerable<Quote>> GetQuotesAsync(List<string> symbols, CancellationToken token = default)
     {
         await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
@@ -127,6 +127,7 @@ public class YahooFinanceService : IYahooFinanceService
         }
     }
 
+    /// <inheritdoc />
     public async Task<Models.Yahoo.Profile> GetProfileAsync(string symbol, CancellationToken token = default)
     {
         await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
@@ -138,8 +139,7 @@ public class YahooFinanceService : IYahooFinanceService
             return await _retryPolicy.ExecuteAsync(async () =>
             {
                 var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, token);
-
-                var result = ParseProfile(document);
+                var result = YahooHtmlParser.ParseProfile(document, _logger);
                 return Helper.AreAllPropertiesNull(result) ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
             });
         }
@@ -149,45 +149,8 @@ public class YahooFinanceService : IYahooFinanceService
         }
     }
 
-    private static Models.Yahoo.Profile ParseProfile(IHtmlDocument document)
-    {
-        var descriptionElement = document.Body.SelectSingleNode("//section[header/h3[contains(text(), 'Description')]]/p");
-        var corporateGovernanceElements = document.Body.SelectNodes("//section[header/h3[contains(text(), 'Corporate Governance')]]/div");
-        var cntEmployeesElement = document.Body.SelectSingleNode("//dt[contains(text(), 'Employees')]/following-sibling::dd");
-        var industryElement = document.Body.SelectSingleNode("//dt[contains(text(), 'Industry')]/following-sibling::a");
-        var sectorElement = document.Body.SelectSingleNode("//dt[contains(text(), 'Sector')]/following-sibling::dd/a");
-        var phoneElement = document.Body.SelectSingleNode("//a[@aria-label='phone number']");
-        var websiteElement = document.Body.SelectSingleNode("//a[@aria-label='website link']");
-        var addressElements = document.Body.SelectNodes("//div[contains(@class, 'address')]/div");
-        var addressNameElement = document.Body.SelectSingleNode("//div[contains(@class, 'address')]/../../..//h3");
-
-        var description = descriptionElement?.TextContent?.Trim();
-        var corporateGovernance = corporateGovernanceElements.IsNullOrEmpty() ? null : string.Join("\n", corporateGovernanceElements.Select(div => div.TextContent.Trim()).Where(e => !string.IsNullOrWhiteSpace(e)));
-        var cntEmployees = cntEmployeesElement?.TextContent?.Replace(",", "").Replace("-", "")?.Trim();
-        var industry = industryElement?.TextContent?.Trim();
-        var sector = sectorElement?.TextContent?.Trim();
-        var phone = phoneElement?.TextContent;
-        var website = websiteElement?.TextContent?.Trim();
-        var addressLocation = addressElements.IsNullOrEmpty() ? null : string.Join("\n", addressElements.Select(div => div.TextContent.Trim()));
-        var addressName = addressNameElement?.TextContent?.Trim();
-        var address = string.IsNullOrEmpty(addressName) ? addressLocation : addressName + "\n" + addressLocation;
-        var cntEmployeesNumber = Helper.ParseLong(cntEmployees);
-
-        var result = new Models.Yahoo.Profile
-        {
-            Description = description,
-            CorporateGovernance = corporateGovernance,
-            CntEmployees = cntEmployeesNumber,
-            Industry = industry,
-            Sector = sector,
-            Adress = address,
-            Phone = phone,
-            Website = website
-        };
-        return result;
-    }
-
-    public async Task<IEnumerable<HistoryRecord>> GetHistoryRecordsAsync(string symbol, DateTime startDate, DateTime? endDate = null, CancellationToken token = default)
+    /// <inheritdoc />
+    public async Task<IEnumerable<HistoryRecord>> GetRecordsAsync(string symbol, DateTime startDate, DateTime? endDate = null, CancellationToken token = default)
     {
         await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
         var httpClient = _httpClientFactory.CreateClient(Constants.YahooHttpClientName);
@@ -204,10 +167,8 @@ public class YahooFinanceService : IYahooFinanceService
         {
             return await _retryPolicy.ExecuteAsync(async () =>
             {
-                var records = new List<HistoryRecord>();
                 var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, token);
-
-                ParseHistoryRecords(records, document);
+                var records = YahooHtmlParser.ParseHistoryRecords(document, _logger);
                 return records.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : records;
             });
         }
@@ -217,74 +178,7 @@ public class YahooFinanceService : IYahooFinanceService
         }
     }
 
-    private void ParseHistoryRecords(List<HistoryRecord> records, IHtmlDocument document)
-    {
-        var expectedHeaderSet = new HashSet<string>(["Date", "Open", "High", "Low", "Close", "Adj Close", "Volume"]);
-        var headerMap = new Dictionary<string, int>();
-
-        var table = document.QuerySelector("table.table") ?? throw new FinanceNetException("No records found");
-        var headers = table.QuerySelectorAll("thead th")
-              .Select(th =>
-              {
-                  th.QuerySelectorAll("span").ToList().ForEach(span => span.Remove());
-                  return th.TextContent.Trim();
-              })
-              .ToList();
-        for (var i = 0; i < headers.Count; i++)
-        {
-            headerMap[headers[i]] = i;
-        }
-        if (!expectedHeaderSet.IsSubsetOf(headerMap.Keys))
-        {
-            throw new FinanceNetException("Headers are missing");
-        }
-
-        foreach (var row in table.QuerySelectorAll("tbody tr"))
-        {
-            var cells = row.QuerySelectorAll("td").Select(td => td.TextContent.Trim()).ToArray();
-
-            if (cells.Length == 7)
-            {
-                var dateString = cells[headerMap["Date"]];
-                var openString = cells[headerMap["Open"]];
-                var highString = cells[headerMap["High"]];
-                var lowString = cells[headerMap["Low"]];
-                var closeString = cells[headerMap["Close"]];
-                var adjCloseString = cells[headerMap["Adj Close"]];
-                var volumeString = cells[headerMap["Volume"]];
-
-                var date = Helper.ParseDate(dateString);
-                var open = Helper.ParseDecimal(openString);
-                var high = Helper.ParseDecimal(highString);
-                var low = Helper.ParseDecimal(lowString);
-                var close = Helper.ParseDecimal(closeString);
-                var adjClose = Helper.ParseDecimal(adjCloseString);
-                var volume = Helper.ParseLong(volumeString);
-
-                if (date == null)
-                {
-                    _logger.LogWarning("invalid date {DateString}", dateString);
-                    continue;
-                }
-
-                records.Add(new HistoryRecord
-                {
-                    Date = date.Value,
-                    Open = open,
-                    High = high,
-                    Low = low,
-                    Close = close,
-                    AdjustedClose = adjClose,
-                    Volume = volume
-                });
-            }
-            else
-            {
-                _logger.LogInformation("No records in row {Row}", row.TextContent);    // e.g. date + dividend (over all columns)
-            }
-        }
-    }
-
+    /// <inheritdoc />
     public async Task<Dictionary<string, FinancialReport>> GetFinancialReportsAsync(string symbol, CancellationToken token = default)
     {
         await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
@@ -295,10 +189,8 @@ public class YahooFinanceService : IYahooFinanceService
         {
             return await _retryPolicy.ExecuteAsync(async () =>
             {
-                var result = new Dictionary<string, FinancialReport>();
                 var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, token);
-
-                ParseFinancialReports(url, result, document);
+                var result = YahooHtmlParser.ParseFinancialReports(document, _logger);
                 return result.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
             });
         }
@@ -308,56 +200,7 @@ public class YahooFinanceService : IYahooFinanceService
         }
     }
 
-    private void ParseFinancialReports(string url, Dictionary<string, FinancialReport> result, IHtmlDocument document)
-    {
-        var headers = document
-            .Body.SelectNodes("//div[contains(@class, 'tableHeader')]//div[contains(@class, 'column')]")
-            .Select(header => header.TextContent.Trim())
-            .Where(e => e != "Breakdown")
-            .ToList();
-
-        headers.RemoveAll(e => e.Contains(" - "));// remove commercial column
-        foreach (var header in headers)
-        {
-            result.Add(header, new FinancialReport());
-        }
-
-        var rows = document
-            .Body.SelectNodes("//div[contains(@class, 'tableBody')]//div[contains(@class, 'row ')]")
-            .ToList();
-
-        foreach (var row in rows)
-        {
-            var columns = row.ChildNodes.QuerySelectorAll("div.column").Select(e => e.TextContent.Trim()).ToList();
-
-            if (columns.Count != headers.Count + 1)
-            {
-                throw new FinanceNetException($"Unknown table format of {url} html");
-            }
-
-            var rowTitle = columns[0];
-            var values = columns.Skip(1).Select(Helper.ParseDecimal).ToList();
-
-            var propertyName = rowTitle.Replace(" ", "").Replace("&", "And");
-            var propertyInfo = typeof(FinancialReport).GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-
-            if (propertyInfo != null)
-            {
-                for (var i = 0; i < headers.Count; i++)
-                {
-                    var header = headers[i];
-                    var value = values[i];
-                    var report = result[header];
-                    propertyInfo.SetValue(report, value);
-                }
-            }
-            else
-            {
-                _logger.LogWarning("Unknown row property {RowTitle}.", rowTitle);
-            }
-        }
-    }
-
+    /// <inheritdoc />
     public async Task<Summary> GetSummaryAsync(string symbol, CancellationToken token = default)
     {
         await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
@@ -369,8 +212,7 @@ public class YahooFinanceService : IYahooFinanceService
             return await _retryPolicy.ExecuteAsync(async () =>
             {
                 var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, token);
-
-                var result = ParseSummary(document);
+                var result = YahooHtmlParser.ParseSummary(document, _logger);
                 return Helper.AreAllPropertiesNull(result) ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
             });
         }
@@ -380,92 +222,220 @@ public class YahooFinanceService : IYahooFinanceService
         }
     }
 
-    private static Summary ParseSummary(IHtmlDocument document)
+    private async Task<IEnumerable<SymbolInfo>> GetCryptosAsync(CancellationToken token = default)
     {
-        var askElement = document.Body.SelectSingleNode("//li[span[contains(text(), 'Ask')]]/span[2]");
-        var askStr = askElement?.TextContent?.Trim();
-        askStr = Regex.Replace(askStr, @"\s*x\s*[0-9 -]+", "", RegexOptions.None, TimeSpan.FromSeconds(30))?.Trim();  // remove "x 100" of e.g. "415.81 x 100"
-        var ask = Helper.ParseDecimal(askStr);
-
-        var avgVolumeElement = document.Body.SelectSingleNode("//li[span[contains(text(), 'Avg. Volume')]]/span[2]");
-        var avgVolume = Helper.ParseDecimal(avgVolumeElement?.TextContent?.Trim());
-
-        var beta_5Y_MonthlyElement = document.Body.SelectSingleNode("//li[span[contains(text(), 'Beta (5Y Monthly)')]]/span[2]");
-        var beta_5Y_Monthly = Helper.ParseDecimal(beta_5Y_MonthlyElement?.TextContent?.Trim());
-
-        var bidElement = document.Body.SelectSingleNode("//li[span[contains(text(), 'Bid')]]/span[2]");
-        var bidStr = bidElement?.TextContent?.Trim();
-        bidStr = Regex.Replace(bidStr, @"\s*x\s*[0-9 -]+", "", RegexOptions.None, TimeSpan.FromSeconds(30))?.Trim();  // remove "x 100" of e.g. "415.81 x 100"
-        var bid = Helper.ParseDecimal(bidStr);
-
-        var daysRangeElement = document.Body.SelectSingleNode("//li[span[contains(text(), 's Range')]]/span[2]");
-        var daysRange = daysRangeElement?.TextContent?.Trim()?.Split(" - ");
-        var daysRange_Min = daysRange?.Length == 2 ? Helper.ParseDecimal(daysRange.FirstOrDefault()) : null;
-        var daysRange_Max = daysRange?.Length == 2 ? Helper.ParseDecimal(daysRange.LastOrDefault()) : null;
-
-        var earningsDateElement = document.Body.SelectSingleNode("//li[span[contains(text(), 'Earnings Date')]]/span[2]");
-        var earningsDateStr = earningsDateElement?.TextContent?.Trim()?.Split(" - ");
-        var earningsDate = earningsDateStr == null || earningsDateStr.Length == 0 ? null : Helper.ParseDate(earningsDateStr.FirstOrDefault());
-
-        var ePS_TTMElement = document.Body.SelectSingleNode("//li[span[contains(text(), 'EPS (TTM)')]]/span[2]");
-        var ePS_TTM = Helper.ParseDecimal(ePS_TTMElement?.TextContent?.Trim());
-
-        var ex_DividendDateElement = document.Body.SelectSingleNode("//li[span[contains(text(), 'Ex-Dividend Date')]]/span[2]");
-        var ex_DividendDate = Helper.ParseDate(ex_DividendDateElement?.TextContent?.Trim());
-
-        var forward_DividendAndYieldElement = document.Body.SelectSingleNode("//li[span[contains(text(), 'Forward Dividend & Yield')]]/span[2]");
-        var dividentAndYield = forward_DividendAndYieldElement?.TextContent?.Trim().Split(" ")?.Select(e => e.Replace("(", "").Replace(")", "").Replace("%", ""));
-        var forward_Dividend = dividentAndYield?.Count() == 2 ? Helper.ParseDecimal(dividentAndYield.FirstOrDefault()) : null;
-        var forward_Yield = dividentAndYield?.Count() == 2 ? Helper.ParseDecimal(dividentAndYield.LastOrDefault()) : null;
-
-        var marketCap_IntradayElement = document.Body.SelectSingleNode("//li[span[contains(text(), 'Market Cap (intraday)')]]/span[2]");
-        var marketCap_Intraday = Helper.ParseDecimal(marketCap_IntradayElement?.TextContent?.Trim());
-
-        var marketTimeNoticeElement = document.Body.SelectSingleNode("//div[@slot='marketTimeNotice']");
-        var marketTimeNotice = marketTimeNoticeElement?.TextContent?.Trim();
-
-        var oneYearTargetEstElement = document.Body.SelectSingleNode("//li[span[contains(text(), '1y Target Est')]]/span[2]");
-        var oneYearTargetEst = Helper.ParseDecimal(oneYearTargetEstElement?.TextContent?.Trim());
-
-        var openElement = document.Body.SelectSingleNode("//li[span[contains(text(), 'Open')]]/span[2]");
-        var open = Helper.ParseDecimal(openElement?.TextContent?.Trim());
-
-        var pE_Ratio_TTMElement = document.Body.SelectSingleNode("//li[span[contains(text(), 'PE Ratio (TTM)')]]/span[2]");
-        var pE_Ratio_TTM = Helper.ParseDecimal(pE_Ratio_TTMElement?.TextContent?.Trim());
-
-        var previousCloseElement = document.Body.SelectSingleNode("//li[span[contains(text(), 'Previous Close')]]/span[2]");
-        var previousClose = Helper.ParseDecimal(previousCloseElement?.TextContent?.Trim());
-
-        var volumeElement = document.Body.SelectSingleNode("//li[span[contains(text(), 'Volume')]]/span[2]");
-        var volume = Helper.ParseDecimal(volumeElement?.TextContent?.Trim());
-
-        var weekRange52Element = document.Body.SelectSingleNode("//li[span[contains(text(), '52 Week Range')]]/span[2]");
-        var weekRange52 = weekRange52Element?.TextContent?.Trim()?.Split(" - ");
-        var weekRange52_Min = weekRange52?.Length == 2 ? Helper.ParseDecimal(weekRange52.FirstOrDefault()) : null;
-        var weekRange52_Max = weekRange52?.Length == 2 ? Helper.ParseDecimal(weekRange52.LastOrDefault()) : null;
-
-        return new Summary
+        var result = new List<SymbolInfo>();
+        await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
+        var httpClient = _httpClientFactory.CreateClient(Constants.YahooHttpClientName);
+        var baseUrl = $"{Constants.YahooBaseUrlHtml}/markets/crypto/all/".ToLowerInvariant();
+        try
         {
-            Ask = ask,
-            AvgVolume = avgVolume,
-            Beta_5Y_Monthly = beta_5Y_Monthly,
-            Bid = bid,
-            DaysRange_Max = daysRange_Max,
-            DaysRange_Min = daysRange_Min,
-            EarningsDate = earningsDate,
-            EPS_TTM = ePS_TTM,
-            Ex_DividendDate = ex_DividendDate,
-            Forward_Dividend = forward_Dividend,
-            Forward_Yield = forward_Yield,
-            MarketCap_Intraday = marketCap_Intraday,
-            MarketTimeNotice = marketTimeNotice,
-            OneYearTargetEst = oneYearTargetEst,
-            Open = open,
-            PE_Ratio_TTM = pE_Ratio_TTM,
-            PreviousClose = previousClose,
-            Volume = volume,
-            WeekRange52_Max = weekRange52_Max,
-            WeekRange52_Min = weekRange52_Min
-        };
+            for (var i = 0; i < 100; i++)
+            {
+                var url = $"{baseUrl}?start={i * 100}&count={100}".ToLowerInvariant();
+                var items = await _retryPolicy.ExecuteAsync(async () =>
+                {
+                    var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, token);
+                    var result = YahooHtmlParser.ParseCryptos(document, _logger);
+                    return Helper.AreAllPropertiesNull(result) ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
+                });
+                result.AddRange(items.Where(e => e.Symbol != null));
+                result = result
+                    .GroupBy(stock => stock.Symbol)
+                    .Select(group => group.First())
+                    .ToList();
+                if (items.Count < 100)
+                {
+                    return result;
+                }
+            }
+            return result;
+        }
+        catch (Exception ex)
+        {
+            return !result.IsNullOrEmpty() ? (IEnumerable<SymbolInfo>)result : throw new FinanceNetException("No cryptos found", ex);
+        }
+    }
+
+    private async Task<IEnumerable<SymbolInfo>> GetStocksAsync(CancellationToken token = default)
+    {
+        var result = new List<SymbolInfo>();
+        await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
+        var httpClient = _httpClientFactory.CreateClient(Constants.YahooHttpClientName);
+        var baseUrl = $"{Constants.YahooBaseUrlHtml}/markets/stocks/most-active/".ToLowerInvariant();
+        try
+        {
+            for (var i = 0; i < 100; i++)
+            {
+                var url = $"{baseUrl}?start={i * 100}&count={100}".ToLowerInvariant();
+                var items = await _retryPolicy.ExecuteAsync(async () =>
+                {
+                    var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, token);
+                    var result = YahooHtmlParser.ParseStocks(document, _logger);
+                    return Helper.AreAllPropertiesNull(result) ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
+                });
+                result.AddRange(items.Where(e => e.Symbol != null));
+                result = result
+                    .GroupBy(stock => stock.Symbol)
+                    .Select(group => group.First())
+                    .ToList();
+                if (items.Count < 100)
+                {
+                    return result;
+                }
+            }
+            return result;
+        }
+        catch (Exception ex)
+        {
+            return !result.IsNullOrEmpty() ? (IEnumerable<SymbolInfo>)result : throw new FinanceNetException("No stocks found", ex);
+        }
+    }
+
+    private async Task<IEnumerable<SymbolInfo>> GetForexAsync(CancellationToken token = default)
+    {
+        await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
+        var httpClient = _httpClientFactory.CreateClient(Constants.YahooHttpClientName);
+        var url = $"{Constants.YahooBaseUrlHtml}/markets/currencies/".ToLowerInvariant();
+
+        try
+        {
+            return await _retryPolicy.ExecuteAsync(async () =>
+            {
+                var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, token);
+                var result = YahooHtmlParser.ParseForex(document, _logger);
+                return Helper.AreAllPropertiesNull(result) ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
+            });
+        }
+        catch (Exception ex)
+        {
+            throw new FinanceNetException("No currencies found", ex);
+        }
+    }
+
+    private async Task<IEnumerable<SymbolInfo>> GetIndicesAsync(CancellationToken token = default)
+    {
+        await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
+        var httpClient = _httpClientFactory.CreateClient(Constants.YahooHttpClientName);
+        var url = $"{Constants.YahooBaseUrlHtml}/markets/world-indices/".ToLowerInvariant();
+
+        try
+        {
+            return await _retryPolicy.ExecuteAsync(async () =>
+            {
+                var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, token);
+                var result = YahooHtmlParser.ParseIndices(document, _logger);
+                return Helper.AreAllPropertiesNull(result) ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
+            });
+        }
+        catch (Exception ex)
+        {
+            throw new FinanceNetException("No World Indices found", ex);
+        }
+    }
+
+    private async Task<IEnumerable<SymbolInfo>> GetETFsAsync(CancellationToken token = default)
+    {
+        var result = new List<SymbolInfo>();
+        await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
+        var httpClient = _httpClientFactory.CreateClient(Constants.YahooHttpClientName);
+        var baseUrl = $"{Constants.YahooBaseUrlHtml}/markets/etfs/most-active/".ToLowerInvariant();
+        try
+        {
+            for (var i = 0; i < 100; i++)
+            {
+                var url = $"{baseUrl}?start={i * 100}&count={100}".ToLowerInvariant();
+                var items = await _retryPolicy.ExecuteAsync(async () =>
+                {
+                    var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, token);
+                    var result = YahooHtmlParser.ParseETFs(document, _logger);
+                    return Helper.AreAllPropertiesNull(result) ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
+                });
+                result.AddRange(items.Where(e => e.Symbol != null));
+                result = result
+                    .GroupBy(stock => stock.Symbol)
+                    .Select(group => group.First())
+                    .ToList();
+                if (items.Count < 100)
+                {
+                    return result;
+                }
+            }
+            return result;
+        }
+        catch (Exception ex)
+        {
+            return !result.IsNullOrEmpty() ? (IEnumerable<SymbolInfo>)result : throw new FinanceNetException("No ETFs found", ex);
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task<IEnumerable<SymbolInfo>> GetSymbolsAsync(EInstrumentType? type = null, CancellationToken token = default)
+    {
+        var result = new List<SymbolInfo>();
+        await Task.Delay(TimeSpan.FromSeconds(1), token);
+
+        if (type == null || type == EInstrumentType.Stock)
+        {
+            try
+            {
+                var symbols = await GetStocksAsync(token);
+                result.AddRange(symbols);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning("failed to load {Type} {Exception}", EInstrumentType.Stock, ex);
+            }
+        }
+        if (type == null || type == EInstrumentType.ETF)
+        {
+            try
+            {
+                var symbols = await GetETFsAsync(token);
+                result.AddRange(symbols);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning("failed to load {Type} {Exception}", EInstrumentType.ETF, ex);
+            }
+        }
+        if (type == null || type == EInstrumentType.Crypto)
+        {
+            try
+            {
+                var symbols = await GetCryptosAsync(token);
+                result.AddRange(symbols);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning("failed to load {Type} {Exception}", EInstrumentType.Crypto, ex);
+            }
+        }
+        if (type == null || type == EInstrumentType.Index)
+        {
+            try
+            {
+                var symbols = await GetIndicesAsync(token);
+                result.AddRange(symbols);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning("failed to load {Type} {Exception}", EInstrumentType.Index, ex);
+            }
+        }
+        if (type == null || type == EInstrumentType.Forex)
+        {
+            try
+            {
+                var symbols = await GetForexAsync(token);
+                result.AddRange(symbols);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning("failed to load {Type} {Exception}", EInstrumentType.Forex, ex);
+            }
+        }
+
+        return result.IsNullOrEmpty() ? throw new FinanceNetException("No cryptos found") : (IEnumerable<SymbolInfo>)result;
     }
 }

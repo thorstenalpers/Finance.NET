@@ -10,12 +10,12 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using AngleSharp.Html.Dom;
-using Finance.Net.Models.AlphaVantage;
+using Finance.Net.Enums;
 using Microsoft.Extensions.Logging;
 
 namespace Finance.Net.Utilities;
 
-public static class Helper
+internal static class Helper
 {
     public static bool IsNullOrEmpty<T>(this IEnumerable<T> list)
     {
@@ -24,12 +24,7 @@ public static class Helper
 
     public static long? ToUnixTime(DateTime? dateTime)
     {
-        if (dateTime == null)
-        {
-            return null;
-        }
-
-        return (long)(dateTime.Value - DateTime.UnixEpoch).TotalSeconds;
+        return dateTime == null ? null : (long)(dateTime.Value - DateTime.UnixEpoch).TotalSeconds;
     }
 
     public static DateTime? UnixToDateTime(long? unixTimeSeconds)
@@ -38,12 +33,7 @@ public static class Helper
     }
     public static DateTime? UnixMillisecsToDate(long? unixTimeMilliseconds)
     {
-        if (unixTimeMilliseconds == null)
-        {
-            return null;
-        }
-
-        return DateTime.UnixEpoch.AddMilliseconds(unixTimeMilliseconds.Value).ToUniversalTime();
+        return unixTimeMilliseconds == null ? null : DateTime.UnixEpoch.AddMilliseconds(unixTimeMilliseconds.Value).ToUniversalTime();
     }
 
     public static long? ParseLong(string? numberString)
@@ -132,7 +122,11 @@ public static class Helper
     public static string GetDescription(this EInterval value)
     {
         var field = value.GetType().GetField(value.ToString());
-        if (field == null) return "";
+        if (field == null)
+        {
+            return "";
+        }
+
         var attribute = (DescriptionAttribute)Attribute.GetCustomAttribute(field, typeof(DescriptionAttribute));
         return attribute.Description;
     }

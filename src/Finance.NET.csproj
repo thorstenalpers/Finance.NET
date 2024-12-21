@@ -9,9 +9,10 @@
 	<EnableNETAnalyzers>True</EnableNETAnalyzers>
 	<EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
 	<LangVersion>latest</LangVersion>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
     <PackageId>Finance.NET</PackageId>
-	<Version>0.0.1</Version>
+	<Version>0.0.2</Version>
 	<Authors>Thorsten Alpers</Authors>
 	<Owners>Thorsten Alpers</Owners>
 	<Description>Access publicly available financial data from Yahoo Finance and other sources.</Description>

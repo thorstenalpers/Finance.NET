@@ -3,7 +3,7 @@ using Finance.Net.Models.Xetra.Dto;
 
 namespace Finance.Net.Mappings;
 
-public class XetraInstrumentsMapping : ClassMap<InstrumentItem>
+internal class XetraInstrumentsMapping : ClassMap<InstrumentItem>
 {
     public XetraInstrumentsMapping()
     {

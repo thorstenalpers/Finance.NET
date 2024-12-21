@@ -1,18 +1,22 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
 namespace Finance.Net;
+
+/// <summary>
+/// Configure Finance.NET
+/// </summary>
 public class FinanceNetConfiguration
 {
     /// <summary> Default retries for failed http requests (caused by rate limits) </summary>
-    [Required] public int HttpRetryCount { get; set; } = 3;
+    [Required] public int HttpRetryCount { get; set; } = 10;
 
     /// <summary> Default HTTP timeout in seconds </summary>
-    [Required] public int HttpTimeout { get; set; } = 30;
+    [Required] public int HttpTimeout { get; set; } = 20;
 
     /// <summary> Interval in hours for renewing cookies </summary>
     [Required] public int YahooCookieExpirationTime { get; set; } = 6;
 
-    /// <summary> Download URL of DataHubIo S&P500 listed symbols </summary>
+    /// <summary> Download URL of DataHubIo S&amp;P500 listed symbols </summary>
     [Required] public string DatahubIoDownloadUrlSP500Symbols { get; set; } = "https://raw.githubusercontent.com/datasets/s-and-p-500-companies-financials/refs/heads/main/data/constituents-financials.csv";
 
     /// <summary> Download URL of DataHubIo nasdaq listed symbols </summary>

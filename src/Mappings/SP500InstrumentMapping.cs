@@ -3,7 +3,7 @@ using Finance.Net.Models.DatahubIo;
 
 namespace Finance.Net.Mappings;
 
-public class SP500InstrumentMapping : ClassMap<SP500Instrument>
+internal class SP500InstrumentMapping : ClassMap<SP500Instrument>
 {
     public SP500InstrumentMapping()
     {

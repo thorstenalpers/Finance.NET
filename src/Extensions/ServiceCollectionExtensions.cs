@@ -10,6 +10,9 @@ using Polly.Registry;
 
 namespace Finance.Net.Extensions;
 
+/// <summary>
+/// Service Collection Extensions
+/// </summary>
 public static class ServiceCollectionExtensions
 {
     /// <summary>
@@ -40,13 +43,13 @@ public static class ServiceCollectionExtensions
 
         services.AddSingleton<IReadOnlyPolicyRegistry<string>, PolicyRegistry>(serviceProvider =>
         {
-            var logger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger(Constants.DefaultHttpRetryPolicy);
             var options = serviceProvider.GetRequiredService<IOptions<FinanceNetConfiguration>>();
+            var logger = serviceProvider.GetService<ILogger<PollyPolicy>>();
 
             return new PolicyRegistry
             {
                 {
-                    Constants.DefaultHttpRetryPolicy, PollyPolicyFactory.GetRetryPolicy(options.Value.HttpRetryCount, logger)
+                    Constants.DefaultHttpRetryPolicy, PollyPolicyFactory.GetRetryPolicy(options.Value.HttpRetryCount, options.Value.HttpTimeout, logger)
                 }
             };
         });

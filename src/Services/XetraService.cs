@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using AngleSharp.XPath;
@@ -25,6 +26,7 @@ using Polly.Registry;
 
 namespace Finance.Net.Services;
 
+/// <inheritdoc />
 public class XetraService : IXetraService
 {
     private readonly ILogger<XetraService> _logger;
@@ -34,6 +36,7 @@ public class XetraService : IXetraService
     private static ServiceProvider? s_serviceProvider;
     private readonly AsyncPolicy _retryPolicy;
 
+    /// <inheritdoc />
     public XetraService(ILogger<XetraService> logger,
                         IHttpClientFactory httpClientFactory,
                         IOptions<FinanceNetConfiguration> options,
@@ -74,6 +77,7 @@ public class XetraService : IXetraService
         return s_serviceProvider.GetRequiredService<IXetraService>();
     }
 
+    /// <inheritdoc />
     public async Task<IEnumerable<Instrument>> GetInstruments(CancellationToken token = default)
     {
         var httpClient = _httpClientFactory.CreateClient(Constants.XetraHttpClientName);
@@ -98,7 +102,28 @@ public class XetraService : IXetraService
                 var records = csv.GetRecords<InstrumentItem>().ToList();
 
                 var instruments = _mapper.Map<List<Instrument>>(records);
-                return instruments.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : instruments;
+                var result = new List<Instrument>();
+                foreach (var item in instruments)
+                {
+                    var mnemonic = item.Mnemonic;
+                    if (string.IsNullOrWhiteSpace(mnemonic))
+                    {
+                        continue;
+                    }
+                    var isin = Regex.IsMatch(item.ISIN, @"^\d+$") ?
+                        item.ProductID :
+                        item.ISIN;  // bug in csv (comma in instrument names) => next column has value
+
+                    var instrumentType = Regex.IsMatch(item.InstrumentType, "^[a-zA-Z]+$") ?
+                        item.InstrumentType :
+                        item.TickSize1; // bug in csv (comma in instrument names) => next column has value
+
+                    item.InstrumentType = instrumentType;
+                    item.ISIN = isin;
+
+                    result.Add(item);
+                }
+                return result.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
             });
         }
         catch (Exception ex)

@@ -21,7 +21,8 @@ using Polly.Registry;
 
 namespace Finance.Net.Services;
 
-internal class DatahubIoService(IHttpClientFactory httpClientFactory,
+/// <inheritdoc />
+public class DatahubIoService(IHttpClientFactory httpClientFactory,
                                 IOptions<FinanceNetConfiguration> options,
                                 IReadOnlyPolicyRegistry<string> policyRegistry) : IDatahubIoService
 {
@@ -55,6 +56,7 @@ internal class DatahubIoService(IHttpClientFactory httpClientFactory,
         return s_serviceProvider.GetRequiredService<IDatahubIoService>();
     }
 
+    /// <inheritdoc />
     public async Task<IEnumerable<NasdaqInstrument>> GetNasdaqInstrumentsAsync(CancellationToken token = default)
     {
         var httpClient = _httpClientFactory.CreateClient(Constants.DatahubIoHttpClientName);
@@ -79,6 +81,7 @@ internal class DatahubIoService(IHttpClientFactory httpClientFactory,
         }
     }
 
+    /// <inheritdoc />
     public async Task<IEnumerable<SP500Instrument>> GetSP500InstrumentsAsync(CancellationToken token = default)
     {
         var httpClient = _httpClientFactory.CreateClient(Constants.DatahubIoHttpClientName);

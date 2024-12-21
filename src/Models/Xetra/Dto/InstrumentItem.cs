@@ -1,5 +1,5 @@
 ﻿namespace Finance.Net.Models.Xetra.Dto;
-public record InstrumentItem
+internal record InstrumentItem
 {
     public string? ProductStatus { get; set; }
     public string? InstrumentStatus { get; set; }
