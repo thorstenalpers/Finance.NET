@@ -105,9 +105,9 @@ public class YahooFinanceTests
     [TestCase("SAP.DE", true, true)]    // SAP SE (Stock - Xetra)
     [TestCase("8058.T", true, true)]    // Mitsubishi (Stock - Tokyo)
     [TestCase("VOO", true, false)]       // Vanguard S&P 500 (ETF)
-    [TestCase("EURUSD=X", false, false)]  // Euro to USD (Forex)
+    [TestCase("EURUSD=X", true, false)]  // Euro to USD (Forex)
     [TestCase("BTC-USD", true, false)]   // Bitcoin - USD (Crypto)
-    [TestCase("^GSPC", false, false)]     // S&P 500 (Index)
+    [TestCase("^GSPC", true, false)]     // S&P 500 (Index)
     [TestCase("TESTING.NET", false, false)]
     public async Task GetProfileAsync_ValidSymbols_ReturnsProfile(string symbol, bool shouldHaveProfile, bool shouldHaveDetaills)
     {
