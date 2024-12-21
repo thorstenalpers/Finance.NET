@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Finance.Net.Enums;
 using Finance.Net.Exceptions;
 using Finance.Net.Interfaces;
 using Finance.Net.Services;
@@ -29,11 +30,29 @@ public class YahooFinanceTests
         Task.Delay(TimeSpan.FromSeconds(2)).GetAwaiter().GetResult(); // 2 secs between runs
     }
 
+    [TestCase(EInstrumentType.Index, 20)]
+    [TestCase(EInstrumentType.Stock, 100)]
+    [TestCase(EInstrumentType.ETF, 200)]
+    [TestCase(EInstrumentType.Forex, 20)]
+    [TestCase(EInstrumentType.Crypto, 200)]
+    [TestCase(null, 500)]
+    public async Task GetSymbolsAsync_Success(EInstrumentType? type, int expectedCnt)
+    {
+        var symbols = await _service.GetSymbolsAsync(type);
+
+        Assert.That(symbols, Is.Not.Empty);
+        Assert.That(symbols.Count, Is.GreaterThanOrEqualTo(expectedCnt));
+        Assert.That(symbols.All(e => !string.IsNullOrEmpty(e.Symbol)));
+        Assert.That(symbols.Any(e => e.InstrumentType != null));
+
+        Assert.Pass($"cnt {symbols.Count()}");
+    }
+
     [Test]
-    public async Task GetHistoryRecordsAsync_WithDividend_Success()
+    public async Task GetRecordsAsync_WithDividend_Success()
     {
         var startDate = new DateTime(2020, 01, 01, 0, 0, 0, DateTimeKind.Utc);
-        var records = await _service.GetHistoryRecordsAsync("SAP.DE", startDate);
+        var records = await _service.GetRecordsAsync("SAP.DE", startDate);
 
         Assert.That(records, Is.Not.Empty);
 
@@ -52,13 +71,13 @@ public class YahooFinanceTests
         Assert.That(profile.Adress, Is.Not.Null);
     }
 
-    [TestCase("MSFT", true)]      // Microsoft Corporation (Nasdaq)
     [TestCase("IBM", true)]       // IBM (Nasdaq)
     [TestCase("SAP.DE", true)]    // SAP SE (Xetra)
     [TestCase("8058.T", true)]    // Mitsubishi (Tokyo)
     [TestCase("VOO", true)]       // Vanguard S&P 500 ETF
     [TestCase("EURUSD=X", true)]  // Euro to USD
     [TestCase("TESTING.NET", false)]
+    [TestCase("BTC-USD", true)]   // Bitcoin - USD (Crypto)
     public async Task GetQuoteAsync_ValidSymbols_ReturnsQuote(string symbol, bool shouldHaveQuote)
     {
         if (shouldHaveQuote)
@@ -79,12 +98,12 @@ public class YahooFinanceTests
         }
     }
 
+    [TestCase("BTC-USD", true)]   // Bitcoin - USD (Crypto)
     [TestCase("MSFT", true)]      // Microsoft Corporation (Nasdaq)
-    [TestCase("SAP", true)]       // SAP SE (Nasdaq)
     [TestCase("SAP.DE", true)]    // SAP SE (Xetra)
     [TestCase("6758.T", true)]     // Sony  (Tokyo)
-    [TestCase("VOO", false)]       // Vanguard S&P 500 ETF
-    [TestCase("EURUSD=X", false)]  // Euro to USD
+    [TestCase("VOO", false)]       // Vanguard S&P 500 (ETF)
+    [TestCase("EURUSD=X", false)]  // Euro to USD (Forex)
     public async Task GetProfileAsync_ValidSymbols_ReturnsProfile(string symbol, bool shouldHaveProfile)
     {
         if (shouldHaveProfile)
@@ -92,14 +111,19 @@ public class YahooFinanceTests
             var profile = await _service.GetProfileAsync(symbol);
 
             Assert.That(profile, Is.Not.Null);
-            Assert.That(profile.Industry, Is.Not.Null);
-            Assert.That(profile.Sector, Is.Not.Null);
-            Assert.That(profile.Phone, Is.Not.Null);
-            Assert.That(profile.CorporateGovernance, Is.Not.Null);
-            Assert.That(profile.CntEmployees, Is.Not.Null);
-            Assert.That(profile.Adress, Is.Not.Null);
-            Assert.That(profile.Description, Is.Not.Null);
-            Assert.That(profile.Website, Is.Not.Null);
+            Assert.That(profile.Name, Is.Not.Null);
+
+            if (symbol != "BTC-USD")
+            {
+                Assert.That(profile.Industry, Is.Not.Null);
+                Assert.That(profile.Sector, Is.Not.Null);
+                Assert.That(profile.Phone, Is.Not.Null);
+                Assert.That(profile.CorporateGovernance, Is.Not.Null);
+                Assert.That(profile.CntEmployees, Is.Not.Null);
+                Assert.That(profile.Adress, Is.Not.Null);
+                Assert.That(profile.Description, Is.Not.Null);
+                Assert.That(profile.Website, Is.Not.Null);
+            }
         }
         else
         {
@@ -113,13 +137,14 @@ public class YahooFinanceTests
     [TestCase("8058.T", true)]    // Mitsubishi (Tokyo)
     [TestCase("VOO", true)]       // Vanguard S&P 500 ETF
     [TestCase("EURUSD=X", true)]  // Euro to USD
+    [TestCase("BTC-USD", true)]   // Bitcoin - USD (Crypto)
     [TestCase("TESTING.NET", false)]
-    public async Task GetHistoryRecordsAsync_ValidSymbols_ReturnsRecords(string symbol, bool shouldHaveRecords)
+    public async Task GetRecordsAsync_ValidSymbols_ReturnsRecords(string symbol, bool shouldHaveRecords)
     {
         var startDate = DateTime.UtcNow.AddDays(-7);
         if (shouldHaveRecords)
         {
-            var records = await _service.GetHistoryRecordsAsync(symbol, startDate);
+            var records = await _service.GetRecordsAsync(symbol, startDate);
 
             Assert.That(records, Is.Not.Empty);
 
@@ -129,7 +154,7 @@ public class YahooFinanceTests
         }
         else
         {
-            Assert.ThrowsAsync<FinanceNetException>(async () => await _service.GetHistoryRecordsAsync(symbol, startDate));
+            Assert.ThrowsAsync<FinanceNetException>(async () => await _service.GetRecordsAsync(symbol, startDate));
         }
     }
 
@@ -139,6 +164,7 @@ public class YahooFinanceTests
     [TestCase("8058.T", true)]    // Mitsubishi (Tokyo)
     [TestCase("VOO", true)]       // Vanguard S&P 500 ETF
     [TestCase("EURUSD=X", true)]  // Euro to USD
+    [TestCase("BTC-USD", true)]   // Bitcoin - USD (Crypto)
     [TestCase("TESTING.NET", false)]
     public async Task GetSummaryAsync_ValidSymbols_ReturnsSummary(string symbol, bool shouldHaveSummary)
     {

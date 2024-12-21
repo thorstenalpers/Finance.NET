@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Finance.Net.Enums;
 using Finance.Net.Exceptions;
 using Finance.Net.Services;
 using Microsoft.Extensions.Logging;
@@ -106,7 +107,7 @@ public class AlphaVantageServiceTests
             _mockPolicyRegistry.Object);
 
         // Act
-        var result = await service.GetCompanyOverviewAsync("IBM");
+        var result = await service.GetProfileAsync("IBM");
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -129,7 +130,7 @@ public class AlphaVantageServiceTests
             _mockPolicyRegistry.Object);
 
         // Act
-        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetCompanyOverviewAsync("IBM"));
+        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetProfileAsync("IBM"));
     }
 
     [Test]
@@ -142,7 +143,7 @@ public class AlphaVantageServiceTests
             _mockPolicyRegistry.Object);
 
         // Act
-        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetCompanyOverviewAsync("IBM"));
+        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetProfileAsync("IBM"));
     }
 
     [Test]
@@ -160,7 +161,7 @@ public class AlphaVantageServiceTests
         var startDate = new DateTime(2024, 01, 01);
 
         // Act
-        var result = await service.GetHistoryRecordsAsync("IBM", startDate);
+        var result = await service.GetRecordsAsync("IBM", startDate);
 
         // Assert
         Assert.That(result, Is.Not.Empty);
@@ -184,7 +185,7 @@ public class AlphaVantageServiceTests
         var startDate = new DateTime(2024, 01, 01);
 
         // Act
-        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetHistoryRecordsAsync("IBM", startDate));
+        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetRecordsAsync("IBM", startDate));
     }
 
 
@@ -201,7 +202,7 @@ public class AlphaVantageServiceTests
         var endDate = new DateTime(2024, 01, 01);
 
         // Act
-        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetHistoryRecordsAsync("IBM", startDate, endDate));
+        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetRecordsAsync("IBM", startDate, endDate));
     }
 
     [Test]
@@ -221,7 +222,7 @@ public class AlphaVantageServiceTests
             _mockPolicyRegistry.Object);
 
         // Act
-        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetHistoryRecordsAsync("IBM", startDate));
+        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetRecordsAsync("IBM", startDate));
     }
 
     [Test]
@@ -239,7 +240,7 @@ public class AlphaVantageServiceTests
         var startDate = new DateTime(2024, 01, 01);
 
         // Act
-        var result = await service.GetHistoryIntradayRecordsAsync("IBM", startDate, null, Models.AlphaVantage.EInterval.Interval_5Min);
+        var result = await service.GetIntradayRecordsAsync("IBM", startDate, null, EInterval.Interval_5Min);
 
         // Assert
         Assert.That(result, Is.Not.Empty);
@@ -259,7 +260,7 @@ public class AlphaVantageServiceTests
         var startDate = new DateTime(2024, 01, 01);
 
         // Act
-        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetHistoryIntradayRecordsAsync("IBM", startDate));
+        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetIntradayRecordsAsync("IBM", startDate));
     }
 
     [Test]
@@ -279,7 +280,7 @@ public class AlphaVantageServiceTests
             _mockPolicyRegistry.Object);
 
         // Act
-        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetHistoryIntradayRecordsAsync("IBM", startDate));
+        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetIntradayRecordsAsync("IBM", startDate));
     }
 
     [Test]
@@ -295,7 +296,7 @@ public class AlphaVantageServiceTests
         var endDate = new DateTime(2024, 01, 01);
 
         // Act
-        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetHistoryIntradayRecordsAsync("IBM", startDate, endDate));
+        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetIntradayRecordsAsync("IBM", startDate, endDate));
     }
 
     [Test]
@@ -312,10 +313,10 @@ public class AlphaVantageServiceTests
 
         var startDate = new DateTime(2024, 01, 01);
         var endDate = new DateTime(2024, 02, 01);
-        var interval = (Models.AlphaVantage.EInterval)100;
+        var interval = (EInterval)100;
 
         // Act
-        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetHistoryIntradayRecordsAsync("IBM", startDate, endDate, interval));
+        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetIntradayRecordsAsync("IBM", startDate, endDate, interval));
     }
 
     [Test]
@@ -333,7 +334,7 @@ public class AlphaVantageServiceTests
         var startDate = new DateTime(2024, 11, 01);
 
         // Act
-        var result = await service.GetHistoryForexRecordsAsync("EUR", "USD", startDate);
+        var result = await service.GetForexRecordsAsync("EUR", "USD", startDate);
 
         // Assert
         Assert.That(result, Is.Not.Empty);
@@ -356,7 +357,7 @@ public class AlphaVantageServiceTests
         var startDate = new DateTime(2024, 11, 01);
 
         // Act
-        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetHistoryForexRecordsAsync("EUR", "USD", startDate));
+        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetForexRecordsAsync("EUR", "USD", startDate));
     }
 
     [Test]
@@ -376,7 +377,7 @@ public class AlphaVantageServiceTests
             _mockPolicyRegistry.Object);
 
         // Act
-        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetHistoryForexRecordsAsync("EUR", "USD", startDate));
+        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetForexRecordsAsync("EUR", "USD", startDate));
     }
 
 
@@ -393,7 +394,7 @@ public class AlphaVantageServiceTests
         var endDate = new DateTime(2024, 01, 01);
 
         // Act
-        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetHistoryForexRecordsAsync("EUR", "USD", startDate, endDate));
+        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetForexRecordsAsync("EUR", "USD", startDate, endDate));
     }
 
     private void SetupHttpJsonFileResponse(string filePath)

@@ -1,5 +1,5 @@
 ﻿using System;
-using Finance.Net.Models.AlphaVantage;
+using Finance.Net.Enums;
 using Finance.Net.Models.Yahoo.Dtos;
 using Finance.Net.Utilities;
 using NUnit.Framework;

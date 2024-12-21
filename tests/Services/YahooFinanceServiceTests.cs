@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Finance.Net.Enums;
 using Finance.Net.Exceptions;
 using Finance.Net.Interfaces;
 using Finance.Net.Services;
@@ -258,7 +259,7 @@ public class YahooFinanceServiceTests
         DateTime startDate = default;
 
         // Act
-        var result = await service.GetHistoryRecordsAsync("IBM", startDate);
+        var result = await service.GetRecordsAsync("IBM", startDate);
 
         // Assert
         Assert.That(result, Is.Not.Empty);
@@ -281,7 +282,7 @@ public class YahooFinanceServiceTests
         DateTime startDate = default;
 
         // Act
-        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetHistoryRecordsAsync("IBM", startDate));
+        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetRecordsAsync("IBM", startDate));
     }
 
     [Test]
@@ -385,6 +386,66 @@ public class YahooFinanceServiceTests
         Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetSummaryAsync("IBM"));
     }
 
+    [Test]
+    public void GetSymbolsAsync_NoResponse_Throws()
+    {
+        // Arrange		
+        var service = new YahooFinanceService(
+            _mockLogger.Object,
+            _mockHttpClientFactory.Object,
+            _mockPolicyRegistry.Object,
+            _mockYahooSession.Object);
+
+        // Act
+        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetSymbolsAsync());
+    }
+
+    [TestCase(EInstrumentType.Index, 41)]
+    [TestCase(EInstrumentType.Stock, 25)]
+    [TestCase(EInstrumentType.ETF, 25)]
+    [TestCase(EInstrumentType.Forex, 23)]
+    [TestCase(EInstrumentType.Crypto, 25)]
+    [TestCase(null, 139)]
+    public async Task GetSymbolsAsync_WithResponse_ReturnsResult(EInstrumentType? type, int expectedCnt)
+    {
+        // Arrange
+        var filePathIndex = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Yahoo", "symbols_indices.html");
+        var filePathStocks = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Yahoo", "symbols_stocks.html");
+        var filePathEtfs = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Yahoo", "symbols_etfs.html");
+        var filePathForex = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Yahoo", "symbols_forex.html");
+        var filePathCryptos = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Yahoo", "symbols_cryptos.html");
+
+        if (type == null)
+        {
+            SetupHttpHtmlFileResponses([filePathStocks, filePathEtfs, filePathCryptos, filePathIndex, filePathForex]);
+        }
+        else
+        {
+            var filePath = type switch
+            {
+                EInstrumentType.Index => filePathIndex,
+                EInstrumentType.Stock => filePathStocks,
+                EInstrumentType.ETF => filePathEtfs,
+                EInstrumentType.Forex => filePathForex,
+                EInstrumentType.Crypto => filePathCryptos,
+                _ => throw new NotImplementedException(),
+            };
+            SetupHttpHtmlFileResponse(filePath);
+        }
+
+        var service = new YahooFinanceService(
+            _mockLogger.Object,
+            _mockHttpClientFactory.Object,
+            _mockPolicyRegistry.Object,
+            _mockYahooSession.Object);
+
+        // Act
+        var result = await service.GetSymbolsAsync(type);
+
+        // Assert
+        Assert.That(result.Count(), Is.EqualTo(expectedCnt));
+    }
+
     private void SetupHttpHtmlFileResponse(string filePath)
     {
         var jsonContent = File.ReadAllText(filePath);
@@ -399,6 +460,30 @@ public class YahooFinanceServiceTests
                     { "Set-Cookie", "\"A3=d=AQABBIPiUmcCEKLS0S2dxFEvSY2wq0BTJc4FEgEBAQE0VGdcZ-AMyiMA_eMAAA&S=AQAAAueeOka9YBgG-7Z2662G2t0; Expires=Mo, 10 Dec 2040 17:39:47 GMT; Max-Age=99931557600; Domain=.yahoo.com; Path=/; SameSite=None; Secure; HttpOnly\"" } // Add custom headers here
                             }
             });
+        _mockHttpClientFactory.Setup(e => e.CreateClient(It.IsAny<string>())).Returns(new HttpClient(_mockHandler.Object));
+    }
+
+    private void SetupHttpHtmlFileResponses(List<string> filePaths)
+    {
+        var setupSequence = _mockHandler
+        .Protected()
+        .SetupSequence<Task<HttpResponseMessage>>(
+            "SendAsync",
+            ItExpr.IsAny<HttpRequestMessage>(),
+            ItExpr.IsAny<CancellationToken>()
+        );
+
+        foreach (var filePath in filePaths)
+        {
+            setupSequence = setupSequence.ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(File.ReadAllText(filePath), Encoding.UTF8, "text/html"),
+                Headers =
+            {
+                { "Set-Cookie", "\"A3=d=AQABBIPiUmcCEKLS0S2dxFEvSY2wq0BTJc4FEgEBAQE0VGdcZ-AMyiMA_eMAAA&S=AQAAAueeOka9YBgG-7Z2662G2t0; Expires=Mo, 10 Dec 2040 17:39:47 GMT; Max-Age=99931557600; Domain=.yahoo.com; Path=/; SameSite=None; Secure; HttpOnly\"" }
+            }
+            });
+        }
         _mockHttpClientFactory.Setup(e => e.CreateClient(It.IsAny<string>())).Returns(new HttpClient(_mockHandler.Object));
     }
 

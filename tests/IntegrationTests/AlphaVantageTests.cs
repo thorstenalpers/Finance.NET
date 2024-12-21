@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Finance.Net.Enums;
 using Finance.Net.Exceptions;
 using Finance.Net.Interfaces;
 using Finance.Net.Services;
@@ -33,7 +34,7 @@ public class AlphaVantageTests
             AlphaVantageApiKey = cfg.Value.AlphaVantageApiKey
         });
 
-        var overview = await service.GetCompanyOverviewAsync("SAP");
+        var overview = await service.GetProfileAsync("SAP");
         Assert.That(overview, Is.Not.Null);
         Assert.That(overview.Symbol, Is.EqualTo("SAP"));
     }
@@ -46,13 +47,13 @@ public class AlphaVantageTests
     {
         if (shouldHave)
         {
-            var overview = await _service.GetCompanyOverviewAsync(symbol);
+            var overview = await _service.GetProfileAsync(symbol);
             Assert.That(overview, Is.Not.Null);
             Assert.That(overview.Symbol, Is.EqualTo(symbol));
         }
         else
         {
-            Assert.ThrowsAsync<FinanceNetException>(async () => await _service.GetCompanyOverviewAsync(symbol));
+            Assert.ThrowsAsync<FinanceNetException>(async () => await _service.GetProfileAsync(symbol));
         }
     }
 
@@ -65,35 +66,35 @@ public class AlphaVantageTests
     {
         if (shouldHave)
         {
-            var records = await _service.GetHistoryRecordsAsync(symbol, DateTime.UtcNow.AddDays(-7));
+            var records = await _service.GetRecordsAsync(symbol, DateTime.UtcNow.AddDays(-7));
 
             Assert.That(records, Is.Not.Empty);
         }
         else
         {
-            Assert.ThrowsAsync<FinanceNetException>(async () => await _service.GetHistoryRecordsAsync(symbol, DateTime.UtcNow.AddDays(-7)));
+            Assert.ThrowsAsync<FinanceNetException>(async () => await _service.GetRecordsAsync(symbol, DateTime.UtcNow.AddDays(-7)));
         }
     }
 
-    [TestCase("MSFT", Models.AlphaVantage.EInterval.Interval_15Min, true)]      // Microsoft Corporation (Nasdaq)
-    [TestCase("SAP", Models.AlphaVantage.EInterval.Interval_1Min, true)]       // SAP SE (Nasdaq)
-    [TestCase("SAP", Models.AlphaVantage.EInterval.Interval_5Min, true)]       // SAP SE (Nasdaq)
-    [TestCase("SAP", Models.AlphaVantage.EInterval.Interval_15Min, true)]       // SAP SE (Nasdaq)
-    [TestCase("SAP", Models.AlphaVantage.EInterval.Interval_30Min, true)]       // SAP SE (Nasdaq)
-    [TestCase("SAP", Models.AlphaVantage.EInterval.Interval_60Min, true)]       // SAP SE (Nasdaq)
-    [TestCase("TESTING.NET", Models.AlphaVantage.EInterval.Interval_15Min, false)]
-    public async Task GetHistoryIntradayRecordsAsync_ValidSymbols_ReturnsRecords(string symbol, Models.AlphaVantage.EInterval eInterval, bool shouldHave)
+    [TestCase("MSFT", EInterval.Interval_15Min, true)]      // Microsoft Corporation (Nasdaq)
+    [TestCase("SAP", EInterval.Interval_1Min, true)]       // SAP SE (Nasdaq)
+    [TestCase("SAP", EInterval.Interval_5Min, true)]       // SAP SE (Nasdaq)
+    [TestCase("SAP", EInterval.Interval_15Min, true)]       // SAP SE (Nasdaq)
+    [TestCase("SAP", EInterval.Interval_30Min, true)]       // SAP SE (Nasdaq)
+    [TestCase("SAP", EInterval.Interval_60Min, true)]       // SAP SE (Nasdaq)
+    [TestCase("TESTING.NET", EInterval.Interval_15Min, false)]
+    public async Task GetHistoryIntradayRecordsAsync_ValidSymbols_ReturnsRecords(string symbol, EInterval eInterval, bool shouldHave)
     {
         var startDay = new DateTime(2024, 12, 02, 0, 0, 0, DateTimeKind.Utc);
         var endDay = new DateTime(2024, 12, 02, 0, 0, 0, DateTimeKind.Utc);
         if (shouldHave)
         {
-            var records = await _service.GetHistoryIntradayRecordsAsync(symbol, startDay, endDay, eInterval);
+            var records = await _service.GetIntradayRecordsAsync(symbol, startDay, endDay, eInterval);
             Assert.That(records, Is.Not.Empty);
         }
         else
         {
-            Assert.ThrowsAsync<FinanceNetException>(async () => await _service.GetHistoryIntradayRecordsAsync(symbol, startDay, endDay, eInterval));
+            Assert.ThrowsAsync<FinanceNetException>(async () => await _service.GetIntradayRecordsAsync(symbol, startDay, endDay, eInterval));
         }
     }
 
@@ -103,12 +104,12 @@ public class AlphaVantageTests
     {
         if (shouldHave)
         {
-            var records = await _service.GetHistoryForexRecordsAsync(currency1, currency2, DateTime.UtcNow.AddDays(-3));
+            var records = await _service.GetForexRecordsAsync(currency1, currency2, DateTime.UtcNow.AddDays(-3));
             Assert.That(records, Is.Not.Empty);
         }
         else
         {
-            Assert.ThrowsAsync<FinanceNetException>(async () => await _service.GetHistoryForexRecordsAsync(currency1, currency2, DateTime.UtcNow.AddDays(-3)));
+            Assert.ThrowsAsync<FinanceNetException>(async () => await _service.GetForexRecordsAsync(currency1, currency2, DateTime.UtcNow.AddDays(-3)));
         }
     }
 }

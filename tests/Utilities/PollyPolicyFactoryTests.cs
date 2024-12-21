@@ -26,10 +26,9 @@ public class PollyPolicyFactoryTests
     {
         // Arrange
         const int retryCount = 1;
-        ILogger logger = null;
 
         // Act
-        var policy = PollyPolicyFactory.GetRetryPolicy(retryCount, logger);
+        var policy = PollyPolicyFactory.GetRetryPolicy<PollyPolicyFactoryTests>(retryCount, 1, null);
 
         var result = await policy.ExecuteAsync(() => Task.FromResult(100));
 
@@ -42,7 +41,7 @@ public class PollyPolicyFactoryTests
     {
         // Arrange + Act
         const int retryCount = 3;
-        var policy = PollyPolicyFactory.GetRetryPolicy(retryCount, _mockLogger.Object);
+        var policy = PollyPolicyFactory.GetRetryPolicy(retryCount, 1, _mockLogger.Object);
 
         // Assert
         Assert.ThrowsAsync<FinanceNetException>(async () => await policy.ExecuteAsync<int>(() => throw new FinanceNetException("Message")));
@@ -80,7 +79,7 @@ public class PollyPolicyFactoryTests
     {
         // Arrange + Act
         const int retryCount = 3;
-        var policy = PollyPolicyFactory.GetRetryPolicy(retryCount, null);
+        var policy = PollyPolicyFactory.GetRetryPolicy<PollyPolicyFactoryTests>(retryCount, 1, null);
 
         // Assert
         Assert.ThrowsAsync<FinanceNetException>(async () => await policy.ExecuteAsync<int>(() => throw new FinanceNetException("Message")));
