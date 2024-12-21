@@ -222,153 +222,6 @@ public class YahooFinanceService : IYahooFinanceService
         }
     }
 
-    private async Task<IEnumerable<SymbolInfo>> GetCryptosAsync(CancellationToken token = default)
-    {
-        var result = new List<SymbolInfo>();
-        await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
-        var httpClient = _httpClientFactory.CreateClient(Constants.YahooHttpClientName);
-        var baseUrl = $"{Constants.YahooBaseUrlHtml}/markets/crypto/all/".ToLowerInvariant();
-        try
-        {
-            for (var i = 0; i < 100; i++)
-            {
-                var url = $"{baseUrl}?start={i * 100}&count={100}".ToLowerInvariant();
-                var items = await _retryPolicy.ExecuteAsync(async () =>
-                {
-                    var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, token);
-                    var result = YahooHtmlParser.ParseSymbols(document, EInstrumentType.Crypto, _logger);
-                    return Helper.AreAllPropertiesNull(result) ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
-                });
-                result.AddRange(items.Where(e => e.Symbol != null));
-                result = result
-                    .GroupBy(stock => stock.Symbol)
-                    .Select(group => group.First())
-                    .ToList();
-                if (items.Count < 100)
-                {
-                    return result;
-                }
-            }
-            return result;
-        }
-        catch (Exception ex)
-        {
-            return !result.IsNullOrEmpty() ? (IEnumerable<SymbolInfo>)result : throw new FinanceNetException("No cryptos found", ex);
-        }
-    }
-
-    private async Task<IEnumerable<SymbolInfo>> GetStocksAsync(CancellationToken token = default)
-    {
-        var result = new List<SymbolInfo>();
-        await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
-        var httpClient = _httpClientFactory.CreateClient(Constants.YahooHttpClientName);
-        var baseUrl = $"{Constants.YahooBaseUrlHtml}/markets/stocks/most-active/".ToLowerInvariant();
-        try
-        {
-            for (var i = 0; i < 100; i++)
-            {
-                var url = $"{baseUrl}?start={i * 100}&count={100}".ToLowerInvariant();
-                var items = await _retryPolicy.ExecuteAsync(async () =>
-                {
-                    var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, token);
-                    var result = YahooHtmlParser.ParseSymbols(document, EInstrumentType.Stock, _logger);
-                    return Helper.AreAllPropertiesNull(result) ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
-                });
-                result.AddRange(items.Where(e => e.Symbol != null));
-                result = result
-                    .GroupBy(stock => stock.Symbol)
-                    .Select(group => group.First())
-                    .ToList();
-                if (items.Count < 100)
-                {
-                    return result;
-                }
-            }
-            return result;
-        }
-        catch (Exception ex)
-        {
-            return !result.IsNullOrEmpty() ? (IEnumerable<SymbolInfo>)result : throw new FinanceNetException("No stocks found", ex);
-        }
-    }
-
-    private async Task<IEnumerable<SymbolInfo>> GetForexAsync(CancellationToken token = default)
-    {
-        await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
-        var httpClient = _httpClientFactory.CreateClient(Constants.YahooHttpClientName);
-        var url = $"{Constants.YahooBaseUrlHtml}/markets/currencies/".ToLowerInvariant();
-
-        try
-        {
-            return await _retryPolicy.ExecuteAsync(async () =>
-            {
-                var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, token);
-                var result = YahooHtmlParser.ParseSymbols(document, EInstrumentType.Forex, _logger);
-                return Helper.AreAllPropertiesNull(result) ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
-            });
-        }
-        catch (Exception ex)
-        {
-            throw new FinanceNetException("No currencies found", ex);
-        }
-    }
-
-    private async Task<IEnumerable<SymbolInfo>> GetIndicesAsync(CancellationToken token = default)
-    {
-        await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
-        var httpClient = _httpClientFactory.CreateClient(Constants.YahooHttpClientName);
-        var url = $"{Constants.YahooBaseUrlHtml}/markets/world-indices/".ToLowerInvariant();
-
-        try
-        {
-            return await _retryPolicy.ExecuteAsync(async () =>
-            {
-                var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, token);
-                var result = YahooHtmlParser.ParseSymbols(document, EInstrumentType.Index, _logger);
-                return Helper.AreAllPropertiesNull(result) ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
-            });
-        }
-        catch (Exception ex)
-        {
-            throw new FinanceNetException("No World Indices found", ex);
-        }
-    }
-
-    private async Task<IEnumerable<SymbolInfo>> GetETFsAsync(CancellationToken token = default)
-    {
-        var result = new List<SymbolInfo>();
-        await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
-        var httpClient = _httpClientFactory.CreateClient(Constants.YahooHttpClientName);
-        var baseUrl = $"{Constants.YahooBaseUrlHtml}/markets/etfs/most-active/".ToLowerInvariant();
-        try
-        {
-            for (var i = 0; i < 100; i++)
-            {
-                var url = $"{baseUrl}?start={i * 100}&count={100}".ToLowerInvariant();
-                var items = await _retryPolicy.ExecuteAsync(async () =>
-                {
-                    var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, token);
-                    var result = YahooHtmlParser.ParseSymbols(document, EInstrumentType.ETF, _logger);
-                    return Helper.AreAllPropertiesNull(result) ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
-                });
-                result.AddRange(items.Where(e => e.Symbol != null));
-                result = result
-                    .GroupBy(stock => stock.Symbol)
-                    .Select(group => group.First())
-                    .ToList();
-                if (items.Count < 100)
-                {
-                    return result;
-                }
-            }
-            return result;
-        }
-        catch (Exception ex)
-        {
-            return !result.IsNullOrEmpty() ? (IEnumerable<SymbolInfo>)result : throw new FinanceNetException("No ETFs found", ex);
-        }
-    }
-
     /// <inheritdoc />
     public async Task<IEnumerable<SymbolInfo>> GetSymbolsAsync(EInstrumentType? type = null, CancellationToken token = default)
     {
@@ -398,5 +251,63 @@ public class YahooFinanceService : IYahooFinanceService
             }
         }
         return !result.IsNullOrEmpty() ? result : throw new FinanceNetException("No symbols found");
+    }
+
+    private Task<IEnumerable<SymbolInfo>> GetCryptosAsync(CancellationToken token = default) =>
+    FetchSymbolsAsync($"{Constants.YahooBaseUrlHtml}/markets/crypto/all/", EInstrumentType.Crypto, token);
+
+    private Task<IEnumerable<SymbolInfo>> GetStocksAsync(CancellationToken token = default) =>
+        FetchSymbolsAsync($"{Constants.YahooBaseUrlHtml}/markets/stocks/most-active/", EInstrumentType.Stock, token);
+
+    private Task<IEnumerable<SymbolInfo>> GetETFsAsync(CancellationToken token = default) =>
+        FetchSymbolsAsync($"{Constants.YahooBaseUrlHtml}/markets/etfs/most-active/", EInstrumentType.ETF, token);
+
+    private Task<IEnumerable<SymbolInfo>> GetIndicesAsync(CancellationToken token = default) =>
+        FetchSymbolsAsync($"{Constants.YahooBaseUrlHtml}/markets/world-indices/", EInstrumentType.Index, token);
+
+    private Task<IEnumerable<SymbolInfo>> GetForexAsync(CancellationToken token = default) =>
+        FetchSymbolsAsync($"{Constants.YahooBaseUrlHtml}/markets/currencies/", EInstrumentType.Forex, token);
+
+
+    private async Task<IEnumerable<SymbolInfo>> FetchSymbolsAsync(string baseUrl, EInstrumentType instrumentType, CancellationToken token = default)
+    {
+        var result = new List<SymbolInfo>();
+        await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
+        var httpClient = _httpClientFactory.CreateClient(Constants.YahooHttpClientName);
+
+        try
+        {
+            for (var i = 0; i < 100; i++)
+            {
+                var url = $"{baseUrl}?start={i * 100}&count=100".ToLowerInvariant();
+                var items = await _retryPolicy.ExecuteAsync(async () =>
+                {
+                    var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, token);
+                    var parsed = YahooHtmlParser.ParseSymbols(document, instrumentType, _logger);
+                    return Helper.AreAllPropertiesNull(parsed)
+                        ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty)
+                        : parsed;
+                });
+
+                result.AddRange(items.Where(e => e.Symbol != null));
+                result = result
+                    .GroupBy(stock => stock.Symbol)
+                    .Select(group => group.First())
+                    .ToList();
+
+                if (items.Count < 100)
+                {
+                    break;
+                }
+            }
+
+            return result;
+        }
+        catch (Exception ex)
+        {
+            return !result.IsNullOrEmpty()
+                ? result
+                : throw new FinanceNetException($"No {instrumentType} symbols found", ex);
+        }
     }
 }
