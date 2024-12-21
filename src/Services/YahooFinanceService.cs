@@ -375,67 +375,31 @@ public class YahooFinanceService : IYahooFinanceService
         var result = new List<SymbolInfo>();
         await Task.Delay(TimeSpan.FromSeconds(1), token);
 
-        if (type == null || type == EInstrumentType.Stock)
+        var instrumentMethods = new Dictionary<EInstrumentType, Func<CancellationToken, Task<IEnumerable<SymbolInfo>>>>
+    {
+        { EInstrumentType.Stock, GetStocksAsync },
+        { EInstrumentType.ETF, GetETFsAsync },
+        { EInstrumentType.Crypto, GetCryptosAsync },
+        { EInstrumentType.Index, GetIndicesAsync },
+        { EInstrumentType.Forex, GetForexAsync }
+    };
+
+        // If type is null, process all instrument types
+        var typesToProcess = type.HasValue ? [type.Value] : instrumentMethods.Keys.ToList();
+
+        foreach (var instrumentType in typesToProcess)
         {
             try
             {
-                var symbols = await GetStocksAsync(token);
+                var symbols = await instrumentMethods[instrumentType](token);
                 result.AddRange(symbols);
             }
             catch (Exception ex)
             {
-                _logger.LogWarning("failed to load {Type} {Exception}", EInstrumentType.Stock, ex);
-            }
-        }
-        if (type == null || type == EInstrumentType.ETF)
-        {
-            try
-            {
-                var symbols = await GetETFsAsync(token);
-                result.AddRange(symbols);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning("failed to load {Type} {Exception}", EInstrumentType.ETF, ex);
-            }
-        }
-        if (type == null || type == EInstrumentType.Crypto)
-        {
-            try
-            {
-                var symbols = await GetCryptosAsync(token);
-                result.AddRange(symbols);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning("failed to load {Type} {Exception}", EInstrumentType.Crypto, ex);
-            }
-        }
-        if (type == null || type == EInstrumentType.Index)
-        {
-            try
-            {
-                var symbols = await GetIndicesAsync(token);
-                result.AddRange(symbols);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning("failed to load {Type} {Exception}", EInstrumentType.Index, ex);
-            }
-        }
-        if (type == null || type == EInstrumentType.Forex)
-        {
-            try
-            {
-                var symbols = await GetForexAsync(token);
-                result.AddRange(symbols);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning("failed to load {Type} {Exception}", EInstrumentType.Forex, ex);
+                _logger.LogWarning("Failed to load {Type}: {Ex}", instrumentType, ex?.Message);
             }
         }
 
-        return result.IsNullOrEmpty() ? throw new FinanceNetException("No cryptos found") : (IEnumerable<SymbolInfo>)result;
+        return result.IsNullOrEmpty() ? throw new FinanceNetException("No symbols found") : (IEnumerable<SymbolInfo>)result;
     }
 }
