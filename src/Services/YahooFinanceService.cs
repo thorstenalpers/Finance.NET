@@ -396,10 +396,10 @@ public class YahooFinanceService : IYahooFinanceService
             }
             catch (Exception ex)
             {
-                _logger.LogWarning("Failed to load {Type}: {Ex}", instrumentType, ex?.Message);
+                _logger.LogWarning(ex, "Failed to load {Type}", instrumentType);
             }
         }
 
-        return result.IsNullOrEmpty() ? throw new FinanceNetException("No symbols found") : (IEnumerable<SymbolInfo>)result;
+        return !result.IsNullOrEmpty() ? result : throw new FinanceNetException("No symbols found");
     }
 }
