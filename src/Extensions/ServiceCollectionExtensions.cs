@@ -36,9 +36,6 @@ public static class ServiceCollectionExtensions
             opt.HttpRetryCount = cfg.HttpRetryCount;
             opt.HttpTimeout = cfg.HttpTimeout;
             opt.AlphaVantageApiKey = cfg.AlphaVantageApiKey;
-            opt.DatahubIoDownloadUrlSP500Symbols = cfg.DatahubIoDownloadUrlSP500Symbols;
-            opt.DatahubIoDownloadUrlNasdaqListedSymbols = cfg.DatahubIoDownloadUrlNasdaqListedSymbols;
-            opt.YahooCookieExpirationTime = cfg.YahooCookieExpirationTime;
         });
 
         services.AddSingleton<IReadOnlyPolicyRegistry<string>, PolicyRegistry>(serviceProvider =>
@@ -60,7 +57,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IYahooFinanceService, YahooFinanceService>();
         services.AddScoped<IXetraService, XetraService>();
         services.AddScoped<IAlphaVantageService, AlphaVantageService>();
-        services.AddScoped<IDatahubIoService, DatahubIoService>();
+        services.AddScoped<IDataHubService, DataHubService>();
 
         services.AddHttpClient(Constants.YahooHttpClientName)
             .ConfigureHttpClient((provider, client) =>

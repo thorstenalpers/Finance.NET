@@ -6,15 +6,14 @@ using Finance.Net.Models.Xetra;
 namespace Finance.Net.Interfaces;
 
 /// <summary>
-/// Represents a service for interacting with the Xetra API.
-/// Provides methods for retrieving tradable instruments, market data, and other relevant information from Xetra.
+/// Provides an interface for accessing Xetra market data services.
 /// </summary>
 public interface IXetraService
 {
     /// <summary>
-    /// Asynchronously retrieves a list of tradable instruments from Xetra.com.
+    /// Retrieves a collection of instruments available in the Xetra market.
     /// </summary>
-    /// <param name="token">A <see cref="CancellationToken"/> to allow cancellation of the operation.</param>
-    /// <returns>A task that represents the asynchronous operation. The task result contains an enumerable collection of <see cref="Instrument"/> objects representing tradable instruments.</returns>
-    Task<IEnumerable<Instrument>> GetInstruments(CancellationToken token = default);
+    /// <param name="token">An optional cancellation token to cancel the operation if needed.</param>
+    /// <returns>The task result contains an enumerable of <see cref="Instrument"/>.</returns>
+    Task<IEnumerable<Instrument>> GetInstrumentsAsync(CancellationToken token = default);
 }

@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Finance.Net.Exceptions;
 using Finance.Net.Services;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Moq;
 using Moq.Protected;
 using NUnit.Framework;
@@ -24,15 +23,12 @@ public class XetraServiceTests
 {
     private Mock<ILogger<XetraService>> _mockLogger;
     private Mock<IHttpClientFactory> _mockHttpClientFactory;
-    private Mock<IOptions<FinanceNetConfiguration>> _mockOptions;
     private Mock<HttpMessageHandler> _mockHandler;
     private Mock<IReadOnlyPolicyRegistry<string>> _mockPolicyRegistry;
 
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
-        _mockOptions = new Mock<IOptions<FinanceNetConfiguration>>();
-        _mockOptions.Setup(x => x.Value).Returns(new FinanceNetConfiguration());
         _mockHttpClientFactory = new Mock<IHttpClientFactory>();
         _mockHandler = new Mock<HttpMessageHandler>();
         _mockLogger = new Mock<ILogger<XetraService>>();
@@ -55,39 +51,19 @@ public class XetraServiceTests
         Assert.Throws<ArgumentNullException>(() => new XetraService(
             null,
             _mockHttpClientFactory.Object,
-            _mockOptions.Object,
             _mockPolicyRegistry.Object));
         Assert.Throws<ArgumentNullException>(() => new XetraService(
             _mockLogger.Object,
-            null,
-            _mockOptions.Object,
-            _mockPolicyRegistry.Object));
-        Assert.Throws<ArgumentNullException>(() => new XetraService(
-            _mockLogger.Object,
-            _mockHttpClientFactory.Object,
             null,
             _mockPolicyRegistry.Object));
         Assert.Throws<ArgumentNullException>(() => new XetraService(
             _mockLogger.Object,
             _mockHttpClientFactory.Object,
-            _mockOptions.Object,
             null));
     }
 
     [Test]
-    public void Create_Static_ReturnsObject()
-    {
-        // Act
-        var service1 = XetraService.Create();
-        var service2 = XetraService.Create(new FinanceNetConfiguration());
-
-        // Assert
-        Assert.That(service1, Is.Not.Null);
-        Assert.That(service2, Is.Not.Null);
-    }
-
-    [Test]
-    public async Task GetTradableInstruments_WithResponse_ReturnsResult()
+    public async Task GetInstrumentsAsync_WithResponse_ReturnsResult()
     {
         // Arrange
         var csvFilePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Xetra", "t7-xetr-allTradableInstruments.csv");
@@ -98,11 +74,10 @@ public class XetraServiceTests
         var service = new XetraService(
             _mockLogger.Object,
             _mockHttpClientFactory.Object,
-            _mockOptions.Object,
             _mockPolicyRegistry.Object);
 
         // Act
-        var result = await service.GetInstruments();
+        var result = await service.GetInstrumentsAsync();
 
         // Assert
 
@@ -112,25 +87,23 @@ public class XetraServiceTests
     }
 
     [Test]
-    public void GetTradableInstruments_NoHtml_Throws()
+    public void GetInstrumentsAsync_NoHtml_Throws()
     {
         // Arrange
         var csvFilePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Xetra", "t7-xetr-allTradableInstruments.csv");
-
         SetupHttpResponses(null, csvFilePath);
 
         var service = new XetraService(
             _mockLogger.Object,
             _mockHttpClientFactory.Object,
-            _mockOptions.Object,
             _mockPolicyRegistry.Object);
 
         // Act
-        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetInstruments());
+        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetInstrumentsAsync());
     }
 
     [Test]
-    public void GetTradableInstruments_NoCsv_Throws()
+    public void GetInstrumentsAsync_NoCsv_Throws()
     {
         // Arrange
         var htmlFilePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Xetra", "xetra-download-area.html");
@@ -140,11 +113,10 @@ public class XetraServiceTests
         var service = new XetraService(
             _mockLogger.Object,
             _mockHttpClientFactory.Object,
-            _mockOptions.Object,
             _mockPolicyRegistry.Object);
 
         // Act
-        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetInstruments());
+        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetInstrumentsAsync());
     }
 
     private void SetupHttpResponses(string htmlFilePath, string csvFilePath)

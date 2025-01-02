@@ -4,7 +4,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using AngleSharp.XPath;
@@ -12,15 +11,12 @@ using AutoMapper;
 using CsvHelper;
 using CsvHelper.Configuration;
 using Finance.Net.Exceptions;
-using Finance.Net.Extensions;
 using Finance.Net.Interfaces;
 using Finance.Net.Mappings;
 using Finance.Net.Models.Xetra;
 using Finance.Net.Models.Xetra.Dto;
 using Finance.Net.Utilities;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Polly;
 using Polly.Registry;
 
@@ -31,20 +27,16 @@ public class XetraService : IXetraService
 {
     private readonly ILogger<XetraService> _logger;
     private readonly IHttpClientFactory _httpClientFactory;
-    private readonly FinanceNetConfiguration _options;
     private readonly IMapper _mapper;
-    private static ServiceProvider? s_serviceProvider;
     private readonly AsyncPolicy _retryPolicy;
 
     /// <inheritdoc />
     public XetraService(ILogger<XetraService> logger,
                         IHttpClientFactory httpClientFactory,
-                        IOptions<FinanceNetConfiguration> options,
                         IReadOnlyPolicyRegistry<string> policyRegistry)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
-        _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
         _retryPolicy = policyRegistry?.Get<AsyncPolicy>(Constants.DefaultHttpRetryPolicy) ?? throw new ArgumentNullException(nameof(policyRegistry));
 
         // do not use IoC, so users can use Automapper independently
@@ -52,33 +44,8 @@ public class XetraService : IXetraService
         _mapper = config.CreateMapper();
     }
 
-    /// <summary>
-    /// Creates a service for interacting with the Xetra API.
-    /// Provides methods for retrieving tradable instruments, market data, and other relevant information from Xetra.
-    /// </summary>
-    public static IXetraService Create()
-    {
-        return Create(new FinanceNetConfiguration());
-    }
-
-    /// <summary>
-    /// Creates a service for interacting with the Xetra API.
-    /// Provides methods for retrieving tradable instruments, market data, and other relevant information from Xetra.
-    /// </summary>
-    /// <param name="cfg">Configure .Net Finance. <see cref="FinanceNetConfiguration"/> ></param>
-    public static IXetraService Create(FinanceNetConfiguration cfg)
-    {
-        if (s_serviceProvider == null)
-        {
-            var services = new ServiceCollection();
-            services.AddFinanceNet(cfg);
-            s_serviceProvider = services.BuildServiceProvider();
-        }
-        return s_serviceProvider.GetRequiredService<IXetraService>();
-    }
-
     /// <inheritdoc />
-    public async Task<IEnumerable<Instrument>> GetInstruments(CancellationToken token = default)
+    public async Task<IEnumerable<Instrument>> GetInstrumentsAsync(CancellationToken token = default)
     {
         var httpClient = _httpClientFactory.CreateClient(Constants.XetraHttpClientName);
         try
@@ -110,16 +77,8 @@ public class XetraService : IXetraService
                     {
                         continue;
                     }
-                    var isin = Regex.IsMatch(item.ISIN, @"^\d+$", RegexOptions.None, TimeSpan.FromSeconds(30)) ?
-                        item.ProductID :
-                        item.ISIN;  // bug in csv (comma in instrument names) => next column has value
-
-                    var instrumentType = Regex.IsMatch(item.InstrumentType, "^[a-zA-Z]+$", RegexOptions.None, TimeSpan.FromSeconds(30)) ?
-                        item.InstrumentType :
-                        item.TickSize1; // bug in csv (comma in instrument names) => next column has value
-
-                    item.InstrumentType = instrumentType;
-                    item.ISIN = isin;
+                    item.InstrumentType = item.InstrumentType;
+                    item.ISIN = item.ISIN;
 
                     result.Add(item);
                 }
@@ -144,17 +103,13 @@ public class XetraService : IXetraService
             {
                 var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, token);
                 var hrefAttributes = document.DocumentElement.SelectNodes("//a[contains(@class, 'download') and contains(., 'All tradable instruments')]/@href")?.Select(e => e.NodeValue);
-                if (hrefAttributes.Count() != 1)
-                {
-                    throw new FinanceNetException($"Failed finding download link, found {hrefAttributes.Count()} links");
-                }
-                var relativeDownloadUrl = hrefAttributes.FirstOrDefault();
+                var relativeDownloadUrl = hrefAttributes?.FirstOrDefault();
                 return new Uri(baseUri, relativeDownloadUrl);
             });
         }
         catch (Exception ex)
         {
-            throw new FinanceNetException($"Cannot fetch from {_options.DatahubIoDownloadUrlNasdaqListedSymbols}", ex);
+            throw new FinanceNetException($"Cannot fetch from {Constants.XetraInstrumentsUrl}", ex);
         }
     }
 }

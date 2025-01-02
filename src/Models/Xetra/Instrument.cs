@@ -1,49 +1,47 @@
 ﻿namespace Finance.Net.Models.Xetra;
+
 /// <summary>
-/// Represents a financial instrument with various attributes such as symbol, status, and identification codes.
+/// Represents detailed information about a financial instrument or symbol.
 /// </summary>
 public record Instrument
 {
     /// <summary>
-    /// The symbol or ticker of the financial instrument.
+    /// Gets or sets the unique symbol identifier for the instrument.
     /// </summary>
     public string? Symbol { get; set; }
 
     /// <summary>
-    /// The current status of the instrument (e.g., active, inactive).
+    /// Gets or sets the status of the instrument (e.g., active or inactive).
     /// </summary>
     public string? InstrumentStatus { get; set; }
 
     /// <summary>
-    /// The name of the financial instrument.
+    /// Gets or sets the full name of the instrument.
     /// </summary>
     public string? InstrumentName { get; set; }
 
     /// <summary>
-    /// The International Securities Identification Number (ISIN) for the instrument.
+    /// Gets or sets the International Securities Identification Number (ISIN) of the instrument.
     /// </summary>
     public string? ISIN { get; set; }
 
     /// <summary>
-    /// The Wertpapierkennnummer (WKN) of the instrument, a German securities identification number.
+    /// Gets or sets the Wertpapierkennnummer (WKN), a German securities identification number.
     /// </summary>
     public string? WKN { get; set; }
 
     /// <summary>
-    /// The mnemonic or shorthand code representing the financial instrument.
+    /// Gets or sets the mnemonic code of the instrument.
     /// </summary>
     public string? Mnemonic { get; set; }
 
     /// <summary>
-    /// The type of the financial instrument (e.g., stock, bond, option).
+    /// Gets or sets the type of the instrument (e.g., CS, ETF, ETN).
     /// </summary>
     public string? InstrumentType { get; set; }
 
     /// <summary>
-    /// The currency in which the instrument is traded.
+    /// Gets or sets the currency in which the instrument is traded.
     /// </summary>
     public string? Currency { get; set; }
-
-    internal string? ProductID { get; set; }
-    internal string? TickSize1 { get; set; }
 }
