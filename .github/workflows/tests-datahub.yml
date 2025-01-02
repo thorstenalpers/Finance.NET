@@ -11,5 +11,5 @@ jobs:
   run-test:
     uses: ./.github/workflows/_tests-template.yml
     with:
-      FullyQualifiedName: "Finance.Net.Tests.IntegrationTests.DatahubIoTests"
+      FullyQualifiedName: "Finance.Net.Tests.IntegrationTests.DatahubTests"
     secrets: inherit
