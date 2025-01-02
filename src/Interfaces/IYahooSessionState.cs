@@ -38,4 +38,9 @@ public interface IYahooSessionState
     /// <param name="crumb">The session crumb to set.</param>
     /// <param name="refreshTime">The time at which the session crumb was refreshed.</param>
     void SetCrumb(string crumb, DateTime refreshTime);
+
+    /// <summary>
+    /// Invalidates the session by clearing cookies, etc
+    /// </summary>
+    void InvalidateSession();
 }

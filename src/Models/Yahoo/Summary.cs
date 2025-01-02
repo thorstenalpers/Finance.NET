@@ -18,7 +18,7 @@ public record Summary
     public string? MarketTimeNotice { get; set; }
 
     /// <summary>
-    /// The previous closing price of the stock.
+    /// The previous closing price.
     /// </summary>
     public decimal? PreviousClose { get; set; }
 
@@ -28,12 +28,12 @@ public record Summary
     public decimal? Open { get; set; }
 
     /// <summary>
-    /// The current bid price for the stock.
+    /// The current bid price.
     /// </summary>
     public decimal? Bid { get; set; }
 
     /// <summary>
-    /// The current ask price for the stock.
+    /// The current ask price.
     /// </summary>
     public decimal? Ask { get; set; }
 

@@ -3,30 +3,30 @@
 /// <summary>
 /// Represents the different types for financial instruments.
 /// </summary>
-public enum EInstrumentType
+public enum EAssetType
 {
     /// <summary>
-    /// Represents a stock instrument.
+    /// A stock instrument.
     /// </summary>
     Stock = 1,
 
     /// <summary>
-    /// Represents an exchange-traded fund (ETF) instrument.
+    /// An exchange-traded fund (ETF) instrument.
     /// </summary>
     ETF = 2,
 
     /// <summary>
-    /// Represents a foreign exchange (Forex) instrument.
+    /// A foreign exchange (Forex) instrument.
     /// </summary>
     Forex = 3,
 
     /// <summary>
-    /// Represents a cryptocurrency instrument.
+    /// A cryptocurrency instrument.
     /// </summary>
     Crypto = 4,
 
     /// <summary>
-    /// Represents an index instrument.
+    /// An index instrument.
     /// </summary>
     Index = 5,
 }

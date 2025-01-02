@@ -4,16 +4,15 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using AngleSharp.Html.Dom;
 using AutoMapper;
 using Finance.Net.Enums;
 using Finance.Net.Exceptions;
-using Finance.Net.Extensions;
 using Finance.Net.Interfaces;
 using Finance.Net.Mappings;
 using Finance.Net.Models.Yahoo;
 using Finance.Net.Models.Yahoo.Dtos;
 using Finance.Net.Utilities;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Polly;
@@ -28,7 +27,6 @@ public class YahooFinanceService : IYahooFinanceService
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IYahooSessionManager _yahooSession;
     private readonly IMapper _mapper;
-    private static ServiceProvider? s_staticServiceProvider;
     private readonly AsyncPolicy _retryPolicy;
 
     /// <inheritdoc />
@@ -48,36 +46,46 @@ public class YahooFinanceService : IYahooFinanceService
         _mapper = config.CreateMapper();
     }
 
-    /// <summary>
-    /// Creates a service for interacting with the Yahoo Finance API.
-    /// Provides methods for retrieving historical data, company profiles, summaries, and financial reports from Yahoo Finance.
-    /// </summary>
-    public static IYahooFinanceService Create()
+    /// <inheritdoc />
+    public async Task<IEnumerable<Instrument>> GetInstrumentsAsync(EAssetType? type = null, CancellationToken token = default)
     {
-        return Create(new FinanceNetConfiguration());
-    }
+        var result = new List<Instrument>();
+        await Task.Delay(TimeSpan.FromSeconds(1), token);
 
-    /// <summary>
-    /// Creates a service for interacting with the Yahoo Finance API.
-    /// Provides methods for retrieving historical data, company profiles, summaries, and financial reports from Yahoo Finance.
-    /// </summary>
-    /// <param name="cfg">Configure .Net Finance. <see cref="FinanceNetConfiguration"/> ></param>
-    public static IYahooFinanceService Create(FinanceNetConfiguration cfg)
-    {
-        if (s_staticServiceProvider == null)
+        var instrumentTypes = Enum.GetValues(typeof(EAssetType))
+                                         .Cast<EAssetType>()
+                                         .ToList();
+
+        var typesToProcess = type == null ? instrumentTypes.ToList() : [type.Value];
+
+        foreach (var instrumentType in typesToProcess)
         {
-            var services = new ServiceCollection();
-            services.AddFinanceNet(cfg);
-            s_staticServiceProvider = services.BuildServiceProvider();
+            try
+            {
+                var instruments = await (instrumentType switch
+                {
+                    EAssetType.ETF => FetchSymbolsAsync($"{Constants.YahooBaseUrlHtml}/markets/etfs/most-active/", EAssetType.ETF, token),
+                    EAssetType.Stock => FetchSymbolsAsync($"{Constants.YahooBaseUrlHtml}/markets/stocks/most-active/", EAssetType.Stock, token),
+                    EAssetType.Forex => FetchSymbolsAsync($"{Constants.YahooBaseUrlHtml}/markets/currencies/", EAssetType.Forex, token),
+                    EAssetType.Crypto => FetchSymbolsAsync($"{Constants.YahooBaseUrlHtml}/markets/crypto/all/", EAssetType.Crypto, token),
+                    EAssetType.Index => FetchSymbolsAsync($"{Constants.YahooBaseUrlHtml}/markets/world-indices/", EAssetType.Index, token),
+                    _ => throw new NotSupportedException()
+                });
+                result.AddRange(instruments);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to load {Type}", instrumentType);
+            }
         }
-        return s_staticServiceProvider.GetRequiredService<IYahooFinanceService>();
+        return result.IsNullOrEmpty() ? throw new FinanceNetException("No instruments found") : result;
     }
 
     /// <inheritdoc />
     public async Task<Quote> GetQuoteAsync(string symbol, CancellationToken token = default)
     {
-        var symbols = await GetQuotesAsync([symbol], token);
-        return symbols.FirstOrDefault(e => e.Symbol == symbol);
+        var quotes = await GetQuotesAsync([symbol], token);
+        return quotes.FirstOrDefault(e => e.Symbol == symbol);
     }
 
     /// <inheritdoc />
@@ -97,7 +105,7 @@ public class YahooFinanceService : IYahooFinanceService
 
                 var jsonContent = await Helper.FetchJsonDocumentAsync(httpClient, _logger, url, token);
                 var parsedData = JsonConvert.DeserializeObject<QuoteResponseRoot>(jsonContent) ?? throw new FinanceNetException("Invalid data returned by Yahoo");
-                var responseObj = parsedData.QuoteResponse ?? throw new FinanceNetException("Unexpected response from Yahoo");
+                var responseObj = parsedData.QuoteResponse ?? throw new FinanceNetException("Invalid content from Yahoo");
 
                 var error = responseObj.Error;
                 if (error != null)
@@ -128,6 +136,62 @@ public class YahooFinanceService : IYahooFinanceService
     }
 
     /// <inheritdoc />
+    public async Task<IEnumerable<Record>> GetRecordsAsync(string symbol, DateTime? startDate = null, DateTime? endDate = null, CancellationToken token = default)
+    {
+        await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
+        var httpClient = _httpClientFactory.CreateClient(Constants.YahooHttpClientName);
+
+        startDate ??= DateTime.UtcNow.AddDays(-7).Date;
+
+        endDate ??= DateTime.UtcNow.Date;
+        endDate = endDate.Value.AddDays(1).Date;
+
+        var period1 = Helper.ToUnixTime(startDate?.Date) ?? throw new FinanceNetException("Invalid startDate");
+        var period2 = Helper.ToUnixTime(endDate?.Date) ?? throw new FinanceNetException("Invalid endDate");
+
+        var url = $"{Constants.YahooBaseUrlQuoteHtml}/{symbol}/history/?period1={period1}&period2={period2}".ToLowerInvariant();
+        try
+        {
+            return await _retryPolicy.ExecuteAsync(async () =>
+            {
+                var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, token);
+
+                await CheckAndDeclineConsentAsync(document, token);
+                var records = YahooHtmlParser.ParseHistoryRecords(document, _logger);
+                return records.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : records;
+            });
+        }
+        catch (Exception ex)
+        {
+            throw new FinanceNetException("No records found", ex);
+        }
+    }
+
+    private async Task CheckAndDeclineConsentAsync(IHtmlDocument document, CancellationToken token)
+    {
+        if (string.IsNullOrWhiteSpace(document?.DocumentElement?.OuterHtml))
+        {
+            throw new FinanceNetException("AngleSharp error: no outer html");
+        }
+
+        var title = document.QuerySelector("title")?.TextContent ?? "";
+        if (title.Contains("Lookup"))
+        {
+            _yahooSession.InvalidateSession();
+            await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
+
+            throw new FinanceNetException("Yahoo error: lookup received");
+        }
+
+        var consentDiv = document.QuerySelector("div#consent-page");
+        if (consentDiv != null)
+        {
+            await _yahooSession.DeclineConsentAsync(document, token);
+            _logger.LogInformation("Consent declined");
+        }
+    }
+
+    /// <inheritdoc />
     public async Task<Models.Yahoo.Profile> GetProfileAsync(string symbol, CancellationToken token = default)
     {
         await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
@@ -139,8 +203,9 @@ public class YahooFinanceService : IYahooFinanceService
             return await _retryPolicy.ExecuteAsync(async () =>
             {
                 var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, token);
-                var result = YahooHtmlParser.ParseProfile(document, _logger);
-                return Helper.AreAllPropertiesNull(result) ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
+                await CheckAndDeclineConsentAsync(document, token);
+                var result = YahooHtmlParser.ParseProfile(document);
+                return result;
             });
         }
         catch (Exception ex)
@@ -150,36 +215,7 @@ public class YahooFinanceService : IYahooFinanceService
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<HistoryRecord>> GetRecordsAsync(string symbol, DateTime startDate, DateTime? endDate = null, CancellationToken token = default)
-    {
-        await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
-        var httpClient = _httpClientFactory.CreateClient(Constants.YahooHttpClientName);
-
-        endDate ??= DateTime.UtcNow.Date;
-        endDate = endDate.Value.AddDays(1).Date;
-
-        var period1 = Helper.ToUnixTime(startDate.Date) ?? throw new FinanceNetException("Invalid startDate");
-        var period2 = Helper.ToUnixTime(endDate.Value.Date) ?? throw new FinanceNetException("Invalid endDate");
-
-        var url = $"{Constants.YahooBaseUrlQuoteHtml}/{symbol}/history/?period1={period1}&period2={period2}".ToLowerInvariant();
-
-        try
-        {
-            return await _retryPolicy.ExecuteAsync(async () =>
-            {
-                var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, token);
-                var records = YahooHtmlParser.ParseHistoryRecords(document, _logger);
-                return records.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : records;
-            });
-        }
-        catch (Exception ex)
-        {
-            throw new FinanceNetException("No records found", ex);
-        }
-    }
-
-    /// <inheritdoc />
-    public async Task<Dictionary<string, FinancialReport>> GetFinancialReportsAsync(string symbol, CancellationToken token = default)
+    public async Task<Dictionary<string, FinancialReport>> GetFinancialsAsync(string symbol, CancellationToken token = default)
     {
         await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
         var httpClient = _httpClientFactory.CreateClient(Constants.YahooHttpClientName);
@@ -190,8 +226,9 @@ public class YahooFinanceService : IYahooFinanceService
             return await _retryPolicy.ExecuteAsync(async () =>
             {
                 var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, token);
+                await CheckAndDeclineConsentAsync(document, token);
                 var result = YahooHtmlParser.ParseFinancialReports(document, _logger);
-                return result.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
+                return result;
             });
         }
         catch (Exception ex)
@@ -205,15 +242,16 @@ public class YahooFinanceService : IYahooFinanceService
     {
         await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
         var httpClient = _httpClientFactory.CreateClient(Constants.YahooHttpClientName);
-        var url = $"{Constants.YahooBaseUrlQuoteHtml}/{symbol}/".ToLowerInvariant();
+        var url = $"{Constants.YahooBaseUrlQuoteHtml}/{symbol}/?nojs=true".ToLowerInvariant();
 
         try
         {
             return await _retryPolicy.ExecuteAsync(async () =>
             {
                 var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, token);
+                await CheckAndDeclineConsentAsync(document, token);
                 var result = YahooHtmlParser.ParseSummary(document, _logger);
-                return Helper.AreAllPropertiesNull(result) ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
+                return result;
             });
         }
         catch (Exception ex)
@@ -222,56 +260,9 @@ public class YahooFinanceService : IYahooFinanceService
         }
     }
 
-    /// <inheritdoc />
-    public async Task<IEnumerable<SymbolInfo>> GetSymbolsAsync(EInstrumentType? type = null, CancellationToken token = default)
+    private async Task<IEnumerable<Instrument>> FetchSymbolsAsync(string baseUrl, EAssetType instrumentType, CancellationToken token = default)
     {
-        var result = new List<SymbolInfo>();
-        await Task.Delay(TimeSpan.FromSeconds(1), token);
-
-        var instrumentMethods = new Dictionary<EInstrumentType, Func<CancellationToken, Task<IEnumerable<SymbolInfo>>>>
-        {
-            { EInstrumentType.Stock, GetStocksAsync },
-            { EInstrumentType.ETF, GetETFsAsync },
-            { EInstrumentType.Crypto, GetCryptosAsync },
-            { EInstrumentType.Index, GetIndicesAsync },
-            { EInstrumentType.Forex, GetForexAsync }
-        };
-        var typesToProcess = type != null ? [type.Value] : instrumentMethods.Keys.ToList(); // null => all
-
-        foreach (var instrumentType in typesToProcess)
-        {
-            try
-            {
-                var symbols = await instrumentMethods[instrumentType](token);
-                result.AddRange(symbols);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Failed to load {Type}", instrumentType);
-            }
-        }
-        return !result.IsNullOrEmpty() ? result : throw new FinanceNetException("No symbols found");
-    }
-
-    private Task<IEnumerable<SymbolInfo>> GetCryptosAsync(CancellationToken token = default) =>
-    FetchSymbolsAsync($"{Constants.YahooBaseUrlHtml}/markets/crypto/all/", EInstrumentType.Crypto, token);
-
-    private Task<IEnumerable<SymbolInfo>> GetStocksAsync(CancellationToken token = default) =>
-        FetchSymbolsAsync($"{Constants.YahooBaseUrlHtml}/markets/stocks/most-active/", EInstrumentType.Stock, token);
-
-    private Task<IEnumerable<SymbolInfo>> GetETFsAsync(CancellationToken token = default) =>
-        FetchSymbolsAsync($"{Constants.YahooBaseUrlHtml}/markets/etfs/most-active/", EInstrumentType.ETF, token);
-
-    private Task<IEnumerable<SymbolInfo>> GetIndicesAsync(CancellationToken token = default) =>
-        FetchSymbolsAsync($"{Constants.YahooBaseUrlHtml}/markets/world-indices/", EInstrumentType.Index, token);
-
-    private Task<IEnumerable<SymbolInfo>> GetForexAsync(CancellationToken token = default) =>
-        FetchSymbolsAsync($"{Constants.YahooBaseUrlHtml}/markets/currencies/", EInstrumentType.Forex, token);
-
-
-    private async Task<IEnumerable<SymbolInfo>> FetchSymbolsAsync(string baseUrl, EInstrumentType instrumentType, CancellationToken token = default)
-    {
-        var result = new List<SymbolInfo>();
+        var result = new List<Instrument>();
         await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
         var httpClient = _httpClientFactory.CreateClient(Constants.YahooHttpClientName);
 
@@ -283,6 +274,7 @@ public class YahooFinanceService : IYahooFinanceService
                 var items = await _retryPolicy.ExecuteAsync(async () =>
                 {
                     var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, token);
+                    await CheckAndDeclineConsentAsync(document, token);
                     var parsed = YahooHtmlParser.ParseSymbols(document, instrumentType, _logger);
                     return Helper.AreAllPropertiesNull(parsed)
                         ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty)
@@ -303,11 +295,22 @@ public class YahooFinanceService : IYahooFinanceService
 
             return result;
         }
-        catch (Exception ex)
+        catch
         {
-            return !result.IsNullOrEmpty()
-                ? result
-                : throw new FinanceNetException($"No {instrumentType} symbols found", ex);
+            if (result.IsNullOrEmpty())
+            {
+                throw;
+            }
+            else
+            {
+                return result;
+            }
         }
+    }
+
+    /// <inheritdoc />
+    public void InvalidateSession()
+    {
+        _yahooSession.InvalidateSession();
     }
 }

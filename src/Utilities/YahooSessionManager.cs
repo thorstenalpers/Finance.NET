@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using AngleSharp.Html.Dom;
 using Finance.Net.Exceptions;
 using Finance.Net.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -90,15 +91,20 @@ internal class YahooSessionManager(ILogger<YahooSessionManager> logger,
 
         response = await httpClient.SendAsync(requestMessage, token).ConfigureAwait(false);
         var crumb = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-        if (string.IsNullOrEmpty(crumb) || crumb.Contains("Too Many Requests"))
+        if (string.IsNullOrEmpty(crumb))
         {
             throw new FinanceNetException("Unable to retrieve Yahoo crumb.");
         }
-
+        if (crumb.Contains("Too Many Requests"))
+        {
+            throw new FinanceNetException("Too Many Requests.");
+        }
         if (_sessionState.GetCookieContainer().Count < 3)
         {
             throw new FinanceNetException("Unable to get api cookies.");
         }
+        await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
+
         _logger.LogDebug("cookieNames={Cookies}", GetCookieNames());
         _logger.LogDebug("_crumb= {Crumb}", crumb);
         _logger.LogInformation("API Session established successfully");
@@ -111,8 +117,15 @@ internal class YahooSessionManager(ILogger<YahooSessionManager> logger,
         httpClient.DefaultRequestHeaders.Add(Constants.HeaderNameAccept, "text/html,application/xhtml+xml,application/xml,application/json;q=0.9,*/*;q=0.8");
 
         // get consent
-        await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
         var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, Constants.YahooBaseUrlHtml, token);
+        await DeclineConsentAsync(document, token).ConfigureAwait(false);
+    }
+
+    public async Task DeclineConsentAsync(IHtmlDocument document, CancellationToken token)
+    {
+        var httpClient = _httpClientFactory.CreateClient(Constants.YahooHttpClientName);
+        httpClient.DefaultRequestHeaders.Add(Constants.HeaderNameAccept, "text/html,application/xhtml+xml,application/xml,application/json;q=0.9,*/*;q=0.8");
+
         var csrfTokenNode = document.QuerySelector("input[name='csrfToken']");
         var sessionIdNode = document.QuerySelector("input[name='sessionId']");
         if (csrfTokenNode == null || sessionIdNode == null)
@@ -123,10 +136,13 @@ internal class YahooSessionManager(ILogger<YahooSessionManager> logger,
             // no EU consent, call from coming outside of EU
             if (_sessionState.GetCookieContainer().Count >= 3)
             {
-                _logger.LogInformation("UI Session established successfully without EU consent");
+                _logger.LogInformation("UI Session established successfully");
                 return;
             }
-            throw new FinanceNetException($"Unable to retrieve csrfTokenNode and sessionIdNode, cnt={_sessionState.GetCookieContainer().Count}");
+            else
+            {
+                throw new FinanceNetException($"Unable to create ui cookies, cnt={_sessionState.GetCookieContainer()?.Count}");
+            }
         }
         var csrfToken = csrfTokenNode.GetAttribute("value");
         var sessionId = sessionIdNode.GetAttribute("value");
@@ -134,9 +150,9 @@ internal class YahooSessionManager(ILogger<YahooSessionManager> logger,
         {
             throw new FinanceNetException($"Unable to retrieve csrfToken and sessionId, cnt={_sessionState.GetCookieContainer().Count}");
         }
-        await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
 
         // reject consent
+        await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
         var postData = new List<KeyValuePair<string, string>>
                         {
                             new("csrfToken", csrfToken),
@@ -162,13 +178,18 @@ internal class YahooSessionManager(ILogger<YahooSessionManager> logger,
         response = await httpClient.GetAsync(Constants.YahooBaseUrlHtml, token);
         response.EnsureSuccessStatusCode();
         await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
-        if (_sessionState.GetCookieContainer()?.Count < 3)
-        {
-            throw new FinanceNetException($"Unable to get ui cookies, cnt={_sessionState.GetCookieContainer()?.Count}");
-        }
         if (_sessionState.GetCookieContainer().Count >= 3)
         {
             _logger.LogInformation("UI Session established successfully");
         }
+        else
+        {
+            throw new FinanceNetException($"Unable to create ui cookies, cnt={_sessionState.GetCookieContainer()?.Count}");
+        }
+    }
+
+    public void InvalidateSession()
+    {
+        _sessionState.InvalidateSession();
     }
 }

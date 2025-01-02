@@ -16,11 +16,10 @@ namespace Finance.Net.Utilities;
 /// <inheritdoc />
 internal static class YahooHtmlParser
 {
-    public static Profile ParseProfile<T>(IHtmlDocument document, ILogger<T> logger)
+    public static Profile ParseProfile(IHtmlDocument document)
     {
         var nameElement = document.Body.SelectSingleNode("//section/h1");
         var descriptionElement = document.Body.SelectSingleNode("//section[header/h3[contains(text(), 'Description') or contains(text(), 'Summary')]]/p\n");
-        var corporateGovernanceElements = document.Body.SelectNodes("//section[header/h3[contains(text(), 'Corporate Governance')]]/div");
         var cntEmployeesElement = document.Body.SelectSingleNode("//dt[contains(text(), 'Employees')]/following-sibling::dd");
         var industryElement = document.Body.SelectSingleNode("//dt[contains(text(), 'Industry')]/following-sibling::a");
         var sectorElement = document.Body.SelectSingleNode("//dt[contains(text(), 'Sector')]/following-sibling::dd/a");
@@ -30,7 +29,6 @@ internal static class YahooHtmlParser
         var addressNameElement = document.Body.SelectSingleNode("//div[contains(@class, 'address')]/../../..//h3");
 
         var description = descriptionElement?.TextContent?.Trim();
-        var corporateGovernance = corporateGovernanceElements.IsNullOrEmpty() ? null : string.Join("\n", corporateGovernanceElements.Select(div => div.TextContent.Trim()).Where(e => !string.IsNullOrWhiteSpace(e)));
         var cntEmployees = cntEmployeesElement?.TextContent?.Replace(",", "").Replace("-", "")?.Trim();
         var industry = industryElement?.TextContent?.Trim();
         var sector = sectorElement?.TextContent?.Trim();
@@ -39,20 +37,11 @@ internal static class YahooHtmlParser
         var addressLocation = addressElements.IsNullOrEmpty() ? null : string.Join("\n", addressElements.Select(div => div.TextContent.Trim()));
         var addressName = addressNameElement?.TextContent?.Trim();
         var address = string.IsNullOrEmpty(addressName) ? addressLocation : addressName + "\n" + addressLocation;
-        var name = Helper.RemoveSymbolHeader(nameElement?.TextContent?.Trim());
-
         var cntEmployeesNumber = Helper.ParseLong(cntEmployees);
-
-        if (name == null)
-        {
-            logger.LogWarning("invalid date {Name}", name);
-        }
 
         var result = new Profile
         {
             Description = description,
-            Name = name,
-            CorporateGovernance = corporateGovernance,
             CntEmployees = cntEmployeesNumber,
             Industry = industry,
             Sector = sector,
@@ -60,16 +49,18 @@ internal static class YahooHtmlParser
             Phone = phone,
             Website = website
         };
-        return result;
+
+        var isNullObj = Helper.AreAllPropertiesNull(result);
+        return isNullObj ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
     }
 
-    public static List<HistoryRecord> ParseHistoryRecords<T>(IHtmlDocument document, ILogger<T> logger)
+    public static List<Record> ParseHistoryRecords<T>(IHtmlDocument document, ILogger<T> logger)
     {
-        var records = new List<HistoryRecord>();
+        var records = new List<Record>();
         var expectedHeaderSet = new HashSet<string>(["Date", "Open", "High", "Low", "Close", "Adj Close", "Volume"]);
         var headerMap = new Dictionary<string, int>();
 
-        var table = document.QuerySelector("table.table") ?? throw new FinanceNetException("No records found");
+        var table = document.QuerySelector("table.table") ?? throw new FinanceNetException("table is null");
         var headers = table.QuerySelectorAll("thead th")
               .Select(th =>
               {
@@ -114,7 +105,7 @@ internal static class YahooHtmlParser
                     continue;
                 }
 
-                records.Add(new HistoryRecord
+                records.Add(new Record
                 {
                     Date = date.Value,
                     Open = open,
@@ -130,7 +121,7 @@ internal static class YahooHtmlParser
                 logger.LogInformation("No records in row {Row}", row.TextContent);    // e.g. date + dividend (over all columns)
             }
         }
-        return records;
+        return records.Count == 0 ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : records;
     }
 
     public static Dictionary<string, FinancialReport> ParseFinancialReports<T>(IHtmlDocument document, ILogger<T> logger)
@@ -141,6 +132,10 @@ internal static class YahooHtmlParser
             .Select(header => header.TextContent.Trim())
             .Where(e => e != "Breakdown")
             .ToList();
+        if (headers.Count == 0)
+        {
+            throw new FinanceNetException("no content");
+        }
 
         headers.RemoveAll(e => e.Contains(" - "));// remove commercial column
         foreach (var header in headers)
@@ -182,7 +177,7 @@ internal static class YahooHtmlParser
                 logger.LogWarning("Unknown row property {RowTitle}.", rowTitle);
             }
         }
-        return result;
+        return result.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
     }
 
     public static Summary ParseSummary<T>(IHtmlDocument document, ILogger<T> logger)
@@ -219,7 +214,7 @@ internal static class YahooHtmlParser
         var ePS_TTM = Helper.ParseDecimal(ePS_TTMElement?.TextContent?.Trim());
 
         var ex_DividendDateElement = document.Body.SelectSingleNode("//li[span[contains(text(), 'Ex-Dividend Date')]]/span[2]");
-        var ex_DividendDate = Helper.ParseDate(ex_DividendDateElement?.TextContent?.Trim());
+        var ex_DividendDate = Helper.ParseDate(ex_DividendDateElement?.TextContent?.Replace("-", "")?.Trim());
 
         var forward_DividendAndYieldElement = document.Body.SelectSingleNode("//li[span[contains(text(), 'Forward Dividend & Yield')]]/span[2]");
         var dividentAndYield = forward_DividendAndYieldElement?.TextContent?.Trim().Split(" ")?.Select(e => e.Replace("(", "").Replace(")", "").Replace("%", ""));
@@ -256,8 +251,7 @@ internal static class YahooHtmlParser
         {
             logger.LogWarning("invalid date {PreviousClose}", previousClose);
         }
-
-        return new Summary
+        var summary = new Summary
         {
             Name = name,
             Ask = ask,
@@ -281,11 +275,13 @@ internal static class YahooHtmlParser
             WeekRange52_Max = weekRange52_Max,
             WeekRange52_Min = weekRange52_Min
         };
+        var isNullObj = Helper.AreAllPropertiesNull(summary);
+        return isNullObj ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : summary;
     }
 
-    public static List<SymbolInfo> ParseSymbols<T>(IHtmlDocument document, EInstrumentType type, ILogger<T> logger)
+    public static List<Instrument> ParseSymbols<T>(IHtmlDocument document, EAssetType type, ILogger<T> logger)
     {
-        var result = new List<SymbolInfo>();
+        var instruments = new List<Instrument>();
         var expectedHeaderSet = new HashSet<string>(["Symbol"]);
         var headerMap = new Dictionary<string, int>();
 
@@ -319,7 +315,7 @@ internal static class YahooHtmlParser
                     continue;
                 }
 
-                result.Add(new SymbolInfo
+                instruments.Add(new Instrument
                 {
                     Symbol = symbol,
                     InstrumentType = type
@@ -330,6 +326,7 @@ internal static class YahooHtmlParser
                 logger.LogWarning("Invalid row {Row}", row.TextContent);
             }
         }
-        return result;
+
+        return instruments.Count == 0 ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : instruments;
     }
 }

@@ -2,6 +2,7 @@
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using AngleSharp.Html.Dom;
 
 namespace Finance.Net.Interfaces;
 
@@ -34,5 +35,15 @@ public interface IYahooSessionManager
     /// </summary>
     /// <returns>The user agent string.</returns>
     string GetUserAgent();
+
+    /// <summary>
+    /// Invalidates the session by clearing cookies, etc
+    /// </summary>
+    void InvalidateSession();
+
+    /// <summary>
+    /// Decline the consent in the document
+    /// </summary>
+    Task DeclineConsentAsync(IHtmlDocument document, CancellationToken token);
 }
 

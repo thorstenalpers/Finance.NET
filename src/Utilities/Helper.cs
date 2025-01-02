@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AngleSharp.Html.Dom;
 using Finance.Net.Enums;
+using Finance.Net.Exceptions;
 using Microsoft.Extensions.Logging;
 
 namespace Finance.Net.Utilities;
@@ -38,7 +39,9 @@ internal static class Helper
 
     public static string? RemoveSymbolHeader(string? str)
     {
-        return string.IsNullOrEmpty(str) ? null : Regex.Replace(str, @"\s\([^)]+\)$", "", RegexOptions.None, TimeSpan.FromSeconds(30))?.Trim();
+        return string.IsNullOrEmpty(str)
+            ? null
+            : Regex.Replace(str, @"\s?\([^\)]*\)\s*$", "", RegexOptions.None, TimeSpan.FromSeconds(30))?.Trim();
     }
 
 
@@ -190,7 +193,10 @@ internal static class Helper
 
         var htmlContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
         logger?.LogDebug("htmlContent={HtmlContent}", htmlContent.Minify());
-        return new AngleSharp.Html.Parser.HtmlParser().ParseDocument(htmlContent);
+
+        return string.IsNullOrWhiteSpace(htmlContent)
+            ? throw new FinanceNetException("received 200, but no html content")
+            : new AngleSharp.Html.Parser.HtmlParser().ParseDocument(htmlContent);
     }
 
     public static async Task<string> FetchJsonDocumentAsync<T>(HttpClient httpClient, ILogger<T> logger, string url, CancellationToken token)

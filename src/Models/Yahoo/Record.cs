@@ -3,9 +3,9 @@
 namespace Finance.Net.Models.Yahoo;
 
 /// <summary>
-/// Represents a historical record of stock market data, including price, volume, and adjusted close information for a specific date.
+/// Represents a historical record of stock market data.
 /// </summary>
-public record HistoryRecord
+public record Record
 {
     /// <summary>
     /// The date of the record.
@@ -13,32 +13,32 @@ public record HistoryRecord
     public DateTime Date { get; set; }
 
     /// <summary>
-    /// The opening price of the asset for the given date.
+    /// The opening pricee.
     /// </summary>
     public decimal? Open { get; set; }
 
     /// <summary>
-    /// The highest price of the asset during the given day.
+    /// The highest price.
     /// </summary>
     public decimal? High { get; set; }
 
     /// <summary>
-    /// The lowest price of the asset during the given day.
+    /// The lowest price.
     /// </summary>
     public decimal? Low { get; set; }
 
     /// <summary>
-    /// The closing price of the asset for the given date.
+    /// The closing price.
     /// </summary>
     public decimal? Close { get; set; }
 
     /// <summary>
-    /// The adjusted closing price of the asset, accounting for stock splits and dividends.
+    /// The adjusted closing price, accounting for stock splits and dividends.
     /// </summary>
     public decimal? AdjustedClose { get; set; }
 
     /// <summary>
-    /// The trading volume for the asset during the given date.
+    /// The trading volume.
     /// </summary>
     public long? Volume { get; set; }
 }

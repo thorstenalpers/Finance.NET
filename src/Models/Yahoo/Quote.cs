@@ -3,7 +3,7 @@
 namespace Finance.Net.Models.Yahoo;
 
 /// <summary>
-/// Represents the financial quote data of a stock, including various stock metrics, trading information, and other related details.
+/// Represents the financial quote data of a stock.
 /// </summary>
 public record Quote
 {
@@ -33,11 +33,6 @@ public record Quote
     public string? QuoteSourceName { get; set; }
 
     /// <summary>
-    /// Indicates whether the quote is triggerable for price alerts.
-    /// </summary>
-    public bool? Triggerable { get; set; }
-
-    /// <summary>
     /// The confidence level of a custom price alert.
     /// </summary>
     public string? CustomPriceAlertConfidence { get; set; }
@@ -53,27 +48,22 @@ public record Quote
     public string? Exchange { get; set; }
 
     /// <summary>
-    /// The short name of the quoted instrument.
+    /// The short name.
     /// </summary>
     public string? ShortName { get; set; }
 
     /// <summary>
-    /// The full name of the quoted instrument.
+    /// The full name.
     /// </summary>
     public string? LongName { get; set; }
 
     /// <summary>
-    /// The message board ID associated with the quoted instrument.
-    /// </summary>
-    public string? MessageBoardId { get; set; }
-
-    /// <summary>
-    /// The time zone of the exchange for the quoted instrument.
+    /// The time zone of the exchange.
     /// </summary>
     public string? ExchangeTimezoneName { get; set; }
 
     /// <summary>
-    /// The abbreviated time zone of the exchange for the quoted instrument.
+    /// The abbreviated time zone of the exchange.
     /// </summary>
     public string? ExchangeTimezoneShortName { get; set; }
 
@@ -88,7 +78,7 @@ public record Quote
     public string? Market { get; set; }
 
     /// <summary>
-    /// Indicates if ESG (Environmental, Social, Governance) data is available for the quote.
+    /// Indicates if ESG (Environmental, Social, Governance) data.
     /// </summary>
     public bool? EsgPopulated { get; set; }
 
@@ -98,7 +88,7 @@ public record Quote
     public double? RegularMarketChangePercent { get; set; }
 
     /// <summary>
-    /// The regular market price of the quoted instrument.
+    /// The regular market price.
     /// </summary>
     public double? RegularMarketPrice { get; set; }
 
@@ -108,7 +98,7 @@ public record Quote
     public string? MarketState { get; set; }
 
     /// <summary>
-    /// The full name of the exchange for the quoted instrument.
+    /// The full name of the exchange.
     /// </summary>
     public string? FullExchangeName { get; set; }
 
@@ -118,7 +108,7 @@ public record Quote
     public string? FinancialCurrency { get; set; }
 
     /// <summary>
-    /// The opening price of the quoted instrument in the regular market.
+    /// The opening price.
     /// </summary>
     public double? RegularMarketOpen { get; set; }
 
@@ -133,47 +123,47 @@ public record Quote
     public long? AverageDailyVolume10Day { get; set; }
 
     /// <summary>
-    /// The change in the 52-week low price of the quoted instrument.
+    /// The change in the 52-week low price.
     /// </summary>
     public double? FiftyTwoWeekLowChange { get; set; }
 
     /// <summary>
-    /// The percentage change in the 52-week low price of the quoted instrument.
+    /// The percentage change in the 52-week low price.
     /// </summary>
     public double? FiftyTwoWeekLowChangePercent { get; set; }
 
     /// <summary>
-    /// The 52-week price range of the quoted instrument.
+    /// The 52-week price range.
     /// </summary>
     public string? FiftyTwoWeekRange { get; set; }
 
     /// <summary>
-    /// The change in the 52-week high price of the quoted instrument.
+    /// The change in the 52-week high price.
     /// </summary>
     public double? FiftyTwoWeekHighChange { get; set; }
 
     /// <summary>
-    /// The percentage change in the 52-week high price of the quoted instrument.
+    /// The percentage change in the 52-week high price.
     /// </summary>
     public double? FiftyTwoWeekHighChangePercent { get; set; }
 
     /// <summary>
-    /// The price of the quoted instrument at its 52-week low.
+    /// The price at its 52-week low.
     /// </summary>
     public double? FiftyTwoWeekLow { get; set; }
 
     /// <summary>
-    /// The price of the quoted instrument at its 52-week high.
+    /// The price at its 52-week high.
     /// </summary>
     public double? FiftyTwoWeekHigh { get; set; }
 
     /// <summary>
-    /// The percentage change in the 52-week price of the quoted instrument.
+    /// The percentage change in the 52-week price.
     /// </summary>
     public double? FiftyTwoWeekChangePercent { get; set; }
 
     /// <summary>
-    /// The earnings date for the quoted instrument.
+    /// The earnings date.
     /// </summary>
     public DateTime? EarningsDate { get; set; }
 
@@ -203,17 +193,17 @@ public record Quote
     public bool? IsEarningsDateEstimate { get; set; }
 
     /// <summary>
-    /// The trailing annual dividend rate for the quoted instrument.
+    /// The trailing annual dividend rate.
     /// </summary>
     public double? TrailingAnnualDividendRate { get; set; }
 
     /// <summary>
-    /// The trailing PE ratio for the quoted instrument.
+    /// The trailing PE ratio.
     /// </summary>
     public double? TrailingPe { get; set; }
 
     /// <summary>
-    /// The current dividend rate for the quoted instrument.
+    /// The current dividend rate.
     /// </summary>
     public double? DividendRate { get; set; }
 
@@ -223,12 +213,12 @@ public record Quote
     public DateTime? DividendDate { get; set; }
 
     /// <summary>
-    /// The trailing annual dividend yield for the quoted instrument.
+    /// The trailing annual dividend yield.
     /// </summary>
     public double? TrailingAnnualDividendYield { get; set; }
 
     /// <summary>
-    /// The dividend yield for the quoted instrument.
+    /// The dividend yield.
     /// </summary>
     public double? DividendYield { get; set; }
 
@@ -253,22 +243,22 @@ public record Quote
     public double? PriceEpsCurrentYear { get; set; }
 
     /// <summary>
-    /// The number of outstanding shares of the quoted instrument.
+    /// The number of outstanding shares.
     /// </summary>
     public long? SharesOutstanding { get; set; }
 
     /// <summary>
-    /// The book value of the quoted instrument.
+    /// The book value.
     /// </summary>
     public double? BookValue { get; set; }
 
     /// <summary>
-    /// The 50-day moving average for the quoted instrument.
+    /// The 50-day moving average.
     /// </summary>
     public double? FiftyDayAverage { get; set; }
 
     /// <summary>
-    /// The change in the 50-day moving average for the quoted instrument.
+    /// The change in the 50-day moving average.
     /// </summary>
     public double? FiftyDayAverageChange { get; set; }
 
@@ -278,27 +268,27 @@ public record Quote
     public double? PriceHint { get; set; }
 
     /// <summary>
-    /// The percentage change in the post-market price of the quoted instrument.
+    /// The percentage change in the post-market price.
     /// </summary>
     public double? PostMarketChangePercent { get; set; }
 
     /// <summary>
-    /// The post-market time for the quoted instrument.
+    /// The post-market time.
     /// </summary>
     public DateTime? PostMarketTime { get; set; }
 
     /// <summary>
-    /// The post-market price of the quoted instrument.
+    /// The post-market price.
     /// </summary>
     public double? PostMarketPrice { get; set; }
 
     /// <summary>
-    /// The change in the post-market price of the quoted instrument.
+    /// The change in the post-market price.
     /// </summary>
     public double? PostMarketChange { get; set; }
 
     /// <summary>
-    /// The change in the regular market price of the quoted instrument.
+    /// The change in the regular market price.
     /// </summary>
     public double? RegularMarketChange { get; set; }
 
@@ -308,82 +298,82 @@ public record Quote
     public DateTime? RegularMarketTime { get; set; }
 
     /// <summary>
-    /// The highest price during the regular market day for the quoted instrument.
+    /// The highest price during the regular market day.
     /// </summary>
     public double? RegularMarketDayHigh { get; set; }
 
     /// <summary>
-    /// The range of the regular market day for the quoted instrument.
+    /// The range of the regular market day.
     /// </summary>
     public string? RegularMarketDayRange { get; set; }
 
     /// <summary>
-    /// The lowest price during the regular market day for the quoted instrument.
+    /// The lowest price during the regular market day.
     /// </summary>
     public double? RegularMarketDayLow { get; set; }
 
     /// <summary>
-    /// The volume of trades in the regular market for the quoted instrument.
+    /// The volume of trades in the regular market.
     /// </summary>
     public long? RegularMarketVolume { get; set; }
 
     /// <summary>
-    /// The price of the quoted instrument at the previous close.
+    /// The price at the previous close.
     /// </summary>
     public double? RegularMarketPreviousClose { get; set; }
 
     /// <summary>
-    /// The current bid price for the quoted instrument.
+    /// The current bid price.
     /// </summary>
     public double? Bid { get; set; }
 
     /// <summary>
-    /// The current ask price for the quoted instrument.
+    /// The current ask price.
     /// </summary>
     public double? Ask { get; set; }
 
     /// <summary>
-    /// The bid size for the quoted instrument.
+    /// The bid size.
     /// </summary>
     public long? BidSize { get; set; }
 
     /// <summary>
-    /// The ask size for the quoted instrument.
+    /// The ask size.
     /// </summary>
     public long? AskSize { get; set; }
 
     /// <summary>
-    /// The percentage change in the 50-day moving average for the quoted instrument.
+    /// The percentage change in the 50-day moving average.
     /// </summary>
     public double? FiftyDayAverageChangePercent { get; set; }
 
     /// <summary>
-    /// The 200-day moving average for the quoted instrument.
+    /// The 200-day moving average.
     /// </summary>
     public double? TwoHundredDayAverage { get; set; }
 
     /// <summary>
-    /// The change in the 200-day moving average for the quoted instrument.
+    /// The change in the 200-day moving average.
     /// </summary>
     public double? TwoHundredDayAverageChange { get; set; }
 
     /// <summary>
-    /// The percentage change in the 200-day moving average for the quoted instrument.
+    /// The percentage change in the 200-day moving average.
     /// </summary>
     public double? TwoHundredDayAverageChangePercent { get; set; }
 
     /// <summary>
-    /// The market capitalization of the quoted instrument.
+    /// The market capitalization.
     /// </summary>
     public long? MarketCap { get; set; }
 
     /// <summary>
-    /// The forward PE ratio for the quoted instrument.
+    /// The forward PE ratio.
     /// </summary>
     public double? ForwardPe { get; set; }
 
     /// <summary>
-    /// The price-to-book ratio for the quoted instrument.
+    /// The price-to-book ratio.
     /// </summary>
     public double? PriceToBook { get; set; }
 
@@ -398,7 +388,7 @@ public record Quote
     public long? ExchangeDataDelayedBy { get; set; }
 
     /// <summary>
-    /// The average analyst rating for the quoted instrument.
+    /// The average analyst rating.
     /// </summary>
     public string? AverageAnalystRating { get; set; }
 
@@ -418,17 +408,17 @@ public record Quote
     public bool? HasPrePostMarketData { get; set; }
 
     /// <summary>
-    /// The date of the first trade for the quoted instrument.
+    /// The date of the first trade.
     /// </summary>
     public DateTime? FirstTradeDate { get; set; }
 
     /// <summary>
-    /// The display name for the quoted instrument.
+    /// The display name.
     /// </summary>
     public string? DisplayName { get; set; }
 
     /// <summary>
-    /// The symbol of the quoted instrument.
+    /// The symbol.
     /// </summary>
     public string? Symbol { get; set; }
 }
