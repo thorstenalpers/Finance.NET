@@ -20,9 +20,6 @@ public class ServiceCollectionExtensionsTests
         var cfg = new FinanceNetConfiguration()
         {
             AlphaVantageApiKey = "MyKey",
-            DatahubIoDownloadUrlNasdaqListedSymbols = "https://www.google2.de",
-            DatahubIoDownloadUrlSP500Symbols = "https://www.google3.de",
-            YahooCookieExpirationTime = 7,
             HttpRetryCount = 100,
             HttpTimeout = 1000,
         };
@@ -41,8 +38,6 @@ public class ServiceCollectionExtensionsTests
         Assert.That(resolvedCfg.AlphaVantageApiKey, Is.EqualTo(cfg.AlphaVantageApiKey));
         Assert.That(resolvedCfg.HttpRetryCount, Is.EqualTo(cfg.HttpRetryCount));
         Assert.That(resolvedCfg.HttpTimeout, Is.EqualTo(cfg.HttpTimeout));
-        Assert.That(resolvedCfg.DatahubIoDownloadUrlSP500Symbols, Is.EqualTo(cfg.DatahubIoDownloadUrlSP500Symbols));
-        Assert.That(resolvedCfg.DatahubIoDownloadUrlNasdaqListedSymbols, Is.EqualTo(cfg.DatahubIoDownloadUrlNasdaqListedSymbols));
 
         var clientDatahubIo = clientFactory.CreateClient(Constants.DatahubIoHttpClientName);
         var userAgent = clientDatahubIo.DefaultRequestHeaders.GetValues(Constants.HeaderNameUserAgent).FirstOrDefault();
@@ -87,8 +82,6 @@ public class ServiceCollectionExtensionsTests
         Assert.That(resolvedCfg.AlphaVantageApiKey, Is.EqualTo(cfg.AlphaVantageApiKey));
         Assert.That(resolvedCfg.HttpRetryCount, Is.EqualTo(cfg.HttpRetryCount));
         Assert.That(resolvedCfg.HttpTimeout, Is.EqualTo(cfg.HttpTimeout));
-        Assert.That(resolvedCfg.DatahubIoDownloadUrlSP500Symbols, Is.EqualTo(cfg.DatahubIoDownloadUrlSP500Symbols));
-        Assert.That(resolvedCfg.DatahubIoDownloadUrlNasdaqListedSymbols, Is.EqualTo(cfg.DatahubIoDownloadUrlNasdaqListedSymbols));
 
         var clientDatahubIo = clientFactory.CreateClient(Constants.DatahubIoHttpClientName);
         var userAgent = clientDatahubIo.DefaultRequestHeaders.GetValues(Constants.HeaderNameUserAgent).FirstOrDefault();

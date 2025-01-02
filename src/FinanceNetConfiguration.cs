@@ -7,21 +7,12 @@ namespace Finance.Net;
 /// </summary>
 public class FinanceNetConfiguration
 {
-    /// <summary> Default retries for failed http requests (caused by rate limits) </summary>
+    /// <summary> Default retries for failed http requests (caused by rate limits), default 10 retries </summary>
     [Required] public int HttpRetryCount { get; set; } = 10;
 
-    /// <summary> Default HTTP timeout in seconds </summary>
+    /// <summary> Default HTTP timeout in seconds, default 20 seconds </summary>
     [Required] public int HttpTimeout { get; set; } = 20;
 
-    /// <summary> Interval in hours for renewing cookies </summary>
-    [Required] public int YahooCookieExpirationTime { get; set; } = 6;
-
-    /// <summary> Download URL of DataHubIo S&amp;P500 listed symbols </summary>
-    [Required] public string DatahubIoDownloadUrlSP500Symbols { get; set; } = "https://raw.githubusercontent.com/datasets/s-and-p-500-companies-financials/refs/heads/main/data/constituents-financials.csv";
-
-    /// <summary> Download URL of DataHubIo nasdaq listed symbols </summary>
-    [Required] public string DatahubIoDownloadUrlNasdaqListedSymbols { get; set; } = "https://raw.githubusercontent.com/datasets/nasdaq-listings/refs/heads/main/data/nasdaq-listed-symbols.csv";
-
-    /// <summary> Alpha Vantage API Key </summary>
+    /// <summary> Alpha Vantage API Key, default null </summary>
     public string? AlphaVantageApiKey { get; set; }
 }

@@ -38,13 +38,13 @@ public class Program
         var provider = services.BuildServiceProvider();
         var yahooService = provider.GetRequiredService<IYahooFinanceService>();
         var alphaService = provider.GetRequiredService<IAlphaVantageService>();
-        var datahubService = provider.GetRequiredService<IDatahubService>();
+        var datahubService = provider.GetRequiredService<IDataHubService>();
         var xetraService = provider.GetRequiredService<IXetraService>();
 
         // get instruments from different providers
-        var symbolInfosXetra = await xetraService.GetInstrumentsAsync();
+        var xetraInstruments = await xetraService.GetInstrumentsAsync();
         Console.WriteLine($"\n---\nInstruments from Xetra\n---");
-        Console.WriteLine("\n" + JsonConvert.SerializeObject(symbolInfosXetra.FirstOrDefault(e => e.InstrumentName?.Contains(tickerName, StringComparison.InvariantCultureIgnoreCase) ?? false)));
+        Console.WriteLine("\n" + JsonConvert.SerializeObject(xetraInstruments.FirstOrDefault(e => e.InstrumentName?.Contains(tickerName, StringComparison.InvariantCultureIgnoreCase) ?? false)));
 
         var sp500Instruments = await datahubService.GetSp500InstrumentsAsync();
         Console.WriteLine($"\n---\nInstruments from Datahub S&P500\n---");
