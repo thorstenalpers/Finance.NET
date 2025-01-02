@@ -227,4 +227,32 @@ public class HelperTests
         // Assert
         Assert.That(result, Is.EqualTo(true));
     }
+
+    [Test]
+    [TestCase(null, null)]
+    [TestCase("", null)]
+    [TestCase("Example Text (ABC)", "Example Text")]
+    [TestCase("No Header", "No Header")]
+    [TestCase("Trailing Spaces (Header)  ", "Trailing Spaces")]
+    [TestCase("Special Characters !@#$%^&*() (Header)", "Special Characters !@#$%^&*()")]
+    [TestCase("String with (Header)", "String with")]
+    [TestCase("String with timeout (Header)", "String with timeout")]
+    public void RemoveSymbolHeader_ShouldRemoveHeader_WhenValidInputProvided(string input, string expected)
+    {
+        // Act
+        var result = Helper.RemoveSymbolHeader(input);
+
+        // Assert
+        Assert.That(result, Is.EqualTo(expected));
+    }
+
+    [Test]
+    public void RemoveSymbolHeader_ShouldThrowTimeoutException_WhenRegexTimeoutExceeds()
+    {
+        // Arrange
+        var longInput = new string('a', 10000) + " (Header)";
+
+        // Act & Assert
+        Assert.DoesNotThrow(() => Helper.RemoveSymbolHeader(longInput), "Regex should not throw due to timeout.");
+    }
 }

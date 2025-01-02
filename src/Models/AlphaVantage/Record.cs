@@ -1,8 +1,9 @@
 ﻿using System;
 
 namespace Finance.Net.Models.AlphaVantage;
+
 /// <summary>
-/// Represents a historical record of stock market data, including price, volume, and split coefficient information for a specific date.
+/// Represents a historical record of stock market data.
 /// </summary>
 public record Record
 {
@@ -12,22 +13,22 @@ public record Record
     public DateTime Date { get; set; }
 
     /// <summary>
-    /// The opening price of the asset for the given date.
+    /// The opening price.
     /// </summary>
     public double? Open { get; set; }
 
     /// <summary>
-    /// The lowest price of the asset during the given day.
+    /// The lowest price.
     /// </summary>
     public double? Low { get; set; }
 
     /// <summary>
-    /// The highest price of the asset during the given day.
+    /// The highest price.
     /// </summary>
     public double? High { get; set; }
 
     /// <summary>
-    /// The closing price of the asset for the given date.
+    /// The closing price.
     /// </summary>
     public double? Close { get; set; }
 
@@ -37,7 +38,7 @@ public record Record
     public double? AdjustedClose { get; set; }
 
     /// <summary>
-    /// The trading volume for the asset during the given date.
+    /// The trading volume.
     /// </summary>
     public long? Volume { get; set; }
 

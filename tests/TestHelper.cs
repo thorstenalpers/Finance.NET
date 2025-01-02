@@ -3,6 +3,8 @@ using Finance.Net.Tests.IntegrationTests;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace Finance.Net.Tests;
 
@@ -10,6 +12,12 @@ internal static class TestHelper
 {
     public static ServiceProvider SetUpServiceProvider()
     {
+        JsonConvert.DefaultSettings = () => new JsonSerializerSettings
+        {
+            Converters = { new StringEnumConverter() },
+            Formatting = Formatting.Indented
+        };
+
         var services = new ServiceCollection();
         var cfgBuilder = new ConfigurationBuilder();
         cfgBuilder.AddUserSecrets<AlphaVantageTests>();
@@ -19,7 +27,7 @@ internal static class TestHelper
         services.AddSingleton<IConfiguration>(cfg);
         services.AddFinanceNet(new FinanceNetConfiguration
         {
-            HttpTimeout = 5,
+            HttpTimeout = 3,
             HttpRetryCount = 3,
             AlphaVantageApiKey = cfg["FinanceNet:AlphaVantageApiKey"]
         });

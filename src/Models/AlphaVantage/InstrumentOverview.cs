@@ -3,22 +3,22 @@
 namespace Finance.Net.Models.AlphaVantage;
 
 /// <summary>
-/// Represents an overview of a company, including financial and descriptive information.
+/// Represents an overview of a company.
 /// </summary>
-public class Profile
+public class InstrumentOverview
 {
     /// <summary>
-    /// The stock symbol of the company.
+    /// The stock symbol.
     /// </summary>
     public string? Symbol { get; set; }
 
     /// <summary>
-    /// The type of asset the company represents.
+    /// The type of asset.
     /// </summary>
     public string? AssetType { get; set; }
 
     /// <summary>
-    /// The name of the company.
+    /// The name of the ticker, company, etf, ...
     /// </summary>
     public string? Name { get; set; }
 
@@ -83,7 +83,7 @@ public class Profile
     public long? MarketCapitalization { get; set; }
 
     /// <summary>
-    /// Earnings Before Interest, Taxes, Depreciation, and Amortization (EBITDA) of the company.
+    /// Earnings Before Interest, Taxes, Depreciation, and Amortization.
     /// </summary>
     public string? EBITDA { get; set; }
 
@@ -173,27 +173,27 @@ public class Profile
     public string? AnalystTargetPrice { get; set; }
 
     /// <summary>
-    /// The percentage of analysts recommending a strong buy for the stock.
+    /// The percentage of analysts recommending a strong buy.
     /// </summary>
     public string? AnalystRatingStrongBuy { get; set; }
 
     /// <summary>
-    /// The percentage of analysts recommending a buy for the stock.
+    /// The percentage of analysts recommending a buy.
     /// </summary>
     public string? AnalystRatingBuy { get; set; }
 
     /// <summary>
-    /// The percentage of analysts recommending a hold for the stock.
+    /// The percentage of analysts recommending a hold.
     /// </summary>
     public string? AnalystRatingHold { get; set; }
 
     /// <summary>
-    /// The percentage of analysts recommending a sell for the stock.
+    /// The percentage of analysts recommending a sell.
     /// </summary>
     public string? AnalystRatingSell { get; set; }
 
     /// <summary>
-    /// The percentage of analysts recommending a strong sell for the stock.
+    /// The percentage of analysts recommending a strong sell.
     /// </summary>
     public string? AnalystRatingStrongSell { get; set; }
 
@@ -236,25 +236,25 @@ public class Profile
     /// The 52-week high price of the company's stock.
     /// </summary>
     [JsonProperty("52WeekHigh")]
-    public string? _52WeekHigh { get; set; }
+    public string? FiftySecondWeekHigh { get; set; }
 
     /// <summary>
     /// The 52-week low price of the company's stock.
     /// </summary>
     [JsonProperty("52WeekLow")]
-    public string? _52WeekLow { get; set; }
+    public string? FiftySecondWeekLow { get; set; }
 
     /// <summary>
     /// The 50-day moving average of the company's stock price.
     /// </summary>
     [JsonProperty("50DayMovingAverage")]
-    public string? _50DayMovingAverage { get; set; }
+    public string? FiftyDayMovingAverage { get; set; }
 
     /// <summary>
     /// The 200-day moving average of the company's stock price.
     /// </summary>
     [JsonProperty("200DayMovingAverage")]
-    public string? _200DayMovingAverage { get; set; }
+    public string? TwoHundredDayMovingAverage { get; set; }
 
     /// <summary>
     /// The number of shares outstanding for the company.

@@ -1,7 +1,5 @@
 ﻿using System;
 using Finance.Net.Utilities;
-using Microsoft.Extensions.Options;
-using Moq;
 using NUnit.Framework;
 
 namespace Finance.Net.Tests.Utilities;
@@ -10,26 +8,11 @@ namespace Finance.Net.Tests.Utilities;
 [Category("Unit")]
 public class YahooSessionStateTests
 {
-    private Mock<IOptions<FinanceNetConfiguration>> _mockOptions;
-
-    [SetUp]
-    public void SetUp()
-    {
-        _mockOptions = new Mock<IOptions<FinanceNetConfiguration>>();
-        _mockOptions.Setup(x => x.Value).Returns(new FinanceNetConfiguration());
-    }
-
-    [Test]
-    public void Constructor_Throws()
-    {
-        Assert.Throws<ArgumentNullException>(() => new YahooSessionState(null));
-    }
-
     [Test]
     public void GetUserAgent_Random_ReturnsValid()
     {
         // Arrange
-        var yahooSessionState = new YahooSessionState(_mockOptions.Object);
+        var yahooSessionState = new YahooSessionState();
 
         // Act
         var result = yahooSessionState.GetUserAgent();
@@ -42,7 +25,7 @@ public class YahooSessionStateTests
     public void GetCrumb_Initialized_ReturnsSame()
     {
         // Arrange
-        var yahooSessionState = new YahooSessionState(_mockOptions.Object);
+        var yahooSessionState = new YahooSessionState();
 
         // Act
         yahooSessionState.SetCrumb("Test", DateTime.UtcNow);
@@ -56,7 +39,7 @@ public class YahooSessionStateTests
     public void IsValid_WithValidCookies_ReturnsTrue()
     {
         // Arrange
-        var yahooSessionState = new YahooSessionState(_mockOptions.Object);
+        var yahooSessionState = new YahooSessionState();
         var cookie = new System.Net.Cookie("cookieName", "Value", "/", ".yahoo.com")
         {
             Expires = DateTime.UtcNow.AddDays(1)
@@ -75,7 +58,7 @@ public class YahooSessionStateTests
     public void IsValid_WithOldCookies_ReturnsFalse()
     {
         // Arrange
-        var yahooSessionState = new YahooSessionState(_mockOptions.Object);
+        var yahooSessionState = new YahooSessionState();
         var cookie = new System.Net.Cookie("cookieName", "Value", "/", ".yahoo.com")
         {
             Expires = DateTime.UtcNow.AddDays(1)
@@ -94,7 +77,7 @@ public class YahooSessionStateTests
     public void IsValid_WithExpiredCookies_ReturnsFalse()
     {
         // Arrange
-        var yahooSessionState = new YahooSessionState(_mockOptions.Object);
+        var yahooSessionState = new YahooSessionState();
         var cookie = new System.Net.Cookie("cookieName", "Value", "/", ".yahoo.com")
         {
             Expires = DateTime.UtcNow.AddDays(-1)
