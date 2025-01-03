@@ -180,6 +180,7 @@ public class YahooFinanceService : IYahooFinanceService
             _yahooSession.InvalidateSession();
             await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
 
+            await Task.Delay(TimeSpan.FromSeconds(5), token);
             throw new FinanceNetException("Yahoo error: lookup received");
         }
 
