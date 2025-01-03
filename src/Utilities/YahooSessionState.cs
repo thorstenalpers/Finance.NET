@@ -8,7 +8,7 @@ namespace Finance.Net.Utilities;
 
 internal class YahooSessionState : IYahooSessionState
 {
-    private readonly string _userAgent = Helper.CreateRandomUserAgent();
+    private string _userAgent = Helper.CreateRandomUserAgent();
     private readonly CookieContainer _cookieContainer = new();
     private string? _crumb;
     private DateTime? _refreshTime;
@@ -64,6 +64,7 @@ internal class YahooSessionState : IYahooSessionState
 
         _crumb = null;
         _refreshTime = null;
+        _userAgent = Helper.CreateRandomUserAgent();
     }
 #pragma warning restore S3011
 }
