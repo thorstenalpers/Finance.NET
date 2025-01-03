@@ -94,17 +94,12 @@ Retrieves a collection of financial instruments.
 
 #### Parameters
 
-* `EAssetType? filterByType`: An optional filter to specify the type of asset. If not provided, all asset types will be included.  
-  Possible values for `EAssetType`:
-
-  | Value  | Name   | Description                                    |
-  |--------|--------|------------------------------------------------|
-  | `1`    | Stock  | Most active Stocks                |
-  | `2`    | ETF    | Most active ETFs      |
-  | `3`    | Forex  | Available Currencies |
-  | `4`    | Crypto | Available Cryptos        |
-  | `5`    | Index  | Available World Indices         |
-
+* `EAssetType? filterByType`: An optional filter to specify the type of asset. If not provided, all asset types will be included. Possible values:
+  * `Stock`: Most active stocks.
+  * `ETF`: Most active exchange-traded funds (ETFs)
+  * `Forex`: Available currencies (foreign exchange).
+  * `Crypto`: Available cryptocurrencies.
+  * `Index`: Available world indices.
 * `CancellationToken token`: (Optional) Cancellation token to cancel the operation if needed.
 
 #### Returns
