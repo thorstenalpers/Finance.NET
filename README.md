@@ -108,11 +108,11 @@ Retrieves a collection of financial instruments.
 
   | Value  | Name   | Description                                    |
   |--------|--------|------------------------------------------------|
-  | `1`    | Stock  | A stock instrument.                |
-  | `2`    | ETF    | An exchange-traded fund (ETF).      |
-  | `3`    | Forex  | A foreign exchange (Forex) instrument. |
-  | `4`    | Crypto | A cryptocurrency instrument.        |
-  | `5`    | Index  | An index instrument.                |
+  | `1`    | Stock  | Most active Stocks                |
+  | `2`    | ETF    | Most active ETFs      |
+  | `3`    | Forex  | Available Currencies |
+  | `4`    | Crypto | Available Cryptos        |
+  | `5`    | Index  | Available World Indices         |
 
 * `CancellationToken token`: (Optional) Cancellation token to cancel the operation if needed.
 
