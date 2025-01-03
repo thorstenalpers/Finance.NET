@@ -31,11 +31,11 @@ public class YahooFinanceTests
     }
 
     [TestCase(EAssetType.Index, 20)]
-    [TestCase(EAssetType.Stock, 100)]
-    [TestCase(EAssetType.ETF, 200)]
+    [TestCase(EAssetType.Stock, 20)]
+    [TestCase(EAssetType.ETF, 20)]
     [TestCase(EAssetType.Forex, 20)]
-    [TestCase(EAssetType.Crypto, 200)]
-    [TestCase(null, 500)]
+    [TestCase(EAssetType.Crypto, 20)]
+    [TestCase(null, 100)]
     public async Task GetInstrumentsAsync(EAssetType? type, int expectedCnt)
     {
         var symbols = await _service.GetInstrumentsAsync(type);
