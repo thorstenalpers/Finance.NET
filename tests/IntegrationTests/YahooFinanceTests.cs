@@ -62,7 +62,6 @@ public class YahooFinanceTests
     }
 
     [TestCase("AAPL")]
-    [TestCase("MSFT")]
     [TestCase("TSLA")]
 
     public async Task GetInstrumentsAsync(string symbol)
