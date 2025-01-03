@@ -137,7 +137,7 @@ Retrieves a collection of financial instruments.
   | `4`    | Crypto | A cryptocurrency instrument.        |
   | `5`    | Index  | An index instrument.                |
 
-* `CancellationToken token`: An optional cancellation token to cancel the operation if needed.
+* `CancellationToken token`: (Optional) Cancellation token to cancel the operation if needed.
 
 #### Returns
 
@@ -182,7 +182,7 @@ Retrieves the profile of a specific entity based on its symbol.
 #### Parameters
 
 * `string symbol`: The symbol of the quote (e.g., `"AAPL"` for Apple).
-* `CancellationToken token`: An optional cancellation token to cancel the operation if needed.
+* `CancellationToken token`: (Optional) Cancellation token to cancel the operation if needed.
 
 #### Returns
 
@@ -228,7 +228,7 @@ Retrieves the summary of a specific asset based on its symbol.
 #### Parameters
 
 * `string symbol`: The symbol of the quote (e.g., `"AAPL"` for Apple).
-* `CancellationToken token`: An optional cancellation token to cancel the operation if needed.
+* `CancellationToken token`: (Optional) Cancellation token to cancel the operation if needed.
 
 #### Returns
 
@@ -291,7 +291,7 @@ Retrieves the financial reports for a specified asset identified by its symbol.
 #### Parameters
 
 * `string symbol`: The symbol of the quote (e.g., `"AAPL"` for Apple).
-* `CancellationToken token`: An optional cancellation token to cancel the operation if needed.
+* `CancellationToken token`: (Optional) Cancellation token to cancel the operation if needed.
 
 #### Returns
 
@@ -374,7 +374,7 @@ Retrieves historical stock market data records for a specified asset identified 
 * `string symbol`: The symbol of the quote (e.g., `"AAPL"` for Apple).
 * `DateTime? startDate`: (Optional) Start date for retrieving historical records. Defaults to 7 days before the current date if not provided.
 * `DateTime? endDate`: (Optional) End date for retrieving historical records. Defaults to the current date if not provided.
-* `CancellationToken token`: An optional cancellation token to cancel the operation if needed.
+* `CancellationToken token`: (Optional) Cancellation token to cancel the operation if needed.
 
 #### Returns
 
@@ -513,7 +513,7 @@ Retrieves quote data for multiple financial instruments identified by their symb
 #### Parameters
 
 * `List<string> symbols`: A list of symbols for which to retrieve data (e.g., `["AAPL", "MSFT", "GOOGL"]`).
-* `CancellationToken token`: An optional cancellation token to cancel the operation if needed.
+* `CancellationToken token`: (Optional) Cancellation token to cancel the operation if needed.
 
 #### Returns
 
@@ -908,7 +908,7 @@ Retrieves a collection of more than 4,000 Nasdaq instruments.
 
 #### Parameters
 
-* `CancellationToken token`: An optional cancellation token.
+* `CancellationToken token`: (Optional) Cancellation token.
 
 #### Returns
 
@@ -946,7 +946,7 @@ Retrieves a collection of S&P 500 instruments.
 
 #### Parameters
 
-* `CancellationToken token`: An optional cancellation token.
+* `CancellationToken token`: (Optional) Cancellation token.
 
 #### Returns
 
@@ -1009,7 +1009,7 @@ Retrieves a collection of more than 3,000 Xetra instruments.
 
 #### Parameters
 
-* `CancellationToken token`: An optional cancellation token.
+* `CancellationToken token`: (Optional) Cancellation token.
 
 #### Returns
 
