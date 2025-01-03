@@ -84,16 +84,16 @@ public async Task Run(IYahooFinanceService yahooService)
 
 [Yahoo! Finance](https://finance.yahoo.com/) is one of the most popular platforms for market data, company fundamentals, historical records, and real-time stock quotes.
 
-<table style="width: 100%;">
+<table>
   <thead>
     <tr>
-      <th align="left" style="font-size: 16px; width: 1000px;">Methods</th>
+      <th align="left" style="font-size: 16px;" >Methods</th>
     </tr>
   </thead>
   <tbody>
     <tr style="background-color: transparent;">
       <td>
-      <details><summary style="margin: 1px"><code style="font-size: 14px">GetInstrumentsAsync</code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</summary>
+      <details><summary style="margin: 1px><code style="font-size: 14px">GetInstrumentsAsync</code></summary>
       <div style="height: 1px; background-color: #ddd; width: 100%; margin-top: 10px;"></div>
 
 #### Description
