@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
@@ -10,7 +9,6 @@ using Finance.Net.Enums;
 using Finance.Net.Exceptions;
 using Finance.Net.Interfaces;
 using Finance.Net.Models.AlphaVantage;
-using Finance.Net.Models.AlphaVantage.Dtos;
 using Finance.Net.Utilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -92,7 +90,7 @@ IReadOnlyPolicyRegistry<string> policyRegistry) : IAlphaVantageService
                 {
                     throw new FinanceNetException($"{Constants.ResponseApiLimitExceeded} for {symbol}");
                 }
-                var result = ParseHistoryRecords(symbol, startDate, endDate, jsonResponse);
+                var result = AlphaVantageParser.ParseRecords(symbol, startDate, endDate, jsonResponse, _logger);
                 return result.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
             });
         }
@@ -102,43 +100,7 @@ IReadOnlyPolicyRegistry<string> policyRegistry) : IAlphaVantageService
         }
     }
 
-    private List<Record> ParseHistoryRecords(string symbol, DateTime? startDate, DateTime? endDate, string jsonResponse)
-    {
-        var result = new List<Record>();
-        Guard.Against.Null(startDate);
-        var data = JsonConvert.DeserializeObject<DailyRecordRoot>(jsonResponse);
-        if (data?.TimeSeries == null)
-        {
-            throw new FinanceNetException("data is invalid");
-        }
-        foreach (var item in data.TimeSeries)
-        {
-            var today = item.Key.Date;
-            if (today > endDate || today < startDate)
-            {
-                continue;
-            }
-            if (result.Any(e => e.Date == today))
-            {
-                _logger.LogWarning("Bug: Course for {Symbol} for {Date} already added!", symbol, today.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
-            }
-            else
-            {
-                result.Add(new Record
-                {
-                    Date = today,
-                    Open = item.Value.Open,
-                    Low = item.Value.Low,
-                    High = item.Value.High,
-                    Close = item.Value.AdjustedClose,
-                    AdjustedClose = item.Value.AdjustedClose,
-                    Volume = item.Value.Volume,
-                    SplitCoefficient = item.Value.SplitCoefficient,
-                });
-            }
-        }
-        return result;
-    }
+
 
     /// <inheritdoc />
     public async Task<IEnumerable<IntradayRecord>> GetIntradayRecordsAsync(string symbol, DateTime startDate, DateTime? endDate = null, EInterval interval = EInterval.Interval_15Min, CancellationToken token = default)
@@ -195,7 +157,7 @@ IReadOnlyPolicyRegistry<string> policyRegistry) : IAlphaVantageService
                 {
                     throw new FinanceNetException($"{Constants.ResponseApiLimitExceeded} for {symbol}");
                 }
-                var result = ParseIntradayRecords(symbol, interval, jsonResponse);
+                var result = AlphaVantageParser.ParseIntradayRecords(symbol, interval, jsonResponse);
                 return result.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
             });
         }
@@ -205,37 +167,6 @@ IReadOnlyPolicyRegistry<string> policyRegistry) : IAlphaVantageService
         }
     }
 
-    private static List<IntradayRecord> ParseIntradayRecords(string symbol, EInterval interval, string jsonResponse)
-    {
-        var result = new List<IntradayRecord>();
-        var data = JsonConvert.DeserializeObject<IntradayRecordRoot>(jsonResponse);
-
-        var timeseries = interval switch
-        {
-            EInterval.Interval_1Min => data?.TimeSeries1Min ?? throw new FinanceNetException($"no timeSeries for {symbol}"),
-            EInterval.Interval_5Min => data?.TimeSeries5Min ?? throw new FinanceNetException($"no timeSeries for {symbol}"),
-            EInterval.Interval_15Min => data?.TimeSeries15Min ?? throw new FinanceNetException($"no timeSeries for {symbol}"),
-            EInterval.Interval_30Min => data?.TimeSeries30Min ?? throw new FinanceNetException($"no timeSeries for {symbol}"),
-            EInterval.Interval_60Min => data?.TimeSeries60Min ?? throw new FinanceNetException($"no timeSeries for {symbol}"),
-            _ => throw new NotImplementedException(),
-        };
-        foreach (var item in timeseries)
-        {
-            var dateTime = DateTime.ParseExact(item.Key, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
-
-            result.Add(new IntradayRecord
-            {
-                DateTime = dateTime,
-
-                Open = item.Value.Open,
-                Low = item.Value.Low,
-                High = item.Value.High,
-                Close = item.Value.Close,
-                Volume = item.Value.Volume,
-            });
-        }
-        return result;
-    }
 
     /// <inheritdoc />
     public async Task<IEnumerable<ForexRecord>> GetForexRecordsAsync(string currency1, string currency2, DateTime startDate, DateTime? endDate = null, CancellationToken token = default)
@@ -265,7 +196,7 @@ IReadOnlyPolicyRegistry<string> policyRegistry) : IAlphaVantageService
                 {
                     throw new FinanceNetException($"{Constants.ResponseApiLimitExceeded} for {currency1} /{currency2}");
                 }
-                var result = ParseHistoryForexRecords(currency1, currency2, startDate, endDate, jsonResponse);
+                var result = AlphaVantageParser.ParseForexRecords(currency1, currency2, startDate, endDate, jsonResponse, _logger);
                 return result.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
             });
         }
@@ -273,39 +204,5 @@ IReadOnlyPolicyRegistry<string> policyRegistry) : IAlphaVantageService
         {
             throw new FinanceNetException($"No forex record found for {currency1}, {currency2}", ex);
         }
-    }
-
-    private List<ForexRecord> ParseHistoryForexRecords(string currency1, string currency2, DateTime startDate, DateTime? endDate, string jsonResponse)
-    {
-        var result = new List<ForexRecord>();
-        var data = JsonConvert.DeserializeObject<DailyForexRecordRoot>(jsonResponse);
-        if (data?.TimeSeries == null)
-        {
-            throw new FinanceNetException("data is invalid");
-        }
-        foreach (var item in data.TimeSeries)
-        {
-            var today = item.Key;
-            if (today > endDate || today < startDate)
-            {
-                continue;
-            }
-            if (result.Any(e => e.Date == today))
-            {
-                _logger.LogWarning("Bug: {Currency1} /{Currency2} for {Date} already added!", currency1, currency2, today.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
-            }
-            else
-            {
-                result.Add(new ForexRecord
-                {
-                    Date = item.Key,
-                    Open = item.Value.Open,
-                    Low = item.Value.Low,
-                    High = item.Value.High,
-                    Close = item.Value.Close,
-                });
-            }
-        }
-        return result;
     }
 }
