@@ -4,7 +4,7 @@
 </a>
 </div>
 
-<div>
+<div style="margin-bottom: 8px;">
 <a href="#">
     <img src="https://img.shields.io/badge/.NET%20Standard-2.1-blue" alt=".NET Standard 2.1">
 </a>
@@ -31,7 +31,6 @@
 </a>
 </div>
 
-<div style="height: 8px;"></div>
 
 An easy-to-use .NET library for accessing and aggregating financial data from multiple sources. This library provides functionality to retrieve financial information through APIs and HTML scraping from various providers.
 
