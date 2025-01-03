@@ -84,7 +84,8 @@ public async Task Run(IYahooFinanceService yahooService)
 
 [Yahoo! Finance](https://finance.yahoo.com/) is one of the most popular platforms for market data, company fundamentals, historical records, and real-time stock quotes.
 
-<table>
+<div style="width: 100%;">
+<table style="width: 100%;">
   <thead>
     <tr>
       <th style="font-size: 16px;">Methods</th>
@@ -128,13 +129,13 @@ A task that resolves to an `IEnumerable<Instrument>` containing the following pr
 #### Example
 
 ```csharp
-public async Task Run(IDataService dataService)
+public async Task Run(IYahooFinanceService yahooService)
 {
     // Retrieve all instruments
-    var instruments = await dataService.GetInstrumentsAsync();
+    var instruments = await yahooService.GetInstrumentsAsync();
 
     // Retrieve only stock instruments
-    var stockInstruments = await dataService.GetInstrumentsAsync(EAssetType.Stock);
+    var stockInstruments = await yahooService.GetInstrumentsAsync(EAssetType.Stock);
 
     foreach (var instrument in stockInstruments)
     {
@@ -178,9 +179,9 @@ A task that resolves to a `Profile` containing the following properties:
 #### Example
 
 ```csharp
-public async Task Run(IDataService dataService)
+public async Task Run(IYahooFinanceService yahooService)
 {
-    var profile = await dataService.GetProfileAsync("AAPL");
+    var profile = await yahooService.GetProfileAsync("AAPL");
 
     Console.WriteLine($"Address: {profile.Adress}");
     Console.WriteLine($"Sector: {profile.Sector}");
@@ -237,10 +238,10 @@ A task that resolves to a `Summary` containing the following properties:
 #### Example
 
 ```csharp
-public async Task Run(IDataService dataService)
+public async Task Run(IYahooFinanceService yahooService)
 {
     // Retrieve the summary for Apple Inc.
-    var summary = await dataService.GetSummaryAsync("AAPL");
+    var summary = await yahooService.GetSummaryAsync("AAPL");
 
     Console.WriteLine($"Name: {summary.Name}");
     Console.WriteLine($"Previous Close: {summary.PreviousClose}");
@@ -313,10 +314,10 @@ A task that resolves to a `Dictionary<string, FinancialReport>` where the key is
 #### Example
 
 ```csharp
-public async Task Run(IDataService dataService)
+public async Task Run(IYahooFinanceService yahooService)
 {
     // Retrieve financial reports for Apple Inc.
-    var financialReports = await dataService.GetFinancialsAsync("AAPL");
+    var financialReports = await yahooService.GetFinancialsAsync("AAPL");
 
     foreach (var label in financialReports.Keys)
     {
@@ -369,13 +370,13 @@ A task that resolves to an `IEnumerable<Record>`, where each `Record` represents
 #### Example
 
 ```csharp
-public async Task Run(IDataService dataService)
+public async Task Run(IYahooFinanceService yahooService)
 {
     // Retrieve historical records for Apple Inc. for the last 30 days
     var startDate = DateTime.UtcNow.AddDays(-30);
     var endDate = DateTime.UtcNow;
 
-    var records = await dataService.GetRecordsAsync("AAPL", startDate, endDate);
+    var records = await yahooService.GetRecordsAsync("AAPL", startDate, endDate);
 
     foreach (var record in records)
     {
@@ -459,10 +460,10 @@ A task that resolves to a `Quote` object. The `Quote` record contains detailed i
 #### Example
 
 ```csharp
-public async Task DisplayQuote(IDataService dataService)
+public async Task DisplayQuote(IYahooFinanceService yahooService)
 {
     // Retrieve a quote for Apple Inc.
-    var quote = await dataService.GetQuoteAsync("AAPL");
+    var quote = await yahooService.GetQuoteAsync("AAPL");
 
     Console.WriteLine($"Symbol: {quote.Symbol}");
     Console.WriteLine($"Name: {quote.ShortName}");
@@ -545,12 +546,12 @@ A task that resolves to an `IEnumerable<Quote>`, where each `Quote` provides com
 #### Example
 
 ```csharp
-public async Task Run(IDataService dataService)
+public async Task Run(IYahooFinanceService yahooService)
 {
     // Retrieve quotes for Apple, Microsoft, and Google
     var symbols = new List<string> { "AAPL", "MSFT", "GOOGL" };
 
-    var quotes = await dataService.GetQuotesAsync(symbols);
+    var quotes = await yahooService.GetQuotesAsync(symbols);
 
     foreach (var quote in quotes)
     {
