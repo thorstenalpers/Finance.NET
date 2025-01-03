@@ -85,7 +85,7 @@ public async Task Run(IYahooFinanceService yahooService)
 [Yahoo! Finance](https://finance.yahoo.com/) is one of the most popular platforms for market data, company fundamentals, historical records, and real-time stock quotes.
 
 
-#### Methods
+### Methods
 <details><summary style="margin: 1px"><code style="font-size: 14px">GetInstrumentsAsync</code></summary>
 
 #### Description
@@ -557,7 +557,7 @@ services.AddFinanceNet(new FinanceNetConfiguration
 });
 ```
 
-#### Methods
+### Methods
 
 <details><summary style="margin: 1px"><code style="font-size: 14px">GetOverviewAsync</code></summary>
 
@@ -807,7 +807,7 @@ public async Task Run(IAlphaVantageService alphaVantageService)
 
 [DataHub](https://www.datahub.io) is a popular source for accessing comprehensive data, including Nasdaq and S&P 500 companies.
 
-#### Methods
+### Methods
 
 <details><summary style="margin: 1px"><code style="font-size: 14px">GetNasdaqInstrumentsAsync</code></summary>
 
@@ -892,10 +892,8 @@ public async Task Run(IDataHubService datahubService)
 
 [Xetra](https://www.xetra.com/) is a leading European electronic trading platform, widely known for providing access to financial instruments listed on the Xetra market.
 
-#### Methods
-<div style="border: 1px solid #AAA; padding: 10px;">
-  Methods
-</div>
+### Methods
+
 <details><summary style="margin: 1px"><code style="font-size: 14px">GetInstrumentsAsync</code></summary>
 
 #### Description
