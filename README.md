@@ -84,17 +84,9 @@ public async Task Run(IYahooFinanceService yahooService)
 
 [Yahoo! Finance](https://finance.yahoo.com/) is one of the most popular platforms for market data, company fundamentals, historical records, and real-time stock quotes.
 
-<table>
-  <thead>
-    <tr>
-      <th style="font-size: 16px; width: 1000px;">Methods</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr style="background-color: transparent;">
-      <td>
-      <details><summary style="margin: 1px"><code style="font-size: 14px">GetInstrumentsAsync</code></summary>
-      <div style="height: 1px; background-color: #ddd; width: 100%; margin-top: 10px;"></div>
+
+### Methods
+<details><summary style="margin: 1px"><code style="font-size: 14px">GetInstrumentsAsync</code></summary>
 
 #### Description
 
@@ -143,13 +135,8 @@ public async Task Run(IYahooFinanceService yahooService)
 }
 ```
 </details>
-</td>
-    </tr>
-        <tr style="background-color: transparent;">
-      <td>
-      <details><summary style="margin: 1px"><code style="font-size: 14px">GetProfileAsync</code></summary>
-      <div style="height: 1px; background-color: #ddd; width: 100%; margin-top: 10px;"></div>
 
+<details><summary style="margin: 1px"><code style="font-size: 14px;">GetProfileAsync</code></summary>
 
 #### Description
 
@@ -166,13 +153,13 @@ A task that resolves to a `Profile` containing the following properties:
 
 | Property        | Type        | Description                                    | Example                     |
 |-----------------|-------------|------------------------------------------------|-----------------------------|
-| `Adress`        | `string?`   | The address of the entity.                     | One Apple Park Way, Cupertino, CA 95014 |
-| `Phone`         | `string?`   | The phone number of the entity.                | +1-800-MY-APPLE             |
-| `Website`       | `string?`   | The website URL of the entity.                 | https://www.apple.com       |
+| `Adress`        | `string?`   | The address.                     | One Apple Park Way, Cupertino, CA 95014 |
+| `Phone`         | `string?`   | The phone number.                | +1-800-MY-APPLE             |
+| `Website`       | `string?`   | The website URL.                 | https://www.apple.com       |
 | `Sector`        | `string?`   | The sector in which the entity operates.       | Technology                  |
 | `Industry`      | `string?`   | The industry the entity belongs to.            | Consumer Electronics        |
 | `CntEmployees`  | `long?`     | The number of employees.                       | 164000                      |
-| `Description`   | `string?`   | A brief description of the entity.             | Apple designs and ... |
+| `Description`   | `string?`   | A brief description.             | Apple designs and ... |
 
 
 #### Example
@@ -190,12 +177,8 @@ public async Task Run(IYahooFinanceService yahooService)
 ```
 
 </details>
-</td>
-    </tr>
-            <tr style="background-color: transparent;">
-      <td>
-      <details><summary style="margin: 1px"><code style="font-size: 14px">GetSummaryAsync</code></summary>
-      <div style="height: 1px; background-color: #ddd; width: 100%; margin-top: 10px;"></div>
+
+<details><summary style="margin: 1px"><code style="font-size: 14px">GetSummaryAsync</code></summary>
 
 #### Description
 
@@ -253,12 +236,8 @@ public async Task Run(IYahooFinanceService yahooService)
 ```
 
 </details>
-</td>
-    </tr>
-            <tr style="background-color: transparent;">
-      <td>
-      <details><summary style="margin: 1px"><code style="font-size: 14px">GetFinancialsAsync</code></summary>
-      <div style="height: 1px; background-color: #ddd; width: 100%; margin-top: 10px;"></div>
+
+<details><summary style="margin: 1px"><code style="font-size: 14px">GetFinancialsAsync</code></summary>
 
 #### Description
 
@@ -334,12 +313,8 @@ public async Task Run(IYahooFinanceService yahooService)
 ```
 
 </details>
-</td>
-    </tr>
-        <tr style="background-color: transparent;">
-      <td>
-      <details><summary style="margin: 1px"><code style="font-size: 14px">GetRecordsAsync</code></summary>
-      <div style="height: 1px; background-color: #ddd; width: 100%; margin-top: 10px;"></div>
+
+<details><summary style="margin: 1px"><code style="font-size: 14px">GetRecordsAsync</code></summary>
 
 #### Description
 
@@ -388,12 +363,8 @@ public async Task Run(IYahooFinanceService yahooService)
 ```
 
 </details>
-</td>
-    </tr>
-        <tr style="background-color: transparent;">
-      <td>
-      <details><summary style="margin: 1px"><code style="font-size: 14px">GetQuoteAsync</code></summary>
-      <div style="height: 1px; background-color: #ddd; width: 100%; margin-top: 10px;"></div>
+
+<details><summary style="margin: 1px"><code style="font-size: 14px">GetQuoteAsync</code></summary>
 
 #### Description
 
@@ -475,12 +446,9 @@ public async Task DisplayQuote(IYahooFinanceService yahooService)
 ```
 
 </details>
-</td>
-    </tr>
-            <tr style="background-color: transparent;">
-      <td>
-      <details><summary style="margin: 1px"><code style="font-size: 14px">GetQuotesAsync</code></summary>
-      <div style="height: 1px; background-color: #ddd; width: 100%; margin-top: 10px;"></div>
+
+
+<details><summary style="margin: 1px"><code style="font-size: 14px">GetQuotesAsync</code></summary>
 
 #### Description
 
@@ -568,10 +536,7 @@ public async Task Run(IYahooFinanceService yahooService)
 ```
 
 </details>
-</td>
-    </tr>
-      </tbody>
-</table>
+
 
 ## Alpha Vantage
 
@@ -592,17 +557,9 @@ services.AddFinanceNet(new FinanceNetConfiguration
 });
 ```
 
-<table>
-  <thead>
-    <tr>
-      <th style="font-size: 16px; width: 1000px;">Methods</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr style="background-color: transparent;">
-      <td>
-      <details><summary style="margin: 1px"><code style="font-size: 14px">GetOverviewAsync</code></summary>
-      <div style="height: 1px; background-color: #ddd; width: 100%; margin-top: 10px;"></div>
+### Methods
+
+<details><summary style="margin: 1px"><code style="font-size: 14px">GetOverviewAsync</code></summary>
 
 #### Description
 
@@ -695,12 +652,8 @@ public async Task Run(IAlphaVantageService alphaVantageService)
 ```
 
 </details>
-</td>
-    </tr>
-        <tr style="background-color: transparent;">
-      <td>
-      <details><summary style="margin: 1px"><code style="font-size: 14px">GetRecordsAsync</code></summary>
-      <div style="height: 1px; background-color: #ddd; width: 100%; margin-top: 10px;"></div>
+
+<details><summary style="margin: 1px"><code style="font-size: 14px">GetRecordsAsync</code></summary>
 
 #### Description
 
@@ -752,12 +705,8 @@ public async Task Run(IAlphaVantageService alphaVantageService)
 ```
 
 </details>
-</td>
-    </tr>
-        <tr style="background-color: transparent;">
-      <td>
-      <details><summary style="margin: 1px"><code style="font-size: 14px">GetForexRecordsAsync</code></summary>
-      <div style="height: 1px; background-color: #ddd; width: 100%; margin-top: 10px;"></div>
+
+<details><summary style="margin: 1px"><code style="font-size: 14px">GetForexRecordsAsync</code></summary>
 
 #### Description
 
@@ -801,12 +750,8 @@ public async Task Run(IAlphaVantageService alphaVantageService)
 ```
 
 </details>
-</td>
-    </tr>
-        <tr style="background-color: transparent;">
-      <td>
-      <details><summary style="margin: 1px"><code style="font-size: 14px">GetIntradayRecordsAsync</code></summary>
-      <div style="height: 1px; background-color: #ddd; width: 100%; margin-top: 10px;"></div>
+
+<details><summary style="margin: 1px"><code style="font-size: 14px">GetIntradayRecordsAsync</code></summary>
 
 #### Description
 
@@ -857,26 +802,14 @@ public async Task Run(IAlphaVantageService alphaVantageService)
 ```
 
 </details>
-</td>
-    </tr>
-      </tbody>
-</table>
 
 ## DataHub
 
 [DataHub](https://www.datahub.io) is a popular source for accessing comprehensive data, including Nasdaq and S&P 500 companies.
 
-<table>
-  <thead>
-    <tr>
-      <th style="font-size: 16px;width: 1000px;">Methods</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr  style="background-color: transparent;">
-      <td>
-      <details><summary style="margin: 1px"><code style="font-size: 14px">GetNasdaqInstrumentsAsync</code></summary>
-      <div style="height: 1px; background-color: #ddd; width: 100%; margin-top: 10px;"></div>
+### Methods
+
+<details><summary style="margin: 1px"><code style="font-size: 14px">GetNasdaqInstrumentsAsync</code></summary>
 
 #### Description
 
@@ -909,12 +842,8 @@ public async Task Run(IDataHubService datahubService)
 ```
 
 </details>
-</td>
-    </tr>
-        <tr style="background-color: transparent;">
-      <td>
-      <details><summary style="margin: 1px"><code style="font-size: 14px">GetSp500InstrumentsAsync</code></summary>
-      <div style="height: 1px; background-color: #ddd; width: 100%; margin-top: 10px;"></div>
+
+<details><summary style="margin: 1px"><code style="font-size: 14px">GetSp500InstrumentsAsync</code></summary>
 
 #### Description
 
@@ -958,26 +887,14 @@ public async Task Run(IDataHubService datahubService)
 ```
 
 </details>
-</td>
-    </tr>
-      </tbody>
-</table>
 
 ## Xetra
 
 [Xetra](https://www.xetra.com/) is a leading European electronic trading platform, widely known for providing access to financial instruments listed on the Xetra market.
 
-<table>
-  <thead>
-    <tr>
-      <th style="font-size: 16px;width: 1000px;">Methods</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>
-      <details><summary style="margin: 1px"><code style="font-size: 14px">GetInstrumentsAsync</code></summary>
-      <div style="height: 1px; background-color: #ddd; width: 100%; margin-top: 10px;"></div>
+### Methods
+
+<details><summary style="margin: 1px"><code style="font-size: 14px">GetInstrumentsAsync</code></summary>
 
 #### Description
 
@@ -1016,10 +933,6 @@ public async Task Run(IXetraService xetraService)
 ```
 
 </details>
-</td>
-    </tr>
-  </tbody>
-</table>
 
 <div style="height: 1px;"></div>
 
