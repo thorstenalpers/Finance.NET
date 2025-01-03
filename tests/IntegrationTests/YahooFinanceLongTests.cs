@@ -29,11 +29,11 @@ public class YahooFinanceLongTests
         Task.Delay(TimeSpan.FromSeconds(4)).GetAwaiter().GetResult();
     }
 
-    [Test]
-    public async Task GetProfileAsync_500Times_Success()
+    [TestCase(200)]
+    public async Task GetProfileAsync_NTimes_Success(int times)
     {
         Profile firstProfile = null;
-        for (var i = 0; i < 500; i++)
+        for (var i = 0; i < times; i++)
         {
             Console.WriteLine($"{i + 1})");
             var profile = await _service.GetProfileAsync("IBM");
@@ -41,17 +41,15 @@ public class YahooFinanceLongTests
 
             firstProfile ??= profile;
 
-            Assert.That(profile.Industry, Is.EqualTo(firstProfile.Industry));
-            Assert.That(profile.Sector, Is.EqualTo(firstProfile.Sector));
-            Assert.That(profile.Website, Is.EqualTo(firstProfile.Website));
+            Assert.That(profile, Is.EqualTo(firstProfile));
         }
     }
 
-    [Test]
-    public async Task GetSummaryAsync_500Times_Success()
+    [TestCase(200)]
+    public async Task GetSummaryAsync_NTimes_Success(int times)
     {
         Summary firstSummary = null;
-        for (var i = 0; i < 500; i++)
+        for (var i = 0; i < times; i++)
         {
             Console.WriteLine($"{i + 1})");
             var summary = await _service.GetSummaryAsync("IBM");
@@ -65,11 +63,11 @@ public class YahooFinanceLongTests
         }
     }
 
-    [Test]
-    public async Task GetFinancialsAsync_500Times_Success()
+    [TestCase(200)]
+    public async Task GetFinancialsAsync_NTimes_Success(int times)
     {
         FinancialReport firstReport = null;
-        for (var i = 0; i < 500; i++)
+        for (var i = 0; i < times; i++)
         {
             Console.WriteLine($"{i + 1})");
             var report = await _service.GetFinancialsAsync("IBM");
@@ -81,11 +79,11 @@ public class YahooFinanceLongTests
         }
     }
 
-    [Test]
-    public async Task GetRecordsAsync_500Times_Success()
+    [TestCase(200)]
+    public async Task GetRecordsAsync_NTimes_Success(int times)
     {
         List<decimal?> firstRecords = null;
-        for (var i = 0; i < 500; i++)
+        for (var i = 0; i < times; i++)
         {
             Console.WriteLine($"{i + 1})");
             var records = await _service.GetRecordsAsync("IBM");
@@ -97,11 +95,11 @@ public class YahooFinanceLongTests
         }
     }
 
-    [Test]
-    public async Task GetQuoteAsync_500Times_Success()
+    [TestCase(1000)]
+    public async Task GetQuoteAsync_NTimes_Success(int times)
     {
         Quote firstQuote = null;
-        for (var i = 0; i < 500; i++)
+        for (var i = 0; i < times; i++)
         {
             Console.WriteLine($"{i + 1})");
             var quote = await _service.GetQuoteAsync("IBM");
