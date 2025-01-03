@@ -15,7 +15,7 @@
 	<Version>1.0.0</Version>
 	<Authors>Thorsten Alpers</Authors>
 	<Owners>Thorsten Alpers</Owners>
-	<Description>Access publicly available financial data from Yahoo Finance and other sources.</Description>
+	<Description>Access financial data from Yahoo Finance and other sources.</Description>
 	<PackageProjectUrl>https://github.com/thorstenalpers/Finance.NET</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/thorstenalpers/Finance.NET</RepositoryUrl>
 	<PackageTags>Finance.NET;Nasdaq;Xetra;Yahoo;DataHub;Finance;Trading</PackageTags>
