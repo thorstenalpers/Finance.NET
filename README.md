@@ -1,36 +1,13 @@
-<div>
-<a href="https://github.com/thorstenalpers/Finance.NET" target="_blank">
-  <img src="./src/banner.png" width="380">
-</a>
-</div>
+![Banner](./src/banner.png)
 
-<div style="margin-bottom: 8px;">
-<a href="#">
-    <img src="https://img.shields.io/badge/.NET%20Standard-2.1-blue" alt=".NET Standard 2.1">
-</a>
-<a href="./LICENSE">
-    <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="MIT">
-</a>
-<a href="https://sonarcloud.io/project/issues?issueStatuses=OPEN%2CCONFIRMED&id=thorstenalpers_Finance.NET">
-    <img src="https://sonarcloud.io/api/project_badges/measure?project=thorstenalpers_Finance.NET&metric=alert_status" alt="Tests">
-</a>
-<a href="https://github.com/thorstenalpers/Finance.NET/actions/workflows/tests-ci.yml">
-    <img src="https://github.com/thorstenalpers/Finance.NET/actions/workflows/ci.yml/badge.svg" alt="Tests">
-</a>
-<a href="https://coveralls.io/github/thorstenalpers/Finance.NET?branch=develop">
-    <img src="https://coveralls.io/repos/github/thorstenalpers/Finance.NET/badge.svg?branch=develop" alt="NuGet Version">
-</a>
-<a href="https://www.nuget.org/packages/Finance.NET">
-    <img src="https://img.shields.io/nuget/v/Finance.NET.svg" alt="NuGet Version">
-</a>
-<a href="https://www.nuget.org/packages/Finance.NET">
-    <img src="https://img.shields.io/nuget/dt/Finance.NET.svg" alt="NuGet Downloads">
-</a>
-<a href="https://github.com/thorstenalpers/Finance.NET" target="new">
-    <img border="0" src="https://img.shields.io/github/stars/thorstenalpers/Finance.NET.svg?style=social&label=Star&maxAge=60" alt="Star this repo">
-</a>
-</div>
-
+[![.NET Standard 2.1](https://img.shields.io/badge/.NET%20Standard-2.1-blue)](#)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=thorstenalpers_Finance.NET&metric=alert_status)](https://sonarcloud.io/project/issues?issueStatuses=OPEN%2CCONFIRMED&id=thorstenalpers_Finance.NET)
+[![CI Tests](https://github.com/thorstenalpers/Finance.NET/actions/workflows/ci.yml/badge.svg)](https://github.com/thorstenalpers/Finance.NET/actions/workflows/tests-ci.yml)
+[![Coverage Status](https://coveralls.io/repos/github/thorstenalpers/Finance.NET/badge.svg?branch=develop)](https://coveralls.io/github/thorstenalpers/Finance.NET?branch=develop)
+[![NuGet Version](https://img.shields.io/nuget/v/Finance.NET.svg)](https://www.nuget.org/packages/Finance.NET)
+[![NuGet Downloads](https://img.shields.io/nuget/dt/Finance.NET.svg)](https://www.nuget.org/packages/Finance.NET)
+[![Star this repo](https://img.shields.io/github/stars/thorstenalpers/Finance.NET.svg?style=social&label=Star&maxAge=60)](https://github.com/thorstenalpers/Finance.NET)
 
 An easy-to-use .NET library for accessing and aggregating financial data from multiple sources. This library provides functionality to retrieve financial information through APIs and HTML scraping from various providers.
 
