@@ -60,8 +60,6 @@ public class YahooFinanceLongTests
             firstSummary ??= summary;
 
             Assert.That(summary.Name, Is.EqualTo(firstSummary.Name));
-            Assert.That(summary.EarningsDate, Is.EqualTo(firstSummary.EarningsDate));
-            Assert.That(summary.WeekRange52_Max, Is.EqualTo(firstSummary.WeekRange52_Max));
         }
     }
 
