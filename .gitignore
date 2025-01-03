@@ -88,10 +88,9 @@ yarn-error.log*
 *drawio.bkp
 
 
-# ignore pod logs folder
 /logs
 /archiv
-/*.cmd
-/*.lnk
 
-deploy.cmd
+*.cmd
+**/TestResult/
+/test.html.lnk

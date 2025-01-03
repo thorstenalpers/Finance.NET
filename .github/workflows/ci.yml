@@ -1,0 +1,76 @@
+name: "CI"
+
+on:
+  push:
+    branches: [ develop, main]
+  schedule:
+    - cron: '0 2 * * *'  # each day at 2 AM UTC
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    env:
+      Solution_Name: "Finance.NET.sln"
+      Test_Project_Path: "tests/Tests.csproj"       
+      FORCE_COLOR: "true"
+      DOTNET_LOGGING__CONSOLE__COLORBEHAVIOR: Enabled
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        ref: develop
+        fetch-depth: 0 
+
+    - name: Initialize dotnet
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.x
+
+    - name: Set up .NET tools
+      run: |        
+        dotnet tool install --global dotnet-reportgenerator-globaltool        
+        dotnet tool install --global dotnet-sonarscanner       
+
+    - name: Restore
+      run: dotnet restore "${{ env.Solution_Name }}"
+
+    - name: Build and Test
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        FinanceNet__AlphaVantageApiKey: ${{ secrets.ALPHAVANTAGEAPIKEY }}
+      run: |
+        dotnet-sonarscanner begin \
+            /k:"thorstenalpers_Finance.NET" \
+            /o:"thorstenalpers" \
+            /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
+            /d:sonar.host.url="https://sonarcloud.io" \
+            /d:sonar.sources="src" \
+            /d:sonar.tests="tests" \
+            /d:sonar.test.inclusions="tests/**/*.cs" \
+            /d:sonar.scanner.scanAll=false \
+            /d:sonar.exclusions="**/*.html" \
+            /d:sonar.coverageReportPaths="./TestResults/Reports/SonarQube.xml"
+
+        dotnet build "${{ env.Solution_Name }}" --configuration Release --no-restore        
+        dotnet test "${{ env.Test_Project_Path }}" --collect:"XPlat Code Coverage" --results-directory ./TestResults/Tests --configuration Release --logger "console;verbosity=detailed"
+
+        reportgenerator -reports:./TestResults/Tests/**/coverage.cobertura.xml -targetdir:./TestResults/Reports -reporttypes:"Html;lcov;SonarQube;Cobertura"
+        
+        dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+
+    - name: Upload to Coveralls
+      uses: coverallsapp/github-action@v2
+      with:
+        path-to-lcov: ./TestResults/Reports/lcov.info
+      env:
+        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+           
+    - name: Upload to GitHub
+      uses: actions/upload-artifact@v4.4.3
+      with:
+        name: unit-test-coverage-report
+        path: ./TestResults/Reports
+
+
