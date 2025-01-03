@@ -93,7 +93,7 @@ public async Task Run(IYahooFinanceService yahooService)
   <tbody>
     <tr style="background-color: transparent;">
       <td>
-      <details><summary style="margin: 1px"><code style="font-size: 14px">GetInstrumentsAsync</code></summary>
+      <details><summary style="margin: 1px"><code style="font-size: 14px">GetInstrumentsAsync</code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</summary>
       <div style="height: 1px; background-color: #ddd; width: 100%; margin-top: 10px;"></div>
 
 #### Description
