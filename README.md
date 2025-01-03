@@ -84,11 +84,10 @@ public async Task Run(IYahooFinanceService yahooService)
 
 [Yahoo! Finance](https://finance.yahoo.com/) is one of the most popular platforms for market data, company fundamentals, historical records, and real-time stock quotes.
 
-<div style="width: 100%;">
-<table style="width: 100%;">
+<table>
   <thead>
     <tr>
-      <th style="font-size: 16px;">Methods</th>
+      <th style="font-size: 16px; width: 1000px;">Methods</th>
     </tr>
   </thead>
   <tbody>
@@ -596,7 +595,7 @@ services.AddFinanceNet(new FinanceNetConfiguration
 <table>
   <thead>
     <tr>
-      <th style="font-size: 16px;">Methods</th>
+      <th style="font-size: 16px; width: 1000px;">Methods</th>
     </tr>
   </thead>
   <tbody>
@@ -870,7 +869,7 @@ public async Task Run(IAlphaVantageService alphaVantageService)
 <table>
   <thead>
     <tr>
-      <th style="font-size: 16px;">Methods</th>
+      <th style="font-size: 16px;width: 1000px;">Methods</th>
     </tr>
   </thead>
   <tbody>
@@ -971,7 +970,7 @@ public async Task Run(IDataHubService datahubService)
 <table>
   <thead>
     <tr>
-      <th style="font-size: 16px;">Methods</th>
+      <th style="font-size: 16px;width: 1000px;">Methods</th>
     </tr>
   </thead>
   <tbody>
