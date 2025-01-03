@@ -84,8 +84,8 @@ public async Task Run(IYahooFinanceService yahooService)
 
 [Yahoo! Finance](https://finance.yahoo.com/) is one of the most popular platforms for market data, company fundamentals, historical records, and real-time stock quotes.
 
-
 ### Methods
+
 <details><summary style="margin: 1px"><code style="font-size: 14px">GetInstrumentsAsync</code></summary>
 
 #### Description
@@ -116,7 +116,6 @@ A task that resolves to an `IEnumerable<Instrument>` containing the following pr
 | `Symbol`           | `string?`         | The ticker symbol of the instrument.   | AAPL            |
 | `InstrumentType`   | `EAssetType?`     | The type of the financial instrument.  | Stock           |
 
-
 #### Example
 
 ```csharp
@@ -134,6 +133,7 @@ public async Task Run(IYahooFinanceService yahooService)
     }
 }
 ```
+
 </details>
 
 <details><summary style="margin: 1px"><code style="font-size: 14px;">GetProfileAsync</code></summary>
@@ -155,12 +155,11 @@ A task that resolves to a `Profile` containing the following properties:
 |-----------------|-------------|------------------------------------------------|-----------------------------|
 | `Adress`        | `string?`   | The address.                     | One Apple Park Way, Cupertino, CA 95014 |
 | `Phone`         | `string?`   | The phone number.                | +1-800-MY-APPLE             |
-| `Website`       | `string?`   | The website URL.                 | https://www.apple.com       |
+| `Website`       | `string?`   | The website URL.                 | <https://www.apple.com>       |
 | `Sector`        | `string?`   | The sector in which the entity operates.       | Technology                  |
 | `Industry`      | `string?`   | The industry the entity belongs to.            | Consumer Electronics        |
 | `CntEmployees`  | `long?`     | The number of employees.                       | 164000                      |
 | `Description`   | `string?`   | A brief description.             | Apple designs and ... |
-
 
 #### Example
 
@@ -215,7 +214,7 @@ A task that resolves to a `Summary` containing the following properties:
 | `Forward_Dividend`      | `decimal?`    | Expected forward dividend.                                    | 0.88                    |
 | `Forward_Yield`         | `decimal?`    | Forward dividend yield.                                       | 0.49%                   |
 | `Ex_DividendDate`       | `DateTime?`   | Ex-dividend date.                                             | 2025-01-10              |
-| `OneYearTargetEst`      | `decimal?`    | One-year target price estimate. 
+| `OneYearTargetEst`      | `decimal?`    | One-year target price estimate.
 
 #### Example
 
@@ -287,7 +286,6 @@ A task that resolves to a `Dictionary<string, FinancialReport>` where the key is
 | `NormalizedEBITDA`                               | `decimal?`    | Adjusted EBITDA for unusual items.                                                       | 153,217,000,000          |
 | `TaxRateForCalcs`                                | `decimal?`    | Tax rate used in calculations.                                                           | 16.9%                    |
 | `TaxEffectOfUnusualItems`                        | `decimal?`    | Tax effect of unusual items.                                                             | -500,000,000             |
-
 
 #### Example
 
@@ -372,8 +370,8 @@ Retrieves detailed information about a specific financial quote, identified by i
 
 #### Parameters
 
-- `string symbol`: The symbol of the quote (e.g., `"AAPL"` for Apple).
-- `CancellationToken token`: (Optional) A cancellation token that can be used to cancel the operation if needed.
+* `string symbol`: The symbol of the quote (e.g., `"AAPL"` for Apple).
+* `CancellationToken token`: (Optional) A cancellation token that can be used to cancel the operation if needed.
 
 #### Returns
 
@@ -426,7 +424,6 @@ A task that resolves to a `Quote` object. The `Quote` record contains detailed i
 | `DisplayName`                      | `string?`    | The display name of the stock.                                           | "Apple Inc."      |
 | `Symbol`                           | `string?`    | The symbol (ticker) of the stock.                                        | "AAPL"            |
 
-
 #### Example
 
 ```csharp
@@ -446,7 +443,6 @@ public async Task DisplayQuote(IYahooFinanceService yahooService)
 ```
 
 </details>
-
 
 <details><summary style="margin: 1px"><code style="font-size: 14px">GetQuotesAsync</code></summary>
 
@@ -537,7 +533,6 @@ public async Task Run(IYahooFinanceService yahooService)
 
 </details>
 
-
 ## Alpha Vantage
 
 [Alpha Vantage](https://www.alphavantage.co) is a well-regarded provider of stock, forex, and cryptocurrency data, offering historical records and intraday prices.
@@ -587,7 +582,7 @@ A task that resolves to an `InstrumentOverview?`. The `InstrumentOverview` conta
 | `Sector`                       | `string?`  | The company's sector (e.g., Technology).                                                   | "Technology"                      |
 | `Industry`                     | `string?`  | The industry the company operates in.                                                      | "Consumer Electronics"            |
 | `Address`                      | `string?`  | The company's headquarters address.                                                        | "Cupertino, CA"                   |
-| `OfficialSite`                 | `string?`  | The official website of the company.                                                       | "https://www.apple.com"            |
+| `OfficialSite`                 | `string?`  | The official website of the company.                                                       | "<https://www.apple.com>"            |
 | `FiscalYearEnd`                | `string?`  | The fiscal year end date.                                                                   | "September 30"                    |
 | `LatestQuarter`                | `string?`  | The most recent available quarter.                                                         | "Q3 2024"                         |
 | `MarketCapitalization`         | `long?`    | The market capitalization.                                                                  | 2320000000000                     |
@@ -627,8 +622,7 @@ A task that resolves to an `InstrumentOverview?`. The `InstrumentOverview` conta
 | `TwoHundredDayMovingAverage`   | `string?`  | 200-day moving average.                                                                     | "157.80"                          |
 | `SharesOutstanding`            | `string?`  | Number of shares outstanding.                                                               | "5000000000"                      |
 | `DividendDate`                 | `string?`  | Next dividend payment date.                                                                  | "2025-02-01"                      |
-| `ExDividendDate`               | `string?`  | Ex-dividend date. 
-
+| `ExDividendDate`               | `string?`  | Ex-dividend date.
 
 #### Example
 
@@ -763,11 +757,11 @@ Retrieves intraday stock records for a given symbol within a specified date rang
 * `DateTime startDate`: The start date for the records.
 * `DateTime? endDate`: (Optional) The end date for the records. Defaults to the current date.
 * `EInterval interval`: The time interval between data points. Default is 15 minutes. Possible values:
-  - `Interval_1Min`
-  - `Interval_5Min`
-  - `Interval_15Min`
-  - `Interval_30Min`
-  - `Interval_60Min`
+  * `Interval_1Min`
+  * `Interval_5Min`
+  * `Interval_15Min`
+  * `Interval_30Min`
+  * `Interval_60Min`
 * `CancellationToken token`: (Optional) A token to cancel the operation.
 
 #### Returns
@@ -782,7 +776,6 @@ A task that resolves to an `IEnumerable<IntradayRecord>`, with the following pro
 | `Low`            | `double`   | The lowest price of the stock for that interval.                         | 144.98      |
 | `Close`          | `double`   | The closing price of the stock for that interval.                        | 146.30      |
 | `Volume`         | `long`     | The trading volume during that interval.                                 | 1234567    |
-
 
 #### Example
 
