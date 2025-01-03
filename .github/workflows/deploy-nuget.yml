@@ -9,7 +9,8 @@ jobs:
 
     env:
       Solution_Name: "Finance.NET.sln"
-      Test_Project_Path: "tests/Tests.csproj"
+      Nuget_Project_Path: "src/Finance.NET.csproj"
+      Test_Project_Path: "tests/Tests.csproj"       
 
     steps:
     - name: Checkout
@@ -32,7 +33,7 @@ jobs:
           FinanceNet__AlphaVantageApiKey: ${{ secrets.ALPHAVANTAGEAPIKEY }}      
           
     - name: Pack NuGet Package
-      run: dotnet pack "${{ env.Solution_Name }}" --configuration Release --no-build --output ./nupkg
+      run: dotnet pack "${{ env.Nuget_Project_Path }}" --configuration Release --no-build --output ./nupkg
 
     - name: Publish to NuGet
       if: success()
