@@ -15,7 +15,7 @@ namespace Example;
 /// This example demonstrates searching for a ticker name in a dataset, retrieving matching records, 
 /// and printing the details to the console.
 /// </summary>
-public class Program
+public static class Program
 {
     static async Task Main()
     {
@@ -91,7 +91,7 @@ public class Program
             Console.WriteLine("\n" + JsonConvert.SerializeObject(overview));
 
             // get records
-            var recordsAlpha = await alphaService.GetRecordsAsync(instrument.Symbol, startDate: new DateTime(2024, 01, 01), endDate: new DateTime(2024, 01, 31));
+            var recordsAlpha = await alphaService.GetRecordsAsync(instrument.Symbol, startDate: new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Utc), endDate: new DateTime(2024, 01, 31, 0, 0, 0, DateTimeKind.Utc));
             Console.WriteLine($"\n---\nRecords from Alpha Vantage\n---");
             foreach (var record in recordsAlpha)
             {

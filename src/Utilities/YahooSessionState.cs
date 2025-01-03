@@ -50,6 +50,7 @@ internal class YahooSessionState : IYahooSessionState
         return !anyExpired;
     }
 
+#pragma warning disable S3011
     public void InvalidateSession()
     {
         var fieldInfo = typeof(CookieContainer).GetField("m_domainTable", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -64,4 +65,5 @@ internal class YahooSessionState : IYahooSessionState
         _crumb = null;
         _refreshTime = null;
     }
+#pragma warning restore S3011
 }

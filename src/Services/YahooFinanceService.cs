@@ -47,7 +47,7 @@ public class YahooFinanceService : IYahooFinanceService
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<Instrument>> GetInstrumentsAsync(EAssetType? type = null, CancellationToken token = default)
+    public async Task<IEnumerable<Instrument>> GetInstrumentsAsync(EAssetType? filterByType = null, CancellationToken token = default)
     {
         var result = new List<Instrument>();
         await Task.Delay(TimeSpan.FromSeconds(1), token);
@@ -56,7 +56,7 @@ public class YahooFinanceService : IYahooFinanceService
                                          .Cast<EAssetType>()
                                          .ToList();
 
-        var typesToProcess = type == null ? instrumentTypes.ToList() : [type.Value];
+        var typesToProcess = filterByType == null ? instrumentTypes.ToList() : [filterByType.Value];
 
         foreach (var instrumentType in typesToProcess)
         {
@@ -146,8 +146,8 @@ public class YahooFinanceService : IYahooFinanceService
         endDate ??= DateTime.UtcNow.Date;
         endDate = endDate.Value.AddDays(1).Date;
 
-        var period1 = Helper.ToUnixTime(startDate?.Date) ?? throw new FinanceNetException("Invalid startDate");
-        var period2 = Helper.ToUnixTime(endDate?.Date) ?? throw new FinanceNetException("Invalid endDate");
+        var period1 = Helper.ToUnixTime(startDate.Value.Date);
+        var period2 = Helper.ToUnixTime(endDate.Value.Date);
 
         var url = $"{Constants.YahooBaseUrlQuoteHtml}/{symbol}/history/?period1={period1}&period2={period2}".ToLowerInvariant();
         try

@@ -18,7 +18,6 @@ internal static class YahooHtmlParser
 {
     public static Profile ParseProfile(IHtmlDocument document)
     {
-        var nameElement = document.Body.SelectSingleNode("//section/h1");
         var descriptionElement = document.Body.SelectSingleNode("//section[header/h3[contains(text(), 'Description') or contains(text(), 'Summary')]]/p\n");
         var cntEmployeesElement = document.Body.SelectSingleNode("//dt[contains(text(), 'Employees')]/following-sibling::dd");
         var industryElement = document.Body.SelectSingleNode("//dt[contains(text(), 'Industry')]/following-sibling::a");

@@ -77,9 +77,6 @@ public class XetraService : IXetraService
                     {
                         continue;
                     }
-                    item.InstrumentType = item.InstrumentType;
-                    item.ISIN = item.ISIN;
-
                     result.Add(item);
                 }
                 return result.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
