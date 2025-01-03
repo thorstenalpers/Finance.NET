@@ -86,7 +86,7 @@ public async Task Run(IYahooFinanceService yahooService)
 
 ### Methods
 
-<details><summary><big><code>GetInstrumentsAsync</code></big></summary>
+<details><summary><code>GetInstrumentsAsync</code></summary>
 
 #### Description
 
@@ -131,7 +131,7 @@ public async Task Run(IYahooFinanceService yahooService)
 
 </details>
 
-<details><summary><h4><code>GetProfileAsync</code></h4></summary>
+<details><summary><code>GetProfileAsync</code></summary>
 
 #### Description
 
