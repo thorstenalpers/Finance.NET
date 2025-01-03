@@ -86,7 +86,7 @@ public async Task Run(IYahooFinanceService yahooService)
 
 ### Methods
 
-<details><summary style="margin: 1px"><code style="font-size: 15px">GetInstrumentsAsync</code></summary>
+<details><summary><big><code>GetInstrumentsAsync</code></big></summary>
 
 #### Description
 
@@ -131,7 +131,7 @@ public async Task Run(IYahooFinanceService yahooService)
 
 </details>
 
-<details><summary style="margin: 1px"><code style="font-size: 14px;">GetProfileAsync</code></summary>
+<details><summary><h4><code>GetProfileAsync</code></h4></summary>
 
 #### Description
 
@@ -172,7 +172,7 @@ public async Task Run(IYahooFinanceService yahooService)
 
 </details>
 
-<details><summary style="margin: 1px"><code style="font-size: 15px">GetSummaryAsync</code></summary>
+<details><summary><code>GetSummaryAsync</code></summary>
 
 #### Description
 
@@ -231,7 +231,7 @@ public async Task Run(IYahooFinanceService yahooService)
 
 </details>
 
-<details><summary style="margin: 1px"><code style="font-size: 15px">GetFinancialsAsync</code></summary>
+<details><summary><code>GetFinancialsAsync</code></summary>
 
 #### Description
 
@@ -307,7 +307,7 @@ public async Task Run(IYahooFinanceService yahooService)
 
 </details>
 
-<details><summary style="margin: 1px"><code style="font-size: 15px">GetRecordsAsync</code></summary>
+<details><summary><code>GetRecordsAsync</code></summary>
 
 #### Description
 
@@ -357,7 +357,7 @@ public async Task Run(IYahooFinanceService yahooService)
 
 </details>
 
-<details><summary style="margin: 1px"><code style="font-size: 15px">GetQuoteAsync</code></summary>
+<details><summary><code>GetQuoteAsync</code></summary>
 
 #### Description
 
@@ -439,7 +439,7 @@ public async Task DisplayQuote(IYahooFinanceService yahooService)
 
 </details>
 
-<details><summary style="margin: 1px"><code style="font-size: 15px">GetQuotesAsync</code></summary>
+<details><summary><code>GetQuotesAsync</code></summary>
 
 #### Description
 
@@ -549,7 +549,7 @@ services.AddFinanceNet(new FinanceNetConfiguration
 
 ### Methods
 
-<details><summary style="margin: 1px"><code style="font-size: 15px">GetOverviewAsync</code></summary>
+<details><summary><code>GetOverviewAsync</code></summary>
 
 #### Description
 
@@ -642,7 +642,7 @@ public async Task Run(IAlphaVantageService alphaVantageService)
 
 </details>
 
-<details><summary style="margin: 1px"><code style="font-size: 15px">GetRecordsAsync</code></summary>
+<details><summary><code>GetRecordsAsync</code></summary>
 
 #### Description
 
@@ -695,7 +695,7 @@ public async Task Run(IAlphaVantageService alphaVantageService)
 
 </details>
 
-<details><summary style="margin: 1px"><code style="font-size: 15px">GetForexRecordsAsync</code></summary>
+<details><summary><code>GetForexRecordsAsync</code></summary>
 
 #### Description
 
@@ -740,7 +740,7 @@ public async Task Run(IAlphaVantageService alphaVantageService)
 
 </details>
 
-<details><summary style="margin: 1px"><code style="font-size: 15px">GetIntradayRecordsAsync</code></summary>
+<details><summary><code>GetIntradayRecordsAsync</code></summary>
 
 #### Description
 
@@ -797,7 +797,7 @@ public async Task Run(IAlphaVantageService alphaVantageService)
 
 ### Methods
 
-<details><summary style="margin: 1px"><code style="font-size: 15px">GetNasdaqInstrumentsAsync</code></summary>
+<details><summary><code>GetNasdaqInstrumentsAsync</code></summary>
 
 #### Description
 
@@ -831,7 +831,7 @@ public async Task Run(IDataHubService datahubService)
 
 </details>
 
-<details><summary style="margin: 1px"><code style="font-size: 15px">GetSp500InstrumentsAsync</code></summary>
+<details><summary><code>GetSp500InstrumentsAsync</code></summary>
 
 #### Description
 
@@ -882,7 +882,7 @@ public async Task Run(IDataHubService datahubService)
 
 ### Methods
 
-<details><summary style="margin: 1px"><code style="font-size: 15px">GetInstrumentsAsync</code></summary>
+<details><summary><code>GetInstrumentsAsync</code></summary>
 
 #### Description
 
