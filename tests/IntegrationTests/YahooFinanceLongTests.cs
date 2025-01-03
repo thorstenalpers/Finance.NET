@@ -63,7 +63,7 @@ public class YahooFinanceLongTests
         }
     }
 
-    [TestCase(10)]
+    [TestCase(10000)]
     public async Task GetFinancialsAsync_NTimes_Success(int times)
     {
         FinancialReport firstReport = null;

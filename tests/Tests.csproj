@@ -35,7 +35,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="TestData\AlphaVantage\companyOverview.json">
+    <None Update="TestData\AlphaVantage\overview.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
 	<None Update="TestData\AlphaVantage\forex.json">
@@ -44,16 +44,22 @@
 	<None Update="TestData\AlphaVantage\forex-empty.json">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</None>
-	<None Update="TestData\AlphaVantage\intradayRecord.json">
+	<None Update="TestData\AlphaVantage\forex-duplicates.json">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</None>
-	<None Update="TestData\AlphaVantage\intradayRecord-empty.json">
+	<None Update="TestData\AlphaVantage\intraday.json">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</None>
-	<None Update="TestData\AlphaVantage\record.json">
+	<None Update="TestData\AlphaVantage\intraday-empty.json">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</None>
-	<None Update="TestData\AlphaVantage\record-empty.json">
+	<None Update="TestData\AlphaVantage\records.json">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
+	<None Update="TestData\AlphaVantage\records-empty.json">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
+	<None Update="TestData\AlphaVantage\records-duplicates.json">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</None>
     <None Update="TestData\DataHub\constituents-financials.csv">

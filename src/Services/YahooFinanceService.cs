@@ -169,11 +169,6 @@ public class YahooFinanceService : IYahooFinanceService
 
     private async Task CheckAndDeclineConsentAsync(IHtmlDocument document, CancellationToken token)
     {
-        if (string.IsNullOrWhiteSpace(document?.DocumentElement?.OuterHtml))
-        {
-            throw new FinanceNetException("AngleSharp error: no outer html");
-        }
-
         var title = document.QuerySelector("title")?.TextContent ?? "";
         if (title.Contains("Lookup"))
         {

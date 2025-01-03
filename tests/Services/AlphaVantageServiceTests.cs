@@ -80,7 +80,7 @@ public class AlphaVantageServiceTests
     [Test]
     public async Task GetOverviewAsync_WithData_ReturnsResult()
     {
-        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "AlphaVantage", "companyOverview.json");
+        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "AlphaVantage", "overview.json");
         var jsonContent = File.ReadAllText(filePath);
         _mockHandler
             .Protected()
@@ -173,7 +173,7 @@ public class AlphaVantageServiceTests
     [Test]
     public async Task GetRecordsAsync_WithData_ReturnsResult()
     {
-        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "AlphaVantage", "record.json");
+        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "AlphaVantage", "records.json");
         SetupHttpJsonFileResponse(filePath);
 
         var service = new AlphaVantageService(
@@ -226,7 +226,7 @@ public class AlphaVantageServiceTests
     [Test]
     public void GetRecordsAsync_EmptyData_Throws()
     {
-        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "AlphaVantage", "record-empty.json");
+        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "AlphaVantage", "records-empty.json");
         _mockHandler
             .Protected()
             .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
@@ -250,6 +250,31 @@ public class AlphaVantageServiceTests
         Assert.That(exception.InnerException.Message, Does.Contain("All fields empty"));
     }
 
+    [Test]
+    public async Task GetRecordsAsync_Duplicates_SuccessAsync()
+    {
+        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "AlphaVantage", "records-duplicates.json");
+        _mockHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(File.ReadAllText(filePath), Encoding.UTF8, "text/html"),
+            });
+        _mockHttpClientFactory.Setup(e => e.CreateClient(It.IsAny<string>())).Returns(new HttpClient(_mockHandler.Object));
+
+        var service = new AlphaVantageService(
+            _mockLogger.Object,
+            _mockHttpClientFactory.Object,
+            _mockOptions.Object,
+            _mockPolicyRegistry.Object);
+
+        var startDate = new DateTime(2024, 01, 01);
+
+        // Act
+        var records = await service.GetRecordsAsync("IBM", startDate);
+        Assert.That(records.Count(), Is.EqualTo(1));
+    }
 
     [Test]
     public void GetRecordsAsync_StartdateAfterEnddate_Throws()
@@ -290,7 +315,7 @@ public class AlphaVantageServiceTests
     [Test]
     public async Task GetIntradayRecordsAsync_WithData_ReturnsResult()
     {
-        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "AlphaVantage", "intradayRecord.json");
+        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "AlphaVantage", "intraday.json");
         SetupHttpJsonFileResponse(filePath);
 
         var service = new AlphaVantageService(
@@ -338,7 +363,7 @@ public class AlphaVantageServiceTests
     [Test]
     public void GetIntradayRecordsAsync_EmptyData_Throws()
     {
-        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "AlphaVantage", "intradayRecord-empty.json");
+        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "AlphaVantage", "intraday-empty.json");
         _mockHandler
             .Protected()
             .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
@@ -401,7 +426,7 @@ public class AlphaVantageServiceTests
     [Test]
     public void GetIntradayRecordsAsync_IvalidInterval_Throws()
     {
-        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "AlphaVantage", "intradayRecord.json");
+        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "AlphaVantage", "intraday.json");
         SetupHttpJsonFileResponse(filePath);
 
         var service = new AlphaVantageService(
@@ -495,6 +520,32 @@ public class AlphaVantageServiceTests
         var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetForexRecordsAsync("EUR", "USD", startDate));
         Assert.That(exception.Message, Does.Contain("No forex record found"));
         Assert.That(exception.InnerException.Message, Does.Contain("All fields empty"));
+    }
+
+    [Test]
+    public async Task GetForexRecordsAsync_Duplicates_SuccessAsync()
+    {
+        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "AlphaVantage", "forex-duplicates.json");
+        _mockHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(File.ReadAllText(filePath), Encoding.UTF8, "text/html"),
+            });
+        _mockHttpClientFactory.Setup(e => e.CreateClient(It.IsAny<string>())).Returns(new HttpClient(_mockHandler.Object));
+
+        var service = new AlphaVantageService(
+            _mockLogger.Object,
+            _mockHttpClientFactory.Object,
+            _mockOptions.Object,
+            _mockPolicyRegistry.Object);
+
+        var startDate = new DateTime(2024, 11, 01);
+
+        // Act
+        var records = await service.GetForexRecordsAsync("EUR", "USD", startDate);
+        Assert.That(records.Count(), Is.EqualTo(1));
     }
 
     [Test]
