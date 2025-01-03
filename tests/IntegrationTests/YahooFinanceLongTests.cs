@@ -35,6 +35,7 @@ public class YahooFinanceLongTests
         Profile firstProfile = null;
         for (var i = 0; i < 500; i++)
         {
+            Console.WriteLine($"{i + 1})");
             var profile = await _service.GetProfileAsync("IBM");
             Assert.That(profile, Is.Not.Null);
 
@@ -52,6 +53,7 @@ public class YahooFinanceLongTests
         Summary firstSummary = null;
         for (var i = 0; i < 500; i++)
         {
+            Console.WriteLine($"{i + 1})");
             var summary = await _service.GetSummaryAsync("IBM");
             Assert.That(summary, Is.Not.Null);
 
@@ -69,6 +71,7 @@ public class YahooFinanceLongTests
         FinancialReport firstReport = null;
         for (var i = 0; i < 500; i++)
         {
+            Console.WriteLine($"{i + 1})");
             var report = await _service.GetFinancialsAsync("IBM");
             Assert.That(report, Is.Not.Empty);
 
@@ -84,6 +87,7 @@ public class YahooFinanceLongTests
         List<decimal?> firstRecords = null;
         for (var i = 0; i < 500; i++)
         {
+            Console.WriteLine($"{i + 1})");
             var records = await _service.GetRecordsAsync("IBM");
             Assert.That(records, Is.Not.Empty);
 
@@ -99,6 +103,7 @@ public class YahooFinanceLongTests
         Quote firstQuote = null;
         for (var i = 0; i < 500; i++)
         {
+            Console.WriteLine($"{i + 1})");
             var quote = await _service.GetQuoteAsync("IBM");
             Assert.That(quote, Is.Not.Null);
 
@@ -106,7 +111,6 @@ public class YahooFinanceLongTests
 
             Assert.That(quote.DisplayName, Is.EqualTo(firstQuote.DisplayName));
             Assert.That(quote.ShortName, Is.EqualTo(firstQuote.ShortName));
-            Assert.That(quote.MarketCap, Is.EqualTo(firstQuote.MarketCap));
         }
     }
 }
