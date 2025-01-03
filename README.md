@@ -928,9 +928,9 @@ public async Task Run(IXetraService xetraService)
 
 Finance .NET is an open-source tool that uses Yahoo's and other publicly available APIs, and is intended for research and educational purposes.
 
-#### When using the following services, you should refer to their respective terms of use
+#### Wen using the following services, you should refer to their respective terms of use
 
 * Alpha Vantage: [Terms of use](https://www.alphavantage.co/)
-* DataHub: [Terms of use (1)](https://github.com/datasets/s-and-p-500-companies), [Terms of use (2)](https://github.com/datasets/nasdaq-listings)
-* Yahoo! Finance: [Terms of use (API)](https://policies.yahoo.com/us/en/yahoo/terms/product-atos/apiforydn/index.htm), [Terms of use](https://legal.yahoo.com/us/en/yahoo/terms/otos/index.html), [General Terms](https://policies.yahoo.com/us/en/yahoo/terms/index.htm)
+* DataHub: [S&P 500 Companies Terms of Use](https://github.com/datasets/s-and-p-500-companies), [NASDAQ Listings Terms of Use](https://github.com/datasets/nasdaq-listings)
+* Yahoo! Finance: [API Terms of Use](https://policies.yahoo.com/us/en/yahoo/terms/product-atos/apiforydn/index.htm), [Website Terms of Use](https://legal.yahoo.com/us/en/yahoo/terms/otos/index.html), [General Terms](https://policies.yahoo.com/us/en/yahoo/terms/index.htm)
 * Xetra: [Terms of use](https://www.xetra.com/xetra-de/instrumente/alle-handelbaren-instrumente)
