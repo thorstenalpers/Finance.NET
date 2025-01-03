@@ -537,11 +537,11 @@ public async Task Run(IYahooFinanceService yahooService)
 
 [Alpha Vantage](https://www.alphavantage.co) is a well-regarded provider of stock, forex, and cryptocurrency data, offering historical records and intraday prices.
 
-#### Get an API key
+### Get an API key
 
 To get started, obtain a free API key from [Alpha Vantage](https://www.alphavantage.co/support/#api-key).
 
-#### Configure API key
+### Configure API key
 
 After acquiring your API key, configure it in your service collection:
 
