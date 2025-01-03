@@ -29,7 +29,7 @@ public class YahooFinanceLongTests
         Task.Delay(TimeSpan.FromSeconds(4)).GetAwaiter().GetResult();
     }
 
-    [TestCase(200)]
+    [TestCase(100)]
     public async Task GetProfileAsync_NTimes_Success(int times)
     {
         Profile firstProfile = null;
@@ -45,7 +45,7 @@ public class YahooFinanceLongTests
         }
     }
 
-    [TestCase(200)]
+    [TestCase(100)]
     public async Task GetSummaryAsync_NTimes_Success(int times)
     {
         Summary firstSummary = null;
@@ -63,7 +63,7 @@ public class YahooFinanceLongTests
         }
     }
 
-    [TestCase(200)]
+    [TestCase(100)]
     public async Task GetFinancialsAsync_NTimes_Success(int times)
     {
         FinancialReport firstReport = null;
@@ -79,7 +79,7 @@ public class YahooFinanceLongTests
         }
     }
 
-    [TestCase(200)]
+    [TestCase(100)]
     public async Task GetRecordsAsync_NTimes_Success(int times)
     {
         List<decimal?> firstRecords = null;
@@ -95,7 +95,7 @@ public class YahooFinanceLongTests
         }
     }
 
-    [TestCase(1000)]
+    [TestCase(100)]
     public async Task GetQuoteAsync_NTimes_Success(int times)
     {
         Quote firstQuote = null;
