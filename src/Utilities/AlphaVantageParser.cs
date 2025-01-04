@@ -15,7 +15,6 @@ namespace Finance.Net.Utilities;
 /// <inheritdoc />
 internal static class AlphaVantageParser
 {
-
     public static List<IntradayRecord> ParseIntradayRecords(string symbol, EInterval interval, string jsonResponse)
     {
         var result = new List<IntradayRecord>();
@@ -76,7 +75,7 @@ internal static class AlphaVantageParser
                     Open = item.Value.Open,
                     Low = item.Value.Low,
                     High = item.Value.High,
-                    Close = item.Value.AdjustedClose,
+                    Close = item.Value.Close,
                     AdjustedClose = item.Value.AdjustedClose,
                     Volume = item.Value.Volume,
                     SplitCoefficient = item.Value.SplitCoefficient,
