@@ -20,7 +20,7 @@
 	<RepositoryUrl>https://github.com/thorstenalpers/Finance.NET</RepositoryUrl>
 	<PackageTags>Finance.NET;Nasdaq;Xetra;Yahoo;DataHub;Finance;Trading</PackageTags>
 	<Copyright>Copyright 2024-2025</Copyright>
-	<RepositoryType>git</RepositoryType>
+	<RepositoryType>GitHub</RepositoryType>
 	<PackageLicenseExpression>MIT</PackageLicenseExpression>
 	<PackageIcon>logo.png</PackageIcon>
 	<PackageReadmeFile>README.md</PackageReadmeFile>
