@@ -50,13 +50,11 @@ public class YahooFinanceService : IYahooFinanceService
     public async Task<IEnumerable<Instrument>> GetInstrumentsAsync(EAssetType? filterByType = null, CancellationToken token = default)
     {
         var result = new List<Instrument>();
-        await Task.Delay(TimeSpan.FromSeconds(1), token);
-
         var instrumentTypes = Enum.GetValues(typeof(EAssetType))
                                          .Cast<EAssetType>()
                                          .ToList();
 
-        var typesToProcess = filterByType == null ? instrumentTypes.ToList() : [filterByType.Value];
+        var typesToProcess = filterByType == null ? instrumentTypes : [filterByType.Value];
 
         foreach (var instrumentType in typesToProcess)
         {
