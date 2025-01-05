@@ -793,7 +793,7 @@ public async Task Run(IAlphaVantageService alphaVantageService)
 
 ## DataHub
 
-[DataHub](https://www.datahub.io) is a popular source for accessing comprehensive data, including Nasdaq and S&P 500 companies.
+[DataHub](https://datahub.io) is a popular source for accessing comprehensive data, including Nasdaq and S&P 500 companies.
 
 ### Methods
 
