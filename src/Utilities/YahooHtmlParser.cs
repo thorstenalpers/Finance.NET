@@ -278,7 +278,7 @@ internal static class YahooHtmlParser
         return isNullObj ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : summary;
     }
 
-    public static List<Instrument> ParseSymbols<T>(IHtmlDocument document, EAssetType type, ILogger<T> logger)
+    public static List<Instrument> ParseSymbols<T>(IHtmlDocument document, EInstrumentType type, ILogger<T> logger)
     {
         var instruments = new List<Instrument>();
         var expectedHeaderSet = new HashSet<string>(["Symbol"]);

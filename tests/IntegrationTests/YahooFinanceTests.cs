@@ -30,13 +30,13 @@ public class YahooFinanceTests
         Task.Delay(TimeSpan.FromSeconds(4)).GetAwaiter().GetResult();
     }
 
-    [TestCase(EAssetType.Index, 20)]
-    [TestCase(EAssetType.Stock, 20)]
-    [TestCase(EAssetType.ETF, 20)]
-    [TestCase(EAssetType.Forex, 20)]
-    [TestCase(EAssetType.Crypto, 20)]
+    [TestCase(EInstrumentType.Index, 20)]
+    [TestCase(EInstrumentType.Stock, 20)]
+    [TestCase(EInstrumentType.ETF, 20)]
+    [TestCase(EInstrumentType.Forex, 20)]
+    [TestCase(EInstrumentType.Crypto, 20)]
     [TestCase(null, 100)]
-    public async Task GetInstrumentsAsync(EAssetType? type, int expectedCnt)
+    public async Task GetInstrumentsAsync(EInstrumentType? type, int expectedCnt)
     {
         var symbols = await _service.GetInstrumentsAsync(type);
 
@@ -66,7 +66,7 @@ public class YahooFinanceTests
 
     public async Task GetInstrumentsAsync(string symbol)
     {
-        var instruments = await _service.GetInstrumentsAsync(EAssetType.Stock);
+        var instruments = await _service.GetInstrumentsAsync(EInstrumentType.Stock);
 
         var instrument = instruments.FirstOrDefault(e => e.Symbol == symbol);
         Assert.That(instrument, Is.Not.Null);

@@ -3,7 +3,7 @@
 /// <summary>
 /// Represents the different types for financial instruments.
 /// </summary>
-public enum EAssetType
+public enum EInstrumentType
 {
     /// <summary>
     /// A stock instrument.

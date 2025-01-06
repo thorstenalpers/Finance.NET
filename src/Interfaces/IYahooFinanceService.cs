@@ -18,7 +18,7 @@ public interface IYahooFinanceService
     /// <param name="filterByType"> An optional filter to specify the asset type. If not provided, all types will be included.</param>
     /// <param name="token">An optional cancellation token to cancel the operation if needed.</param>
     /// <returns>The task result contains an enumerable collection of <see cref="Instrument"/>.</returns>
-    Task<IEnumerable<Instrument>> GetInstrumentsAsync(EAssetType? filterByType = null, CancellationToken token = default);
+    Task<IEnumerable<Instrument>> GetInstrumentsAsync(EInstrumentType? filterByType = null, CancellationToken token = default);
 
     /// <summary>
     /// Retrieves a profile.

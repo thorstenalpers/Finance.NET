@@ -15,5 +15,5 @@ public record Instrument
     /// <summary>
     /// The type of the financial instrument.
     /// </summary>
-    public EAssetType? InstrumentType { get; set; }
+    public EInstrumentType? InstrumentType { get; set; }
 }
