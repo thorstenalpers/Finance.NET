@@ -532,13 +532,13 @@ public class YahooFinanceServiceTests
         Assert.That(exception.Message, Does.Contain("No instruments found"));
     }
 
-    [TestCase(EAssetType.Index, 41)]
-    [TestCase(EAssetType.Stock, 25)]
-    [TestCase(EAssetType.ETF, 25)]
-    [TestCase(EAssetType.Forex, 23)]
-    [TestCase(EAssetType.Crypto, 25)]
+    [TestCase(EInstrumentType.Index, 41)]
+    [TestCase(EInstrumentType.Stock, 25)]
+    [TestCase(EInstrumentType.ETF, 25)]
+    [TestCase(EInstrumentType.Forex, 23)]
+    [TestCase(EInstrumentType.Crypto, 25)]
     [TestCase(null, 139)]
-    public async Task GetInstrumentsAsync_WithResponse_ReturnsResult(EAssetType? type, int expectedCnt)
+    public async Task GetInstrumentsAsync_WithResponse_ReturnsResult(EInstrumentType? type, int expectedCnt)
     {
         // Arrange
         var filePathIndex = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Yahoo", "symbols_indices.html");
@@ -555,11 +555,11 @@ public class YahooFinanceServiceTests
         {
             var filePath = type switch
             {
-                EAssetType.Index => filePathIndex,
-                EAssetType.Stock => filePathStocks,
-                EAssetType.ETF => filePathEtfs,
-                EAssetType.Forex => filePathForex,
-                EAssetType.Crypto => filePathCryptos,
+                EInstrumentType.Index => filePathIndex,
+                EInstrumentType.Stock => filePathStocks,
+                EInstrumentType.ETF => filePathEtfs,
+                EInstrumentType.Forex => filePathForex,
+                EInstrumentType.Crypto => filePathCryptos,
                 _ => throw new NotImplementedException(),
             };
             SetupHttpHtmlFileResponse(filePath);

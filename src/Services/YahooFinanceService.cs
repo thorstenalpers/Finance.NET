@@ -47,16 +47,14 @@ public class YahooFinanceService : IYahooFinanceService
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<Instrument>> GetInstrumentsAsync(EAssetType? filterByType = null, CancellationToken token = default)
+    public async Task<IEnumerable<Instrument>> GetInstrumentsAsync(EInstrumentType? filterByType = null, CancellationToken token = default)
     {
         var result = new List<Instrument>();
-        await Task.Delay(TimeSpan.FromSeconds(1), token);
-
-        var instrumentTypes = Enum.GetValues(typeof(EAssetType))
-                                         .Cast<EAssetType>()
+        var instrumentTypes = Enum.GetValues(typeof(EInstrumentType))
+                                         .Cast<EInstrumentType>()
                                          .ToList();
 
-        var typesToProcess = filterByType == null ? instrumentTypes.ToList() : [filterByType.Value];
+        var typesToProcess = filterByType == null ? instrumentTypes : [filterByType.Value];
 
         foreach (var instrumentType in typesToProcess)
         {
@@ -64,11 +62,11 @@ public class YahooFinanceService : IYahooFinanceService
             {
                 var instruments = await (instrumentType switch
                 {
-                    EAssetType.ETF => FetchSymbolsAsync($"{Constants.YahooBaseUrlHtml}/markets/etfs/most-active/", EAssetType.ETF, token),
-                    EAssetType.Stock => FetchSymbolsAsync($"{Constants.YahooBaseUrlHtml}/markets/stocks/most-active/", EAssetType.Stock, token),
-                    EAssetType.Forex => FetchSymbolsAsync($"{Constants.YahooBaseUrlHtml}/markets/currencies/", EAssetType.Forex, token),
-                    EAssetType.Crypto => FetchSymbolsAsync($"{Constants.YahooBaseUrlHtml}/markets/crypto/all/", EAssetType.Crypto, token),
-                    EAssetType.Index => FetchSymbolsAsync($"{Constants.YahooBaseUrlHtml}/markets/world-indices/", EAssetType.Index, token),
+                    EInstrumentType.ETF => FetchSymbolsAsync($"{Constants.YahooBaseUrlHtml}/markets/etfs/most-active/", EInstrumentType.ETF, token),
+                    EInstrumentType.Stock => FetchSymbolsAsync($"{Constants.YahooBaseUrlHtml}/markets/stocks/most-active/", EInstrumentType.Stock, token),
+                    EInstrumentType.Forex => FetchSymbolsAsync($"{Constants.YahooBaseUrlHtml}/markets/currencies/", EInstrumentType.Forex, token),
+                    EInstrumentType.Crypto => FetchSymbolsAsync($"{Constants.YahooBaseUrlHtml}/markets/crypto/all/", EInstrumentType.Crypto, token),
+                    EInstrumentType.Index => FetchSymbolsAsync($"{Constants.YahooBaseUrlHtml}/markets/world-indices/", EInstrumentType.Index, token),
                     _ => throw new NotSupportedException()
                 });
                 result.AddRange(instruments);
@@ -255,7 +253,7 @@ public class YahooFinanceService : IYahooFinanceService
         }
     }
 
-    private async Task<IEnumerable<Instrument>> FetchSymbolsAsync(string baseUrl, EAssetType instrumentType, CancellationToken token = default)
+    private async Task<IEnumerable<Instrument>> FetchSymbolsAsync(string baseUrl, EInstrumentType instrumentType, CancellationToken token = default)
     {
         var result = new List<Instrument>();
         await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);

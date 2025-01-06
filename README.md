@@ -94,7 +94,7 @@ Retrieves a collection of financial instruments.
 
 #### Parameters
 
-* `EAssetType? filterByType`: An optional filter to specify the type of asset. If not provided, all asset types will be included. Possible values:
+* `EInstrumentType? filterByType`: An optional filter to specify the type of asset. If not provided, all asset types will be included. Possible values:
   * `Stock`: Most active stocks.
   * `ETF`: Most active exchange-traded funds (ETFs)
   * `Forex`: Available currencies (foreign exchange).
@@ -793,7 +793,7 @@ public async Task Run(IAlphaVantageService alphaVantageService)
 
 ## DataHub
 
-[DataHub](https://www.datahub.io) is a popular source for accessing comprehensive data, including Nasdaq and S&P 500 companies.
+[DataHub](https://datahub.io) is a popular source for accessing comprehensive data, including Nasdaq and S&P 500 companies.
 
 ### Methods
 

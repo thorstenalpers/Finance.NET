@@ -55,7 +55,7 @@ public static class Program
         Console.WriteLine($"\n---\nInstruments from Datahub Nasdaq\n---");
         Console.WriteLine("\n" + JsonConvert.SerializeObject(instrument));
 
-        var yahooInstruments = await yahooService.GetInstrumentsAsync(EAssetType.Stock);
+        var yahooInstruments = await yahooService.GetInstrumentsAsync(EInstrumentType.Stock);
         Console.WriteLine($"\n---\nInstruments from Yahoo Finance\n---");
         Console.WriteLine("\n" + JsonConvert.SerializeObject(yahooInstruments.FirstOrDefault(e => e.Symbol == instrument?.Symbol)));
 
