@@ -12,13 +12,13 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
     <PackageId>Finance.NET</PackageId>
-	<Version>1.0.2</Version>
+	<Version>1.0.3</Version>
 	<Authors>Thorsten Alpers</Authors>
 	<Owners>Thorsten Alpers</Owners>
 	<Description>Access financial data from Yahoo Finance and other sources.</Description>
 	<PackageProjectUrl>https://github.com/thorstenalpers/Finance.NET</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/thorstenalpers/Finance.NET</RepositoryUrl>
-	<PackageTags>Finance.NET;Nasdaq;Xetra;Yahoo;DataHub;Finance;Trading</PackageTags>
+	<PackageTags>Finance.NET;Yahoo;DataHub;Nasdaq;Xetra;Finance;Trading</PackageTags>
 	<Copyright>Copyright 2024-2025</Copyright>
 	<RepositoryType>git</RepositoryType>
 	<PackageLicenseExpression>MIT</PackageLicenseExpression>
