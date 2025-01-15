@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
   <PropertyGroup>
 	<AssemblyTitle>Finance.Net</AssemblyTitle>
-	<TargetFramework>netstandard2.1</TargetFramework>
+	<TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
 	<AssemblyName>Finance.Net</AssemblyName>
 	<Nullable>enable</Nullable>
 	<RootNamespace>Finance.Net</RootNamespace>
@@ -12,13 +12,13 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
     <PackageId>Finance.NET</PackageId>
-	<Version>1.0.3</Version>
+	<Version>1.0.4</Version>
 	<Authors>Thorsten Alpers</Authors>
 	<Owners>Thorsten Alpers</Owners>
 	<Description>Access financial data from Yahoo Finance and other sources.</Description>
 	<PackageProjectUrl>https://github.com/thorstenalpers/Finance.NET</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/thorstenalpers/Finance.NET</RepositoryUrl>
-	<PackageTags>Finance.NET;Yahoo;DataHub;Nasdaq;Xetra;Finance;Trading</PackageTags>
+	<PackageTags>Finance.NET;Yahoo;DataHub;Alpha Vantage;Nasdaq;Xetra;Finance;Trading</PackageTags>
 	<Copyright>Copyright 2024-2025</Copyright>
 	<RepositoryType>git</RepositoryType>
 	<PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -29,7 +29,7 @@
     <PackageReference Include="AngleSharp" Version="1.1.2" />
     <PackageReference Include="AngleSharp.XPath" Version="2.0.4" />
     <PackageReference Include="Ardalis.GuardClauses" Version="5.0.0" />
-    <PackageReference Include="AutoMapper" Version="12.0.1" />
+    <PackageReference Include="AutoMapper" Version="10.1.1" />
     <PackageReference Include="CsvHelper" Version="33.0.1" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.4" />

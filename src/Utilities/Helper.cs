@@ -5,7 +5,6 @@ using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
-using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,16 +24,24 @@ internal static class Helper
 
     public static long? ToUnixTime(DateTime? dateTime)
     {
-        return dateTime == null ? null : (long)(dateTime.Value - DateTime.UnixEpoch).TotalSeconds;
+        return dateTime == null
+            ? null
+            : (long)(dateTime.Value - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
     }
 
     public static DateTime? UnixToDateTime(long? unixTimeSeconds)
     {
-        return unixTimeSeconds == null ? null : DateTime.UnixEpoch.AddSeconds(unixTimeSeconds.Value).ToUniversalTime();
+        return unixTimeSeconds == null
+            ? null
+            : new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(unixTimeSeconds.Value).ToUniversalTime();
     }
     public static DateTime? UnixMillisecsToDate(long? unixTimeMilliseconds)
     {
-        return unixTimeMilliseconds == null ? null : DateTime.UnixEpoch.AddMilliseconds(unixTimeMilliseconds.Value).ToUniversalTime();
+        return unixTimeMilliseconds == null
+            ? null
+            : new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                  .AddMilliseconds(unixTimeMilliseconds.Value)
+                  .ToUniversalTime();
     }
 
     public static string? RemoveSymbolHeader(string? str)
@@ -141,10 +148,14 @@ internal static class Helper
     }
     public static string CreateRandomUserAgent()
     {
-        return CreateRandomUserAgent(RandomNumberGenerator.GetInt32);
+        return CreateRandomUserAgent(GetRandomInt32);
+    }
+    private static int GetRandomInt32(int minValue, int maxValue)
+    {
+        return new Random().Next(minValue, maxValue);
     }
 
-    public static string CreateRandomUserAgent(Func<int, int> random)
+    public static string CreateRandomUserAgent(Func<int, int, int> random)
     {
         List<string> firefoxVersions = [ "133.0",
                         "132.0", "132.0.1", "132.0.2",
@@ -166,7 +177,7 @@ internal static class Helper
                 allAgents.Add(userAgent);
             }
         }
-        var index = random(allAgents.Count);
+        var index = random(0, allAgents.Count);
         return allAgents[index];
     }
 

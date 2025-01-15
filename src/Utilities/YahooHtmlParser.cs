@@ -201,12 +201,12 @@ internal static class YahooHtmlParser
         var bid = Helper.ParseDecimal(bidStr);
 
         var daysRangeElement = document.Body.SelectSingleNode("//li[span[contains(text(), 's Range')]]/span[2]");
-        var daysRange = daysRangeElement?.TextContent?.Trim()?.Split(" - ");
+        var daysRange = daysRangeElement?.TextContent?.Trim()?.Split([" - "], StringSplitOptions.None);
         var daysRange_Min = daysRange?.Length == 2 ? Helper.ParseDecimal(daysRange.FirstOrDefault()) : null;
         var daysRange_Max = daysRange?.Length == 2 ? Helper.ParseDecimal(daysRange.LastOrDefault()) : null;
 
         var earningsDateElement = document.Body.SelectSingleNode("//li[span[contains(text(), 'Earnings Date')]]/span[2]");
-        var earningsDateStr = earningsDateElement?.TextContent?.Trim()?.Split(" - ");
+        var earningsDateStr = earningsDateElement?.TextContent?.Trim()?.Split([" - "], StringSplitOptions.None);
         var earningsDate = earningsDateStr == null || earningsDateStr.Length == 0 ? null : Helper.ParseDate(earningsDateStr.FirstOrDefault());
 
         var ePS_TTMElement = document.Body.SelectSingleNode("//li[span[contains(text(), 'EPS (TTM)')]]/span[2]");
@@ -216,7 +216,7 @@ internal static class YahooHtmlParser
         var ex_DividendDate = Helper.ParseDate(ex_DividendDateElement?.TextContent?.Replace("-", "")?.Trim());
 
         var forward_DividendAndYieldElement = document.Body.SelectSingleNode("//li[span[contains(text(), 'Forward Dividend & Yield')]]/span[2]");
-        var dividentAndYield = forward_DividendAndYieldElement?.TextContent?.Trim().Split(" ")?.Select(e => e.Replace("(", "").Replace(")", "").Replace("%", ""));
+        var dividentAndYield = forward_DividendAndYieldElement?.TextContent?.Trim().Split([" "], StringSplitOptions.None)?.Select(e => e.Replace("(", "").Replace(")", "").Replace("%", ""));
         var forward_Dividend = dividentAndYield?.Count() == 2 ? Helper.ParseDecimal(dividentAndYield.FirstOrDefault()) : null;
         var forward_Yield = dividentAndYield?.Count() == 2 ? Helper.ParseDecimal(dividentAndYield.LastOrDefault()) : null;
 
@@ -242,7 +242,7 @@ internal static class YahooHtmlParser
         var volume = Helper.ParseDecimal(volumeElement?.TextContent?.Trim());
 
         var weekRange52Element = document.Body.SelectSingleNode("//li[span[contains(text(), '52 Week Range')]]/span[2]");
-        var weekRange52 = weekRange52Element?.TextContent?.Trim()?.Split(" - ");
+        var weekRange52 = weekRange52Element?.TextContent?.Trim()?.Split([" - "], StringSplitOptions.None);
         var weekRange52_Min = weekRange52?.Length == 2 ? Helper.ParseDecimal(weekRange52.FirstOrDefault()) : null;
         var weekRange52_Max = weekRange52?.Length == 2 ? Helper.ParseDecimal(weekRange52.LastOrDefault()) : null;
 

@@ -40,7 +40,11 @@ public class XetraService : IXetraService
         _retryPolicy = policyRegistry?.Get<AsyncPolicy>(Constants.DefaultHttpRetryPolicy) ?? throw new ArgumentNullException(nameof(policyRegistry));
 
         // do not use IoC, so users can use Automapper independently
-        var config = new MapperConfiguration(cfg => cfg.AddProfile<XetraInstrumentAutomapperProfile>());
+        var config = new MapperConfiguration(cfg =>
+        {
+            cfg.ShouldMapMethod = m => false;
+            cfg.AddProfile<XetraInstrumentAutomapperProfile>();
+        });
         _mapper = config.CreateMapper();
     }
 
