@@ -42,7 +42,11 @@ public class YahooFinanceService : IYahooFinanceService
         _retryPolicy = policyRegistry?.Get<AsyncPolicy>(Constants.DefaultHttpRetryPolicy) ?? throw new ArgumentNullException(nameof(policyRegistry));
 
         // do not use IoC, so users can use Automapper independently
-        var config = new MapperConfiguration(cfg => cfg.AddProfile<YahooQuoteAutomapperProfile>());
+        var config = new MapperConfiguration(cfg =>
+        {
+            cfg.ShouldMapMethod = m => false;
+            cfg.AddProfile<YahooQuoteAutomapperProfile>();
+        });
         _mapper = config.CreateMapper();
     }
 

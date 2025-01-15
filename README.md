@@ -109,7 +109,7 @@ A task that resolves to an `IEnumerable<Instrument>` containing the following pr
 | Property           | Type              | Description                            | Example         |
 |--------------------|-------------------|----------------------------------------|-----------------|
 | `Symbol`           | `string?`         | The ticker symbol of the instrument.   | AAPL            |
-| `InstrumentType`   | `EAssetType?`     | The type of the financial instrument.  | Stock           |
+| `InstrumentType`   | `EInstrumentType?`| The type of the financial instrument.  | Stock           |
 
 #### Example
 
@@ -120,7 +120,7 @@ public async Task Run(IYahooFinanceService yahooService)
     var instruments = await yahooService.GetInstrumentsAsync();
 
     // Retrieve only stock instruments
-    var stockInstruments = await yahooService.GetInstrumentsAsync(EAssetType.Stock);
+    var stockInstruments = await yahooService.GetInstrumentsAsync(EInstrumentType.Stock);
 
     foreach (var instrument in stockInstruments)
     {

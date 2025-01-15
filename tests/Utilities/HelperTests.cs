@@ -1,5 +1,7 @@
 ﻿using System;
+using AutoMapper;
 using Finance.Net.Enums;
+using Finance.Net.Mappings;
 using Finance.Net.Models.Yahoo.Dtos;
 using Finance.Net.Utilities;
 using NUnit.Framework;
@@ -254,5 +256,20 @@ public class HelperTests
 
         // Act & Assert
         Assert.DoesNotThrow(() => Helper.RemoveSymbolHeader(longInput), "Regex should not throw due to timeout.");
+    }
+
+    [Test]
+    public void Automapper_AddProfile_IsValid()
+    {
+        var config = new MapperConfiguration(cfg =>
+        {
+            cfg.ShouldMapMethod = m => false;
+            cfg.AddProfile<YahooQuoteAutomapperProfile>();
+        });
+
+        // This will throw an exception if the configuration is invalid
+        config.AssertConfigurationIsValid();
+
+        Assert.Pass("AutoMapper configuration is valid.");
     }
 }

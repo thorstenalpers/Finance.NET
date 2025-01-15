@@ -153,7 +153,7 @@ internal class YahooSessionManager(ILogger<YahooSessionManager> logger,
 
         // reject consent
         await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
-        var postData = new List<KeyValuePair<string, string>>
+        var postData = new List<KeyValuePair<string, string?>>
                         {
                             new("csrfToken", csrfToken),
                             new("sessionId", sessionId),
