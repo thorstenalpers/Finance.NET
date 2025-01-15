@@ -1,6 +1,6 @@
 ![Banner](./src/banner.png)
 
-[![.NET Standard 2.1](https://img.shields.io/badge/.NET%20Standard-2.1-blue)](#)
+[![.NET Standard 2.0](https://img.shields.io/badge/.NET%20Standard-2.0-blue)](#)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=thorstenalpers_Finance.NET&metric=alert_status)](https://sonarcloud.io/project/issues?issueStatuses=OPEN%2CCONFIRMED&id=thorstenalpers_Finance.NET)
 [![CI Tests](https://github.com/thorstenalpers/Finance.NET/actions/workflows/ci.yml/badge.svg)](https://github.com/thorstenalpers/Finance.NET/actions/workflows/ci.yml)
