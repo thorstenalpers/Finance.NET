@@ -1,6 +1,9 @@
 name: "Test Release"
 
-on:  
+on:
+  push:
+    branches:
+      - '*'  
   workflow_dispatch: # Manual trigger
 
 jobs:
