@@ -61,8 +61,7 @@ jobs:
         
     - name: Echo release notes content
       run: |
-        echo "Release Notes Content:"
-        cat ./release-notes/v${{ env.VERSION }}.md
+        echo ${{ env.RELEASE_NOTES }}
     
     - name: Configure Git Credentials
       run: |
