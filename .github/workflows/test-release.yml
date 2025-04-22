@@ -55,7 +55,9 @@ jobs:
       id: read_release_notes
       run: |
         RELEASE_NOTES=$(cat ./release-notes/v${{ env.VERSION }}.md)
-        echo "RELEASE_NOTES=$RELEASE_NOTES" >> $GITHUB_ENV
+        echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
+        echo "$RELEASE_NOTES" >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
 
     - name: Configure Git Credentials
       run: |
