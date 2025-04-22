@@ -54,7 +54,7 @@ jobs:
             /d:sonar.coverageReportPaths="./TestResults/Reports/SonarQube.xml"
 
         dotnet build "${{ env.Solution_Name }}" --configuration Release --no-restore        
-        dotnet test "${{ env.Test_Project_Path }}" --collect:"XPlat Code Coverage" --results-directory ./TestResults/Tests --configuration Release --logger "console;verbosity=detailed" --filter "Category=Integration|Category=Unit"
+        dotnet test "${{ env.Test_Project_Path }}" --collect:"XPlat Code Coverage" --results-directory ./TestResults/Tests --configuration Release --logger "console;verbosity=detailed" --filter "TestCategory!=Long-Running"
 
         reportgenerator -reports:./TestResults/Tests/**/coverage.cobertura.xml -targetdir:./TestResults/Reports -reporttypes:"Html;lcov;SonarQube;Cobertura"
         
