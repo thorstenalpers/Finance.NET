@@ -64,7 +64,7 @@ public class YahooFinanceTests
     [TestCase("AAPL")]
     [TestCase("TSLA")]
 
-    public async Task GetInstrumentsAsync(string symbol)
+    public async Task GetInstrumentsAsync_BySymbol_Success(string symbol)
     {
         var instruments = await _service.GetInstrumentsAsync(EInstrumentType.Stock);
 

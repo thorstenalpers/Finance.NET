@@ -284,7 +284,7 @@ internal static class YahooHtmlParser
         var expectedHeaderSet = new HashSet<string>(["Symbol"]);
         var headerMap = new Dictionary<string, int>();
 
-        var table = document.QuerySelector("table.markets-table") ?? throw new FinanceNetException("No table found");
+        var table = document.QuerySelector("table") ?? throw new FinanceNetException("No table found");
         var headers = table.QuerySelectorAll("thead th")
               .Select(th =>
               {
