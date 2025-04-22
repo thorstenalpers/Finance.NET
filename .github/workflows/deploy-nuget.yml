@@ -47,14 +47,7 @@ jobs:
         VERSION=$(grep '<Version>' ${{ env.Nuget_Project_Path }} | sed -E 's/.*<Version>(.*)<\/Version>.*/\1/')
         echo "VERSION=$VERSION"
         echo "VERSION=$VERSION" >> $GITHUB_ENV
-        
-    - name: Read release notes from file
-      id: read_release_notes
-      run: |
-        RELEASE_NOTES=$(cat ./release-notes/v${{ env.VERSION }}.md)
-        echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
-        echo "$RELEASE_NOTES" >> $GITHUB_ENV
-        echo "EOF" >> $GITHUB_ENV                                          
+                                               
     - name: Configure Git Credentials
       run: |
         echo "https://${{ secrets.GH_APIKEY }}@github.com" > ~/.git-credentials
@@ -74,9 +67,7 @@ jobs:
       with:
         tag_name: "v${{ env.VERSION }}"
         release_name: "Finance.NET ${{ env.VERSION }}"
-        body: ${{ env.RELEASE_NOTES }}
-        draft: false
-        prerelease: false
+        body_path: ./release-notes/v${{ env.VERSION }}.md
 
     - name: Add GitHub Packages NuGet Source
       run: |
