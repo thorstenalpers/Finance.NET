@@ -58,7 +58,12 @@ jobs:
         echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
         echo "$RELEASE_NOTES" >> $GITHUB_ENV
         echo "EOF" >> $GITHUB_ENV
-
+        
+    - name: Echo release notes content
+      run: |
+        echo "Release Notes Content:"
+        cat ./release-notes/v${{ env.VERSION }}.md
+    
     - name: Configure Git Credentials
       run: |
         echo "https://${{ secrets.GH_APIKEY }}@github.com" > ~/.git-credentials
