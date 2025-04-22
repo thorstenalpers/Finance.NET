@@ -51,17 +51,13 @@ jobs:
         echo "VERSION=$VERSION"
         echo "VERSION=$VERSION" >> $GITHUB_ENV
         
-    - name: Read release notes from file
-      id: read_release_notes
-      run: |
-        RELEASE_NOTES=$(cat ./release-notes/v${{ env.VERSION }}.md)
-        echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
-        echo "$RELEASE_NOTES" >> $GITHUB_ENV
-        echo "EOF" >> $GITHUB_ENV
-        
-    - name: Echo release notes content
-      run: |
-        echo ${{ env.RELEASE_NOTES }}
+    # - name: Read release notes from file
+      # id: read_release_notes
+      # run: |
+        # RELEASE_NOTES=$(cat ./release-notes/v${{ env.VERSION }}.md)
+        # echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
+        # echo "$RELEASE_NOTES" >> $GITHUB_ENV
+        # echo "EOF" >> $GITHUB_ENV
     
     - name: Configure Git Credentials
       run: |
@@ -70,25 +66,23 @@ jobs:
         git config --global user.name "GitHub Actions"
         git config --global user.email "actions@github.com"
 
-    # - name: Create Git Tag
-      # run: |
-        # git tag -a "v${{ env.VERSION }}" -m "Release v${{ env.VERSION }}"
-        # git push origin "v${{ env.VERSION }}"
+    - name: Create Git Tag
+      run: |
+        git tag -a "v${{ env.VERSION }}" -m "Release v${{ env.VERSION }}"
+        git push origin "v${{ env.VERSION }}"
 
-    # - name: Create GitHub Release
-      # uses: actions/create-release@v1
-      # env:
-        # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      # with:
-        # tag_name: "v${{ env.VERSION }}"
-        # release_name: "Finance.NET ${{ env.VERSION }}"
-        # body: ${{ env.RELEASE_NOTES }}
-        # draft: false
-        # prerelease: false
+    - name: Create GitHub Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: "v${{ env.VERSION }}"
+        release_name: "Finance.NET ${{ env.VERSION }}"
+        body_path: ./release-notes/v${{ env.VERSION }}.md
 
-    # - name: Add GitHub Packages NuGet Source
-      # run: |
-          # dotnet nuget add source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json --name github --username ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text
+    - name: Add GitHub Packages NuGet Source
+      run: |
+          dotnet nuget add source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json --name github --username ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text
 
-    # - name: Publish to GitHub Packages
-      # run: dotnet nuget push ./nupkg/*.nupkg --source "github" --api-key ${{ secrets.GITHUB_TOKEN }}
+    - name: Publish to GitHub Packages
+      run: dotnet nuget push ./nupkg/*.nupkg --source "github" --api-key ${{ secrets.GITHUB_TOKEN }}
