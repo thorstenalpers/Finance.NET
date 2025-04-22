@@ -1,4 +1,4 @@
-name: "Deploy NuGet"
+name: "Deploy Nuget"
 
 on:  
   workflow_dispatch: # Manual trigger
@@ -28,7 +28,7 @@ jobs:
       run: dotnet build "${{ env.Solution_Name }}" --configuration Release  --no-restore
 
     - name: Run tests
-      run: dotnet test "${{ env.Test_Project_Path }}" --configuration Release --logger "console;verbosity=detailed"
+      run: dotnet test "${{ env.Test_Project_Path }}" --configuration Release --logger "console;verbosity=detailed"  --logger "console;verbosity=detailed" --filter "TestCategory!=Long-Running"
       env:
           FinanceNet__AlphaVantageApiKey: ${{ secrets.ALPHAVANTAGEAPIKEY }}      
           
@@ -47,7 +47,14 @@ jobs:
         VERSION=$(grep '<Version>' ${{ env.Nuget_Project_Path }} | sed -E 's/.*<Version>(.*)<\/Version>.*/\1/')
         echo "VERSION=$VERSION"
         echo "VERSION=$VERSION" >> $GITHUB_ENV
-
+        
+    - name: Read release notes from file
+      id: read_release_notes
+      run: |
+        RELEASE_NOTES=$(cat ./release-notes/v${{ env.VERSION }}.md)
+        echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
+        echo "$RELEASE_NOTES" >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV                                          
     - name: Configure Git Credentials
       run: |
         echo "https://${{ secrets.GH_APIKEY }}@github.com" > ~/.git-credentials
@@ -66,9 +73,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: "v${{ env.VERSION }}"
-        release_name: "Release v${{ env.VERSION }}"
-        body: |
-          - See [NuGet Gallery](https://www.nuget.org/packages/Finance.NET)
+        release_name: "Finance.NET ${{ env.VERSION }}"
+        body: ${{ env.RELEASE_NOTES }}
         draft: false
         prerelease: false
 
