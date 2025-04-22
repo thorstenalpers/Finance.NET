@@ -38,11 +38,11 @@ jobs:
     - name: Pack NuGet Package
       run: dotnet pack "${{ env.Nuget_Project_Path }}" --configuration Release --no-build --output ./nupkg
 
-    - name: Publish to NuGet
-      if: success()
-      env:
-         NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
-      run: dotnet nuget push ./nupkg/*.nupkg --source https://api.nuget.org/v3/index.json --api-key $NUGET_API_KEY
+    # - name: Publish to NuGet
+      # if: success()
+      # env:
+         # NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+      # run: dotnet nuget push ./nupkg/*.nupkg --source https://api.nuget.org/v3/index.json --api-key $NUGET_API_KEY
 
     - name: Extract Version
       id: get_version
