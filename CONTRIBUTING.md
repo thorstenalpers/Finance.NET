@@ -1,32 +1,35 @@
 # Contributing to Finance.NET
 
-We love your input! We want to make contributing to this project as easy and transparent as possible, whether it's:
+Thanks for your interest in contributing! We aim to make the process as smooth and transparent as possible, whether you're:
 
-- Reporting a bug
-- Discussing the current state of the code
-- Submitting a fix
-- Proposing new features
+- Reporting a bug  
+- Starting a discussion  
+- Submitting a fix  
+- Suggesting a new feature  
 
-## Use Pull Requests
+## How to Contribute
 
-Mostly. But pretty much exclusively for non-maintainers. You'll need to fork the repo in order to submit a pull request. Here are the basic steps:
+We generally use pull requests for contributions. Here's a quick guide to the usual process:
 
-1. Fork the repo and create your branch from `main`.
-2. If you've added code that should be tested, add tests.
-3. If you've changed APIs, update the documentation.
-4. Ensure the test suite passes.
-5. Make sure your code lints.
-6. Issue that pull request!
+1. Fork the repository and create a new branch from `main`.
+2. Add tests if your code introduces new logic that needs testing.
+3. Update any relevant documentation, especially if you change public APIs.
+4. Make sure all tests pass.
+5. Ensure your code follows formatting and linting guidelines.
+6. Open a pull request!
 
-## Ask before adding a pull request
+## It's good to check in first
 
-You can just add a pull request out of the blue if you want, but it's much better etitquette (and more likely to be accepted) if you open a new issue or comment in an existing issue stating you'd like to make a pull request.
+You're welcome to submit a pull request at any time. However, it's often helpful to open a new issue or comment on an existing one before getting started — especially for larger changes — so we can align early and avoid duplicate efforts.
 
-## Any contributions you make will be under the MIT Software License
+## Licensing
 
-In short, when you submit code changes, your submissions are understood to be under the same [MIT License](http://choosealicense.com/licenses/mit/) that covers this project.
+By submitting contributions, you agree that they will be licensed under the same [MIT License](https://choosealicense.com/licenses/mit/) that governs this project.
 
-## Report bugs using Github's [issues](https://github.com/thorstenalpers/Finance.NET/issues)
+## Bug Reports
 
-We use GitHub issues to track public bugs. Report a bug by [opening a new issue](https://github.com/thorstenalpers/Finance.NET/issues/new/choose); it's that easy!
+We track bugs using [GitHub Issues](https://github.com/thorstenalpers/Finance.NET/issues). If you've found a problem, please [open a new issue](https://github.com/thorstenalpers/Finance.NET/issues/new/choose) — it's quick and easy.
 
+---
+
+Thanks for helping improve Finance.NET — your ideas and contributions are always welcome!
