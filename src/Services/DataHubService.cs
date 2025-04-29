@@ -37,13 +37,13 @@ public class DataHubService(IHttpClientFactory httpClientFactory,
                 var response = await httpClient.GetAsync(Constants.DatahubIoDownloadUrlNasdaqListedSymbols, token).ConfigureAwait(false);
                 response.EnsureSuccessStatusCode();
 
-                var content = await response.Content.ReadAsStringAsync();
+                var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 using var reader = new StringReader(content);
                 using var csv = new CsvReader(reader, config);
                 csv.Context.RegisterClassMap<NasdaqInstrumentMapping>();
                 var instruments = csv.GetRecords<NasdaqInstrument>().ToList();
                 return instruments.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : instruments;
-            });
+            }).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -63,14 +63,14 @@ public class DataHubService(IHttpClientFactory httpClientFactory,
                 response.EnsureSuccessStatusCode();
                 var config = new CsvConfiguration(CultureInfo.InvariantCulture);
 
-                var content = await response.Content.ReadAsStringAsync();
+                var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 using var reader = new StringReader(content);
                 using var csv = new CsvReader(reader, config);
                 csv.Context.RegisterClassMap<SP500InstrumentMapping>();
 
                 var instruments = csv.GetRecords<Sp500Instrument>().ToList();
                 return instruments.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : instruments;
-            });
+            }).ConfigureAwait(false);
         }
         catch (Exception ex)
         {

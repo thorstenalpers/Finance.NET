@@ -65,7 +65,7 @@ internal class YahooSessionManager(ILogger<YahooSessionManager> logger,
                 {
                     throw new FinanceNetException("cannot fetch Yahoo credentials");
                 }
-            });
+            }).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -117,7 +117,7 @@ internal class YahooSessionManager(ILogger<YahooSessionManager> logger,
         httpClient.DefaultRequestHeaders.Add(Constants.HeaderNameAccept, "text/html,application/xhtml+xml,application/xml,application/json;q=0.9,*/*;q=0.8");
 
         // get consent
-        var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, Constants.YahooBaseUrlHtml, token);
+        var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, Constants.YahooBaseUrlHtml, token).ConfigureAwait(false);
         await DeclineConsentAsync(document, token).ConfigureAwait(false);
     }
 
@@ -130,7 +130,7 @@ internal class YahooSessionManager(ILogger<YahooSessionManager> logger,
         var sessionIdNode = document.QuerySelector("input[name='sessionId']");
         if (csrfTokenNode == null || sessionIdNode == null)
         {
-            var responseConsent = await httpClient.GetAsync(Constants.YahooBaseUrlHtml, token);
+            var responseConsent = await httpClient.GetAsync(Constants.YahooBaseUrlHtml, token).ConfigureAwait(false);
             responseConsent.EnsureSuccessStatusCode();
 
             // no EU consent, call from coming outside of EU
@@ -169,13 +169,13 @@ internal class YahooSessionManager(ILogger<YahooSessionManager> logger,
             Content = new FormUrlEncodedContent(postData)
         };
         requestMessage.Headers.Add(Constants.HeaderNameAccept, "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
-        var response = await httpClient.SendAsync(requestMessage, token);
+        var response = await httpClient.SendAsync(requestMessage, token).ConfigureAwait(false);
         _logger.LogDebug("cookieNames={Cookies}", GetCookieNames());
         response.EnsureSuccessStatusCode();
         await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
 
         // finalize
-        response = await httpClient.GetAsync(Constants.YahooBaseUrlHtml, token);
+        response = await httpClient.GetAsync(Constants.YahooBaseUrlHtml, token).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
         await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
         if (_sessionState.GetCookieContainer().Count >= 3)
