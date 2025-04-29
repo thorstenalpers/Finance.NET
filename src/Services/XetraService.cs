@@ -65,10 +65,10 @@ public class XetraService : IXetraService
                     Delimiter = ";",
                 };
 
-                using var reader = new StreamReader(await response.Content.ReadAsStreamAsync());
+                using var reader = new StreamReader(await response.Content.ReadAsStreamAsync().ConfigureAwait(false));
                 using var csv = new CsvReader(reader, config);
-                await csv.ReadAsync();
-                await csv.ReadAsync();
+                await csv.ReadAsync().ConfigureAwait(false);
+                await csv.ReadAsync().ConfigureAwait(false);
                 csv.Context.RegisterClassMap<XetraInstrumentsMapping>();
                 var records = csv.GetRecords<InstrumentItem>().ToList();
 
@@ -84,7 +84,7 @@ public class XetraService : IXetraService
                     result.Add(item);
                 }
                 return result.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
-            });
+            }).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -102,11 +102,11 @@ public class XetraService : IXetraService
         {
             return await _retryPolicy.ExecuteAsync(async () =>
             {
-                var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, token);
+                var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, token).ConfigureAwait(false);
                 var hrefAttributes = document.DocumentElement.SelectNodes("//a[contains(@class, 'download') and contains(., 'All tradable instruments')]/@href")?.Select(e => e.NodeValue);
                 var relativeDownloadUrl = hrefAttributes?.FirstOrDefault();
                 return new Uri(baseUri, relativeDownloadUrl);
-            });
+            }).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
