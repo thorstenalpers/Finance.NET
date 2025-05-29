@@ -41,7 +41,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IReadOnlyPolicyRegistry<string>, PolicyRegistry>(serviceProvider =>
         {
             var options = serviceProvider.GetRequiredService<IOptions<FinanceNetConfiguration>>();
-            var logger = serviceProvider.GetService<ILogger<PollyPolicy>>();
+            var logger = serviceProvider.GetService<ILogger<Polly.Policy>>();
 
             return new PolicyRegistry
             {

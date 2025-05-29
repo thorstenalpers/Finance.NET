@@ -1,64 +1,54 @@
-﻿namespace Finance.Net;
+﻿using System;
 
+namespace Finance.Net;
+
+#pragma warning disable S1075 // URIs should not be hardcoded
 internal static class Constants
 {
-    public const string DefaultHttpRetryPolicy = "DefaultHttpRetryPolicy";
+    private static readonly string DefaultYahooBaseUrl = "https://finance.yahoo.com";
+    private static readonly string DefaultXetraBaseUrl = "https://www.xetra.com";
+    private static readonly string DefaultAlphaVantageBaseUrl = "https://www.alphavantage.co";
+    private static readonly string DefaultDatahubIoBaseUrl = "https://raw.githubusercontent.com";
 
-    public const string HeaderNameAccept = "Accept";
-    public const string HeaderNameAcceptLanguage = "Accept-Language";
-    public const string HeaderNameUserAgent = "User-Agent";
+    private static readonly string BaseUrlYahoo = Environment.GetEnvironmentVariable("FINANCE_NET_YAHOO_BASE_URL") ?? DefaultYahooBaseUrl;
+    private static readonly string BaseUrlXetra = Environment.GetEnvironmentVariable("FINANCE_NET_XETRA_BASE_URL") ?? DefaultXetraBaseUrl;
+    private static readonly string BaseUrlAlphaVantage = Environment.GetEnvironmentVariable("FINANCE_NET_ALPHA_VANTAGE_BASE_URL") ?? DefaultAlphaVantageBaseUrl;
+    private static readonly string BaseUrlDatahubIo = Environment.GetEnvironmentVariable("FINANCE_NET_DATAHUB_IO_BASE_URL") ?? DefaultDatahubIoBaseUrl;
 
-    public const string ResponseApiLimitExceeded = "higher API call volume";
+    // Base URLs
+    public static readonly string YahooBaseUrl = BaseUrlYahoo;
+    public static readonly string YahooBaseUrlQuoteHtml = $"{YahooBaseUrl}/quote";
+    public static readonly string YahooBaseUrlHtml = YahooBaseUrl;
 
-    public const string ValidationMsgAllFieldsEmpty = "All fields empty";
-    public const string HeaderValueAcceptLanguage = "en-US,en;q=0.5";
+    public static readonly string YahooBaseUrlAuthentication = $"{BaseUrlYahoo}/fc";
+    public static readonly string YahooBaseUrlConsent = $"{BaseUrlYahoo}/guce/consent";
+    public static readonly string YahooBaseUrlConsentCollect = $"{BaseUrlYahoo}/consent/v2/collectConsent";
+    public static readonly string YahooBaseUrlCrumbApi = $"{BaseUrlYahoo}/query1.finance.yahoo.com/v1/test/getcrumb";
+    public static readonly string YahooBaseUrlQuoteApi = $"{BaseUrlYahoo}/query1.finance.yahoo.com/v7/finance/quote";
 
-    public const int YahooCookieExpirationTimeInHours = 6;
+    public static readonly string XetraBaseUrl = BaseUrlXetra;
+    public static readonly string XetraInstrumentsUrl = $"{XetraBaseUrl}/xetra-en/instruments/instruments";
 
-    /// <summary> Base url for Yahoo UI content </summary>
-    public const string YahooBaseUrlQuoteHtml = "https://finance.yahoo.com/quote";
+    public static readonly string AlphaVantageApiUrl = BaseUrlAlphaVantage;
 
-    /// <summary> Base url to get cookie for api calls </summary>
-    public const string YahooBaseUrlAuthentication = "https://fc.yahoo.com";
+    public static readonly string DatahubIoBaseUrl = BaseUrlDatahubIo;
+    public static readonly string DatahubIoDownloadUrlSP500Symbols = $"{DatahubIoBaseUrl}/datasets/s-and-p-500-companies-financials/refs/heads/main/data/constituents-financials.csv";
+    public static readonly string DatahubIoDownloadUrlNasdaqListedSymbols = $"{DatahubIoBaseUrl}/datasets/nasdaq-listings/refs/heads/main/data/nasdaq-listed-symbols.csv";
 
-    /// <summary> Base url to get cookie for html calls </summary>
-    public const string YahooBaseUrlConsent = "https://guce.yahoo.com/consent";
+    // HttpClient names
+    public static readonly string YahooHttpClientName = "FinanceNetYahooClient";
+    public static readonly string XetraHttpClientName = "FinanceNetXetraClient";
+    public static readonly string AlphaVantageHttpClientName = "FinanceNetAlphaVantageClient";
+    public static readonly string DatahubIoHttpClientName = "DotNetFinanceDatahubIoClient";
 
-    /// <summary> Base url to send consent cookie for html calls </summary>
-    public const string YahooBaseUrlConsentCollect = "https://consent.yahoo.com/v2/collectConsent";
-
-    /// <summary> Base url for Yahoo crumb API calls </summary>
-    public const string YahooBaseUrlCrumbApi = "https://query1.finance.yahoo.com/v1/test/getcrumb";
-
-    /// <summary> Base url for Yahoo quote API calls </summary>
-    public const string YahooBaseUrlQuoteApi = "https://query1.finance.yahoo.com/v7/finance/quote";
-
-    /// <summary> Base url for Yahoo HTML </summary>
-    public const string YahooBaseUrlHtml = "https://finance.yahoo.com";
-
-    /// <summary> Name of the Yahoo HttpClient used from HttpClientFactory </summary>
-    public const string YahooHttpClientName = "FinanceNetYahooClient";
-
-
-    public const string XetraInstrumentsUrl = "https://www.xetra.com/xetra-en/instruments/instruments";
-
-    /// <summary> Name of the Xetra HttpClient used from HttpClientFactory </summary>
-    public const string XetraHttpClientName = "FinanceNetXetraClient";
-
-
-    /// <summary> Base url for Alpha Vantage API calls </summary>
-    public const string AlphaVantageApiUrl = "https://www.alphavantage.co";
-
-    /// <summary> Name of the AlphaVantage HttpClient used from HttpClientFactory </summary>
-    public const string AlphaVantageHttpClientName = "FinanceNetAlphaVantageClient";
-
-
-    /// <summary> Download URL of Datahub S&amp;P500 listed symbols </summary>
-    public const string DatahubIoDownloadUrlSP500Symbols = "https://raw.githubusercontent.com/datasets/s-and-p-500-companies-financials/refs/heads/main/data/constituents-financials.csv";
-
-    /// <summary> Download URL of Datahub nasdaq listed symbols </summary>
-    public const string DatahubIoDownloadUrlNasdaqListedSymbols = "https://raw.githubusercontent.com/datasets/nasdaq-listings/refs/heads/main/data/nasdaq-listed-symbols.csv";
-
-    /// <summary> Name of the DatahubIo HttpClient used from HttpClientFactory </summary>
-    public const string DatahubIoHttpClientName = "DotNetFinanceDatahubIoClient";
+    // Other constants
+    public static readonly string DefaultHttpRetryPolicy = "DefaultHttpRetryPolicy";
+    public static readonly string HeaderNameAccept = "Accept";
+    public static readonly string HeaderNameAcceptLanguage = "Accept-Language";
+    public static readonly string HeaderNameUserAgent = "User-Agent";
+    public static readonly string ResponseApiLimitExceeded = "higher API call volume";
+    public static readonly string ValidationMsgAllFieldsEmpty = "All fields empty";
+    public static readonly string HeaderValueAcceptLanguage = "en-US,en;q=0.5";
+    public static readonly int YahooCookieExpirationTimeInHours = 6;
 }
+#pragma warning restore S1075 // URIs should not be hardcoded

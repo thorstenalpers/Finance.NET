@@ -20,10 +20,3 @@ internal static class PollyPolicyFactory
                 });
     }
 }
-
-/// <summary>
-/// used as class for logging
-/// </summary>
-internal class PollyPolicy
-{
-}

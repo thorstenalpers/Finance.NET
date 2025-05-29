@@ -7,6 +7,11 @@ internal class SP500InstrumentMapping : ClassMap<Sp500Instrument>
 {
     public SP500InstrumentMapping()
     {
+        InitializeMappings();
+    }
+
+    private void InitializeMappings()
+    {
         Map(m => m.Symbol).Name("Symbol");
         Map(m => m.Name).Name("Name");
         Map(m => m.Sector).Name("Sector");

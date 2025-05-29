@@ -81,7 +81,7 @@ public class AlphaVantageServiceTests
     public async Task GetOverviewAsync_WithData_ReturnsResult()
     {
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "AlphaVantage", "overview.json");
-        var jsonContent = File.ReadAllText(filePath);
+        var jsonContent = await File.ReadAllTextAsync(filePath);
         _mockHandler
             .Protected()
             .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
@@ -182,7 +182,7 @@ public class AlphaVantageServiceTests
             _mockOptions.Object,
             _mockPolicyRegistry.Object);
 
-        var startDate = new DateTime(2024, 01, 01);
+        var startDate = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Utc);
 
         // Act
         var result = await service.GetRecordsAsync("IBM", startDate);
@@ -215,7 +215,7 @@ public class AlphaVantageServiceTests
             _mockOptions.Object,
             _mockPolicyRegistry.Object);
 
-        var startDate = new DateTime(2024, 01, 01);
+        var startDate = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Utc);
 
         // Act
         var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetRecordsAsync("IBM", startDate));
@@ -242,7 +242,7 @@ public class AlphaVantageServiceTests
             _mockOptions.Object,
             _mockPolicyRegistry.Object);
 
-        var startDate = new DateTime(2024, 01, 01);
+        var startDate = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Utc);
 
         // Act
         var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetRecordsAsync("IBM", startDate));
@@ -259,7 +259,7 @@ public class AlphaVantageServiceTests
             .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
             {
-                Content = new StringContent(File.ReadAllText(filePath), Encoding.UTF8, "text/html"),
+                Content = new StringContent(await File.ReadAllTextAsync(filePath), Encoding.UTF8, "text/html"),
             });
         _mockHttpClientFactory.Setup(e => e.CreateClient(It.IsAny<string>())).Returns(new HttpClient(_mockHandler.Object));
 
@@ -269,7 +269,7 @@ public class AlphaVantageServiceTests
             _mockOptions.Object,
             _mockPolicyRegistry.Object);
 
-        var startDate = new DateTime(2024, 01, 01);
+        var startDate = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Utc);
 
         // Act
         var records = await service.GetRecordsAsync("IBM", startDate);
@@ -285,8 +285,8 @@ public class AlphaVantageServiceTests
             _mockOptions.Object,
             _mockPolicyRegistry.Object);
 
-        var startDate = new DateTime(2024, 02, 01);
-        var endDate = new DateTime(2024, 01, 01);
+        var startDate = new DateTime(2024, 02, 01, 0, 0, 0, DateTimeKind.Utc);
+        var endDate = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Utc);
 
         // Act
         Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetRecordsAsync("IBM", startDate, endDate));
@@ -300,7 +300,7 @@ public class AlphaVantageServiceTests
             .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("Buy higher API call volume!") });
         _mockHttpClientFactory.Setup(e => e.CreateClient(It.IsAny<string>())).Returns(new HttpClient(_mockHandler.Object));
-        var startDate = new DateTime(2024, 01, 01);
+        var startDate = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Utc);
 
         var service = new AlphaVantageService(
             _mockLogger.Object,
@@ -324,7 +324,7 @@ public class AlphaVantageServiceTests
             _mockOptions.Object,
             _mockPolicyRegistry.Object);
 
-        var startDate = new DateTime(2024, 01, 01);
+        var startDate = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Utc);
 
         // Act
         var result = await service.GetIntradayRecordsAsync("IBM", startDate, null, EInterval.Interval_5Min);
@@ -352,7 +352,7 @@ public class AlphaVantageServiceTests
             _mockOptions.Object,
             _mockPolicyRegistry.Object);
 
-        var startDate = new DateTime(2024, 01, 01);
+        var startDate = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Utc);
 
         // Act
         var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetIntradayRecordsAsync("IBM", startDate));
@@ -379,7 +379,7 @@ public class AlphaVantageServiceTests
             _mockOptions.Object,
             _mockPolicyRegistry.Object);
 
-        var startDate = new DateTime(2024, 01, 01);
+        var startDate = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Utc);
 
         // Act
         var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetIntradayRecordsAsync("IBM", startDate));
@@ -395,7 +395,7 @@ public class AlphaVantageServiceTests
             .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("Buy higher API call volume!") });
         _mockHttpClientFactory.Setup(e => e.CreateClient(It.IsAny<string>())).Returns(new HttpClient(_mockHandler.Object));
-        var startDate = new DateTime(2024, 01, 01);
+        var startDate = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Utc);
 
         var service = new AlphaVantageService(
             _mockLogger.Object,
@@ -416,8 +416,8 @@ public class AlphaVantageServiceTests
             _mockOptions.Object,
             _mockPolicyRegistry.Object);
 
-        var startDate = new DateTime(2024, 02, 01);
-        var endDate = new DateTime(2024, 01, 01);
+        var startDate = new DateTime(2024, 02, 01, 0, 0, 0, DateTimeKind.Utc);
+        var endDate = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Utc);
 
         // Act
         Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetIntradayRecordsAsync("IBM", startDate, endDate));
@@ -435,8 +435,8 @@ public class AlphaVantageServiceTests
             _mockOptions.Object,
             _mockPolicyRegistry.Object);
 
-        var startDate = new DateTime(2024, 01, 01);
-        var endDate = new DateTime(2024, 02, 01);
+        var startDate = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Utc);
+        var endDate = new DateTime(2024, 02, 01, 0, 0, 0, DateTimeKind.Utc);
         var interval = (EInterval)100;
 
         // Act
@@ -455,7 +455,7 @@ public class AlphaVantageServiceTests
             _mockOptions.Object,
             _mockPolicyRegistry.Object);
 
-        var startDate = new DateTime(2024, 11, 01);
+        var startDate = new DateTime(2024, 11, 01, 0, 0, 0, DateTimeKind.Utc);
 
         // Act
         var result = await service.GetForexRecordsAsync("EUR", "USD", startDate);
@@ -487,7 +487,7 @@ public class AlphaVantageServiceTests
             _mockOptions.Object,
             _mockPolicyRegistry.Object);
 
-        var startDate = new DateTime(2024, 11, 01);
+        var startDate = new DateTime(2024, 11, 01, 0, 0, 0, DateTimeKind.Utc);
 
         // Act
         var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetForexRecordsAsync("EUR", "USD", startDate));
@@ -514,7 +514,7 @@ public class AlphaVantageServiceTests
             _mockOptions.Object,
             _mockPolicyRegistry.Object);
 
-        var startDate = new DateTime(2024, 11, 01);
+        var startDate = new DateTime(2024, 11, 01, 0, 0, 0, DateTimeKind.Utc);
 
         // Act
         var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetForexRecordsAsync("EUR", "USD", startDate));
@@ -531,7 +531,7 @@ public class AlphaVantageServiceTests
             .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
             {
-                Content = new StringContent(File.ReadAllText(filePath), Encoding.UTF8, "text/html"),
+                Content = new StringContent(await File.ReadAllTextAsync(filePath), Encoding.UTF8, "text/html"),
             });
         _mockHttpClientFactory.Setup(e => e.CreateClient(It.IsAny<string>())).Returns(new HttpClient(_mockHandler.Object));
 
@@ -541,7 +541,7 @@ public class AlphaVantageServiceTests
             _mockOptions.Object,
             _mockPolicyRegistry.Object);
 
-        var startDate = new DateTime(2024, 11, 01);
+        var startDate = new DateTime(2024, 11, 01, 0, 0, 0, DateTimeKind.Utc);
 
         // Act
         var records = await service.GetForexRecordsAsync("EUR", "USD", startDate);
@@ -556,7 +556,7 @@ public class AlphaVantageServiceTests
             .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("Buy higher API call volume!") });
         _mockHttpClientFactory.Setup(e => e.CreateClient(It.IsAny<string>())).Returns(new HttpClient(_mockHandler.Object));
-        var startDate = new DateTime(2024, 11, 01);
+        var startDate = new DateTime(2024, 11, 01, 0, 0, 0, DateTimeKind.Utc);
 
         var service = new AlphaVantageService(
             _mockLogger.Object,
@@ -578,8 +578,8 @@ public class AlphaVantageServiceTests
             _mockOptions.Object,
             _mockPolicyRegistry.Object);
 
-        var startDate = new DateTime(2024, 02, 01);
-        var endDate = new DateTime(2024, 01, 01);
+        var startDate = new DateTime(2024, 02, 01, 0, 0, 0, DateTimeKind.Utc);
+        var endDate = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Utc);
 
         // Act
         Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetForexRecordsAsync("EUR", "USD", startDate, endDate));

@@ -31,8 +31,6 @@ public class YahooSessionManagerTests
     {
         _mockHttpClientFactory = new Mock<IHttpClientFactory>();
         _mockLogger = new Mock<ILogger<YahooSessionManager>>();
-        var tt = _mockLogger.Object;
-
 
         _mockYahooSessionState = new Mock<IYahooSessionState>();
         _mockHttpClientFactory = new Mock<IHttpClientFactory>();

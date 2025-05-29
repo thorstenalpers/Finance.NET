@@ -146,15 +146,6 @@ internal static class Helper
         var attribute = (DescriptionAttribute)Attribute.GetCustomAttribute(field, typeof(DescriptionAttribute));
         return attribute.Description;
     }
-    public static string CreateRandomUserAgent()
-    {
-        return CreateRandomUserAgent(GetRandomInt32);
-    }
-    private static int GetRandomInt32(int minValue, int maxValue)
-    {
-        return new Random().Next(minValue, maxValue);
-    }
-
     public static string CreateRandomUserAgent(Func<int, int, int> random)
     {
         List<string> firefoxVersions = [ "133.0",
@@ -179,6 +170,14 @@ internal static class Helper
         }
         var index = random(0, allAgents.Count);
         return allAgents[index];
+    }
+    public static string CreateRandomUserAgent()
+    {
+        return CreateRandomUserAgent(GetRandomInt32);
+    }
+    private static int GetRandomInt32(int minValue, int maxValue)
+    {
+        return new Random().Next(minValue, maxValue);
     }
 
     public static bool AreAllPropertiesNull<T>(T obj)

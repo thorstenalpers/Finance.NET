@@ -15,7 +15,7 @@
 	<Version>1.0.8</Version>
 	<Authors>Thorsten Alpers</Authors>
 	<Owners>Thorsten Alpers</Owners>
-	<Description>Access financial data from Yahoo Finance and other sources.</Description>
+	<Description>A .NET library for retrieving real-time and historical financial data from Yahoo Finance and other popular sources.</Description>
 	<PackageProjectUrl>https://github.com/thorstenalpers/Finance.NET</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/thorstenalpers/Finance.NET</RepositoryUrl>
 	<PackageTags>Finance.NET;Yahoo;Yahoo Finance;DataHub;Alpha Vantage;Nasdaq;Xetra;Finance;Trading</PackageTags>
@@ -35,6 +35,10 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.4" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Polly" Version="8.5.2" />
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="10.10.0.116381">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
   </ItemGroup>
 

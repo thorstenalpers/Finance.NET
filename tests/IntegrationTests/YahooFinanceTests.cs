@@ -121,7 +121,8 @@ public class YahooFinanceTests
 
             Assert.That(quote, Is.Not.Null);
             Assert.That(quote.Symbol, Is.EqualTo(symbol));
-            Assert.That(quote.FirstTradeDate.Value.Date >= new DateTime(1920, 1, 1) && quote.FirstTradeDate.Value.Date <= DateTime.UtcNow, Is.True);
+            Assert.That(quote.FirstTradeDate.Value.Date >= new DateTime(1920, 1, 1, 0, 0, 0, DateTimeKind.Utc) &&
+                        quote.FirstTradeDate.Value.Date <= DateTime.UtcNow, Is.True);
             Assert.That(!string.IsNullOrWhiteSpace(quote.QuoteType), Is.True);
             Assert.That(!string.IsNullOrWhiteSpace(quote.Exchange), Is.True);
             Assert.That(!string.IsNullOrWhiteSpace(quote.ShortName), Is.True);
