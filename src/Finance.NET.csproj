@@ -12,7 +12,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 	<IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
 	<PackageId>Finance.NET</PackageId>
-	<Version>1.0.8</Version>
+	<Version>1.0.9</Version>
 	<Authors>Thorsten Alpers</Authors>
 	<Owners>Thorsten Alpers</Owners>
 	<Description>A .NET library for retrieving real-time and historical financial data from Yahoo Finance and other popular sources.</Description>
