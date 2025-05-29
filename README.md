@@ -959,6 +959,9 @@ For legal usage, refer to the terms of each data provider:
 * Yahoo! Finance: [API Terms of Use](https://policies.yahoo.com/us/en/yahoo/terms/product-atos/apiforydn/index.htm), [Website Terms of Use](https://legal.yahoo.com/us/en/yahoo/terms/otos/index.html), [General Terms](https://policies.yahoo.com/us/en/yahoo/terms/index.htm)
 * Xetra: [Terms of use](https://www.xetra.com/xetra-de/instrumente/alle-handelbaren-instrumente)
 
+
+For additional licensing and attribution details, see [NOTICE.md](./NOTICE.md) and [THIRD_PARTY_LICENSES.md](./THIRD_PARTY_LICENSES.md).
+
 ---
 
 ## 🐞 Report a Bug
