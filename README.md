@@ -9,44 +9,42 @@
 [![NuGet Downloads](https://img.shields.io/nuget/dt/Finance.NET.svg)](https://www.nuget.org/packages/Finance.NET)
 [![Star this repo](https://img.shields.io/github/stars/thorstenalpers/Finance.NET.svg?style=social&label=Star&maxAge=60)](https://github.com/thorstenalpers/Finance.NET)
 
-An easy-to-use .NET library for accessing and aggregating financial data from multiple sources. This library provides functionality to retrieve financial information through APIs and HTML scraping from various providers.
+An easy-to-use .NET library for accessing and aggregating financial data from multiple sources. 
 
-## Features
+This library enables developers to retrieve financial data via APIs and HTML scraping from a variety of providers. It's ideal for building analytical tools, dashboards, or financial applications that require access to market data.
 
-* **Retrieve Instruments:** Access tradable ticker symbols and related details for financial instruments.
-* **Fundamentals:** Fetch key financial metrics and company fundamentals.
-* **Historical Records:** Obtain historical data for charting or analysis.
-* **Real-Time Quotes:** Get live updates on stock prices and other market data.
+---
 
-## Table of contents
+## ⭐ Features
 
-* [Getting started](#getting-started)
-* [Services](#services)
-  * [Yahoo! Finance](#yahoo-finance)
-  * [Alpha Vantage](#alpha-vantage)
-  * [DataHub](#datahub)
-  * [Xetra](#xetra)
-* [Disclaimer](#disclaimer)
+* **Retrieve Instruments:** Get tradable ticker symbols and associated details.
+* **Fundamentals:** Access key financial metrics and company fundamentals.
+* **Historical Records:** Fetch historical data for analysis or charting.
+* **Real-Time Quotes:** Receive live updates on stock prices and market data.
 
-## Getting started
+---
+
+## 🚀 Getting started
+
+This section guides you through installing Finance.NET, configuring services, and basic data retrieval.
 
 ### Installation
 
-To integrate Finance .NET into your project, install it via NuGet.
+Install via NuGet:
 
 ```shell
 dotnet add package Finance.NET
 ```
 
-### Adding to Service Collection
+### Register in Service Collection
 
-Register Finance .NET in your service collection to enable dependency injection.
+Add Finance.NET to your service collection for dependency injection:
 
 ```csharp
 services.AddFinanceNet();
 ```
 
-You can also provide a custom configuration.
+Optional: Configure with custom settings.
 
 ```csharp
 services.AddFinanceNet(new FinanceNetConfiguration
@@ -59,7 +57,7 @@ services.AddFinanceNet(new FinanceNetConfiguration
 
 ### Basic Usage
 
-To fetch historical records and the latest ticker for Tesla stock.
+Example: Retrieve historical and real-time data for Tesla (TSLA):
 
 ```csharp
 public async Task Run(IYahooFinanceService yahooService)
@@ -78,13 +76,18 @@ public async Task Run(IYahooFinanceService yahooService)
 }
 ```
 
-## Services
+---
 
-## Yahoo! Finance
+## 🔌Finance.NET Service Interfaces
 
-[Yahoo! Finance](https://finance.yahoo.com/) is one of the most popular platforms for market data, company fundamentals, historical records, and real-time stock quotes.
+Finance.NET exposes modular service interfaces for accessing diverse financial data through a consistent API. Each interface corresponds to a specific provider and supports its unique features.
 
-### Methods
+
+### Yahoo! Finance
+
+Provides market data, company fundamentals, historical records, and real-time quotes.
+
+#### Methods
 
 <details><summary><code>GetInstrumentsAsync</code></summary>
 
@@ -528,9 +531,12 @@ public async Task Run(IYahooFinanceService yahooService)
 
 </details>
 
+---
+
 ## Alpha Vantage
 
-[Alpha Vantage](https://www.alphavantage.co) is a well-regarded provider of stock, forex, and cryptocurrency data, offering historical records and intraday prices.
+Offers stock, forex, and cryptocurrency data including intraday and historical records.
+
 
 ### Get an API key
 
@@ -791,9 +797,11 @@ public async Task Run(IAlphaVantageService alphaVantageService)
 
 </details>
 
+---
+
 ## DataHub
 
-[DataHub](https://datahub.io) is a popular source for accessing comprehensive data, including Nasdaq and S&P 500 companies.
+Accesses datasets like Nasdaq and S&P 500 companies.
 
 ### Methods
 
@@ -876,9 +884,11 @@ public async Task Run(IDataHubService datahubService)
 
 </details>
 
+---
+
 ## Xetra
 
-[Xetra](https://www.xetra.com/) is a leading European electronic trading platform, widely known for providing access to financial instruments listed on the Xetra market.
+A major European trading platform offering data on Xetra-listed instruments.
 
 ### Methods
 
@@ -924,13 +934,36 @@ public async Task Run(IXetraService xetraService)
 
 <div style="height: 1px;"></div>
 
-## Disclaimer
+---
 
-Finance .NET is an open-source tool that uses Yahoo's and other publicly available APIs, and is intended for research and educational purposes.
+## 🤝 How to Contribute
 
-#### Wen using the following services, you should refer to their respective terms of use
+We welcome contributions to Finance.NET! If you’d like to improve the project, please:
+
+1. Check out our [contributing guidelines](CONTRIBUTING.md).
+2. Ideally, open an issue before starting work.
+3. Submit a pull request with your changes.
+
+Thank you for helping make Finance.NET better!
+
+---
+
+## ℹ️ Disclaimer
+
+Finance.NET is an open-source project using publicly accessible APIs and scraping techniques. It is intended for educational and research purposes.
+
+For legal usage, refer to the terms of each data provider:
 
 * Alpha Vantage: [Terms of use](https://www.alphavantage.co/)
 * DataHub: [S&P 500 Companies Terms of Use](https://github.com/datasets/s-and-p-500-companies), [NASDAQ Listings Terms of Use](https://github.com/datasets/nasdaq-listings)
 * Yahoo! Finance: [API Terms of Use](https://policies.yahoo.com/us/en/yahoo/terms/product-atos/apiforydn/index.htm), [Website Terms of Use](https://legal.yahoo.com/us/en/yahoo/terms/otos/index.html), [General Terms](https://policies.yahoo.com/us/en/yahoo/terms/index.htm)
 * Xetra: [Terms of use](https://www.xetra.com/xetra-de/instrumente/alle-handelbaren-instrumente)
+
+
+For additional licensing and attribution details, see [NOTICE.md](./NOTICE.md) and [THIRD_PARTY_LICENSES.md](./THIRD_PARTY_LICENSES.md).
+
+---
+
+## 🐞 Report a Bug
+
+If you encounter any issues or bugs, please [report them here](https://github.com/thorstenalpers/Finance.NET/issues).
