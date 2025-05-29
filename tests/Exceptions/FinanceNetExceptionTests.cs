@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.IO;
 using Finance.Net.Exceptions;
 using NUnit.Framework;
 
@@ -11,23 +11,23 @@ public class FinanceNetExceptionTests
     [Test]
     public void FinanceNetException_Create_NotNull()
     {
-        // Arrange
-        // Act
+        // Arrange  
+        // Act  
         var financeNetException = new FinanceNetException();
 
-        // Assert
+        // Assert  
         Assert.That(financeNetException, Is.Not.Null);
     }
 
     [Test]
     public void FinanceNetException_WithInnerException_NotNull()
     {
-        // Arrange
-        var exception = new ArgumentNullException("Test");
-        // Act
+        // Arrange  
+        var exception = new FileNotFoundException();
+        // Act  
         var financeNetException = new FinanceNetException("message", exception);
 
-        // Assert
+        // Assert  
         Assert.That(financeNetException, Is.Not.Null);
         Assert.That(financeNetException.InnerException.Message, Is.EqualTo(exception.Message));
     }

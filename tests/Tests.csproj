@@ -28,12 +28,11 @@
     <PackageReference Include="Moq" Version="4.20.72" />
     <PackageReference Include="NUnit" Version="4.3.2" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="10.10.0.116381">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\src\Finance.NET.csproj" />
-  </ItemGroup>
-
   <ItemGroup>
     <None Update="TestData\AlphaVantage\overview.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -124,5 +123,8 @@
 	</None>
   <None Remove="TestResults\**" />
 </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\src\Finance.NET.csproj" />
+  </ItemGroup>
     
 </Project>

@@ -34,7 +34,7 @@ public class DataHubService(IHttpClientFactory httpClientFactory,
         {
             return await _retryPolicy.ExecuteAsync(async () =>
             {
-                var response = await httpClient.GetAsync(Constants.DatahubIoDownloadUrlNasdaqListedSymbols, token).ConfigureAwait(false);
+                var response = await httpClient.GetAsync(Constants.DatahubNasdaqSymbolsUrl, token).ConfigureAwait(false);
                 response.EnsureSuccessStatusCode();
 
                 var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -42,7 +42,7 @@ public class DataHubService(IHttpClientFactory httpClientFactory,
                 using var csv = new CsvReader(reader, config);
                 csv.Context.RegisterClassMap<NasdaqInstrumentMapping>();
                 var instruments = csv.GetRecords<NasdaqInstrument>().ToList();
-                return instruments.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : instruments;
+                return instruments.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMessageAllFieldsEmpty) : instruments;
             }).ConfigureAwait(false);
         }
         catch (Exception ex)
@@ -59,7 +59,7 @@ public class DataHubService(IHttpClientFactory httpClientFactory,
         {
             return await _retryPolicy.ExecuteAsync(async () =>
             {
-                var response = await httpClient.GetAsync(Constants.DatahubIoDownloadUrlSP500Symbols, token).ConfigureAwait(false);
+                var response = await httpClient.GetAsync(Constants.DatahubSp500SymbolsUrl, token).ConfigureAwait(false);
                 response.EnsureSuccessStatusCode();
                 var config = new CsvConfiguration(CultureInfo.InvariantCulture);
 
@@ -69,7 +69,7 @@ public class DataHubService(IHttpClientFactory httpClientFactory,
                 csv.Context.RegisterClassMap<SP500InstrumentMapping>();
 
                 var instruments = csv.GetRecords<Sp500Instrument>().ToList();
-                return instruments.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : instruments;
+                return instruments.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMessageAllFieldsEmpty) : instruments;
             }).ConfigureAwait(false);
         }
         catch (Exception ex)

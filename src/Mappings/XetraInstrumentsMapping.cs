@@ -7,6 +7,11 @@ internal class XetraInstrumentsMapping : ClassMap<InstrumentItem>
 {
     public XetraInstrumentsMapping()
     {
+        InitializeMappings();
+    }
+
+    private void InitializeMappings()
+    {
         Map(m => m.ProductStatus).Name("Product Status");
         Map(m => m.InstrumentStatus).Name("Instrument Status");
         Map(m => m.Instrument).Name("Instrument");

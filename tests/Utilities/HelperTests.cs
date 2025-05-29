@@ -134,7 +134,7 @@ public class HelperTests
     public void ParseDate_WithValidEntries_ReturnsResult(string dateString, int expectedYear, int expectedMonth, int expectedDay)
     {
         // Arrange
-        var expected = new DateTime(expectedYear, expectedMonth, expectedDay);
+        var expected = new DateTime(expectedYear, expectedMonth, expectedDay, 0, 0, 0, DateTimeKind.Utc);
 
         // Act
         var result = Helper.ParseDate(dateString);

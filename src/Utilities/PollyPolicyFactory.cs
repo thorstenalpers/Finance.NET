@@ -7,7 +7,7 @@ namespace Finance.Net.Utilities;
 
 internal static class PollyPolicyFactory
 {
-    public static AsyncRetryPolicy GetRetryPolicy<T>(int retryCount, int waitTimeSecs, ILogger<T>? logger)
+    public static AsyncRetryPolicy GetRetryPolicy<T>(int retryCount, int waitTimeSecs, ILogger<T> logger)
     {
         return Policy
             .Handle<Exception>()
@@ -19,11 +19,4 @@ internal static class PollyPolicyFactory
                     logger?.LogWarning("Retry {RetryCount} after {TimeSpan} due to {Exception}.", retryCount, timeSpan, exception?.Message);
                 });
     }
-}
-
-/// <summary>
-/// used as class for logging
-/// </summary>
-internal class PollyPolicy
-{
 }

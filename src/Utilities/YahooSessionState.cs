@@ -36,12 +36,12 @@ internal class YahooSessionState : IYahooSessionState
 
     public bool IsValid()
     {
-        var cookies = _cookieContainer.GetCookies(new Uri(Constants.YahooBaseUrlHtml));
+        var cookies = _cookieContainer.GetCookies(new Uri(Constants.YahooBaseUrl));
         if (_refreshTime == null || (cookies?.Count ?? 0) == 0 || string.IsNullOrWhiteSpace(_crumb))
         {
             return false;
         }
-        if (DateTime.UtcNow >= _refreshTime.Value.AddHours(Constants.YahooCookieExpirationTimeInHours))
+        if (DateTime.UtcNow >= _refreshTime.Value.AddHours(Constants.YahooCookieExpirationHours))
         {
             // e.g. 10:00 >= 12:00 (09:00+3) = false, 10:00 >= 04:00 (01:00+3) = true
             return false;

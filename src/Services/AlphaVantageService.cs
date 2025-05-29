@@ -32,7 +32,7 @@ IReadOnlyPolicyRegistry<string> policyRegistry) : IAlphaVantageService
     public async Task<InstrumentOverview?> GetOverviewAsync(string symbol, CancellationToken token = default)
     {
         var httpClient = _httpClientFactory.CreateClient(Constants.AlphaVantageHttpClientName);
-        var url = Constants.AlphaVantageApiUrl + "/query?function=OVERVIEW" +
+        var url = Constants.AlphaVantageApiBaseUrl + "/query?function=OVERVIEW" +
             $"&symbol={symbol}" +
             $"&apikey={_options.AlphaVantageApiKey}";
 
@@ -44,15 +44,15 @@ IReadOnlyPolicyRegistry<string> policyRegistry) : IAlphaVantageService
                     httpResponse.EnsureSuccessStatusCode();
 
                     var jsonResponse = await httpResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
-                    if (jsonResponse.Contains(Constants.ResponseApiLimitExceeded))
+                    if (jsonResponse.Contains(Constants.ApiResponseLimitExceeded))
                     {
-                        throw new FinanceNetException($"{Constants.ResponseApiLimitExceeded} for {symbol}");
+                        throw new FinanceNetException($"{Constants.ApiResponseLimitExceeded} for {symbol}");
                     }
                     else
                     {
                         var overview = JsonConvert.DeserializeObject<InstrumentOverview>(jsonResponse);
                         var isNullObj = Helper.AreAllPropertiesNull(overview);
-                        return isNullObj ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : overview;
+                        return isNullObj ? throw new FinanceNetException(Constants.ValidationMessageAllFieldsEmpty) : overview;
                     }
                 }).ConfigureAwait(false);
             return instrumentOverview;
@@ -67,7 +67,7 @@ IReadOnlyPolicyRegistry<string> policyRegistry) : IAlphaVantageService
     public async Task<IEnumerable<Record>> GetRecordsAsync(string symbol, DateTime? startDate = null, DateTime? endDate = null, CancellationToken token = default)
     {
         var httpClient = _httpClientFactory.CreateClient(Constants.AlphaVantageHttpClientName);
-        var url = Constants.AlphaVantageApiUrl + "/query?function=TIME_SERIES_DAILY_ADJUSTED" +
+        var url = Constants.AlphaVantageApiBaseUrl + "/query?function=TIME_SERIES_DAILY_ADJUSTED" +
             $"&symbol={symbol}&outputsize=full&apikey={_options.AlphaVantageApiKey}";
         Guard.Against.NullOrEmpty(symbol);
 
@@ -86,12 +86,12 @@ IReadOnlyPolicyRegistry<string> policyRegistry) : IAlphaVantageService
             return await _retryPolicy.ExecuteAsync(async () =>
             {
                 var jsonResponse = await Helper.FetchJsonDocumentAsync(httpClient, _logger, url, token).ConfigureAwait(false);
-                if (jsonResponse.Contains(Constants.ResponseApiLimitExceeded))
+                if (jsonResponse.Contains(Constants.ApiResponseLimitExceeded))
                 {
-                    throw new FinanceNetException($"{Constants.ResponseApiLimitExceeded} for {symbol}");
+                    throw new FinanceNetException($"{Constants.ApiResponseLimitExceeded} for {symbol}");
                 }
                 var result = AlphaVantageParser.ParseRecords(symbol, startDate, endDate, jsonResponse, _logger);
-                return result.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
+                return result.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMessageAllFieldsEmpty) : result;
             }).ConfigureAwait(false);
         }
         catch (Exception ex)
@@ -131,13 +131,13 @@ IReadOnlyPolicyRegistry<string> policyRegistry) : IAlphaVantageService
             result.AddRange(currentCourses);
         }
         result = result.Where(e => e.DateTime >= startDate).ToList();
-        return result.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
+        return result.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMessageAllFieldsEmpty) : result;
     }
 
     private async Task<List<IntradayRecord>> GetIntradayRecordsByMonthAsync(string symbol, DateTime month, EInterval interval, CancellationToken token = default)
     {
         var httpClient = _httpClientFactory.CreateClient(Constants.AlphaVantageHttpClientName);
-        var url = Constants.AlphaVantageApiUrl + "/query?function=TIME_SERIES_INTRADAY" +
+        var url = Constants.AlphaVantageApiBaseUrl + "/query?function=TIME_SERIES_INTRADAY" +
             $"&symbol={symbol}" +
             $"&interval={interval.GetDescription()}" +
             $"&month={month:yyyy-MM}" +
@@ -153,12 +153,12 @@ IReadOnlyPolicyRegistry<string> policyRegistry) : IAlphaVantageService
                 response.EnsureSuccessStatusCode();
 
                 var jsonResponse = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                if (jsonResponse.Contains(Constants.ResponseApiLimitExceeded))
+                if (jsonResponse.Contains(Constants.ApiResponseLimitExceeded))
                 {
-                    throw new FinanceNetException($"{Constants.ResponseApiLimitExceeded} for {symbol}");
+                    throw new FinanceNetException($"{Constants.ApiResponseLimitExceeded} for {symbol}");
                 }
                 var result = AlphaVantageParser.ParseIntradayRecords(symbol, interval, jsonResponse);
-                return result.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
+                return result.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMessageAllFieldsEmpty) : result;
             }).ConfigureAwait(false);
         }
         catch (Exception ex)
@@ -184,7 +184,7 @@ IReadOnlyPolicyRegistry<string> policyRegistry) : IAlphaVantageService
         {
             endDate = DateTime.UtcNow.Date;
         }
-        var url = Constants.AlphaVantageApiUrl + "/query?function=FX_DAILY" +
+        var url = Constants.AlphaVantageApiBaseUrl + "/query?function=FX_DAILY" +
             $"&from_symbol={currency1}&to_symbol={currency2}&outputsize=full&apikey={_options.AlphaVantageApiKey}";
 
         try
@@ -192,12 +192,12 @@ IReadOnlyPolicyRegistry<string> policyRegistry) : IAlphaVantageService
             return await _retryPolicy.ExecuteAsync(async () =>
             {
                 var jsonResponse = await Helper.FetchJsonDocumentAsync(httpClient, _logger, url, token).ConfigureAwait(false);
-                if (jsonResponse.Contains(Constants.ResponseApiLimitExceeded))
+                if (jsonResponse.Contains(Constants.ApiResponseLimitExceeded))
                 {
-                    throw new FinanceNetException($"{Constants.ResponseApiLimitExceeded} for {currency1} /{currency2}");
+                    throw new FinanceNetException($"{Constants.ApiResponseLimitExceeded} for {currency1} /{currency2}");
                 }
                 var result = AlphaVantageParser.ParseForexRecords(currency1, currency2, startDate, endDate, jsonResponse, _logger);
-                return result.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
+                return result.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMessageAllFieldsEmpty) : result;
             }).ConfigureAwait(false);
         }
         catch (Exception ex)
