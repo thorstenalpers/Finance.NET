@@ -24,18 +24,6 @@ This library enables developers to retrieve financial data via APIs and HTML scr
 
 ---
 
-## Table of contents
-
-* [Getting started](#getting-started)
-* [Services](#services)
-  * [Yahoo! Finance](#yahoo-finance)
-  * [Alpha Vantage](#alpha-vantage)
-  * [DataHub](#datahub)
-  * [Xetra](#xetra)
-* [Disclaimer](#disclaimer)
-
----
-
 ## 🚀 Getting started
 
 This section guides you through installing Finance.NET, configuring services, and basic data retrieval.
@@ -948,6 +936,18 @@ public async Task Run(IXetraService xetraService)
 
 ---
 
+## 🤝 How to Contribute
+
+We welcome contributions to Finance.NET! If you’d like to improve the project, please:
+
+1. Check out our [contributing guidelines](CONTRIBUTING.md).
+2. Ideally, open an issue before starting work.
+3. Submit a pull request with your changes.
+
+Thank you for helping make Finance.NET better!
+
+---
+
 ## ℹ️ Disclaimer
 
 Finance.NET is an open-source project using publicly accessible APIs and scraping techniques. It is intended for educational and research purposes.
@@ -958,3 +958,9 @@ For legal usage, refer to the terms of each data provider:
 * DataHub: [S&P 500 Companies Terms of Use](https://github.com/datasets/s-and-p-500-companies), [NASDAQ Listings Terms of Use](https://github.com/datasets/nasdaq-listings)
 * Yahoo! Finance: [API Terms of Use](https://policies.yahoo.com/us/en/yahoo/terms/product-atos/apiforydn/index.htm), [Website Terms of Use](https://legal.yahoo.com/us/en/yahoo/terms/otos/index.html), [General Terms](https://policies.yahoo.com/us/en/yahoo/terms/index.htm)
 * Xetra: [Terms of use](https://www.xetra.com/xetra-de/instrumente/alle-handelbaren-instrumente)
+
+---
+
+## 🐞 Report a Bug
+
+If you encounter any issues or bugs, please [report them here](https://github.com/thorstenalpers/Finance.NET/issues).
