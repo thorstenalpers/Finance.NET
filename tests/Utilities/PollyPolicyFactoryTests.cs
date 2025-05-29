@@ -6,6 +6,7 @@ using Finance.Net.Utilities;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
+using Polly.Registry;
 
 namespace Finance.Net.Tests.Utilities;
 
@@ -28,7 +29,7 @@ public class PollyPolicyFactoryTests
         const int retryCount = 1;
 
         // Act
-        var policy = PollyPolicyFactory.GetRetryPolicy<PollyPolicyFactoryTests>(retryCount, 1, null);
+        var policy = PollyPolicyFactory.GetRetryPolicy<PolicyRegistry>(retryCount, 1, null);
 
         var result = await policy.ExecuteAsync(() => Task.FromResult(100));
 
@@ -79,7 +80,7 @@ public class PollyPolicyFactoryTests
     {
         // Arrange + Act
         const int retryCount = 3;
-        var policy = PollyPolicyFactory.GetRetryPolicy<PollyPolicyFactoryTests>(retryCount, 1, null);
+        var policy = PollyPolicyFactory.GetRetryPolicy<PolicyRegistry>(retryCount, 1, null);
 
         // Assert
         Assert.ThrowsAsync<FinanceNetException>(async () => await policy.ExecuteAsync<int>(() => throw new FinanceNetException("Message")));

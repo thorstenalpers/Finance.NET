@@ -37,12 +37,12 @@ internal class YahooSessionManager(ILogger<YahooSessionManager> logger,
 
     public IEnumerable<Cookie> GetCookies()
     {
-        return _sessionState.GetCookieContainer().GetCookies(new Uri(Constants.YahooBaseUrlHtml)).Cast<Cookie>();
+        return _sessionState.GetCookieContainer().GetCookies(new Uri(Constants.YahooBaseUrl)).Cast<Cookie>();
     }
 
     public string GetCookieNames()
     {
-        return string.Join(",", _sessionState.GetCookieContainer().GetCookies(new Uri(Constants.YahooBaseUrlHtml)).Cast<Cookie>().Select(e => e.Name));
+        return string.Join(",", _sessionState.GetCookieContainer().GetCookies(new Uri(Constants.YahooBaseUrl)).Cast<Cookie>().Select(e => e.Name));
     }
 
     public async Task RefreshSessionAsync(CancellationToken token = default)
@@ -80,11 +80,11 @@ internal class YahooSessionManager(ILogger<YahooSessionManager> logger,
     private async Task<string> CreateApiCookiesAndCrumb(CancellationToken token)
     {
         var httpClient = _httpClientFactory.CreateClient(Constants.YahooHttpClientName);
-        httpClient.DefaultRequestHeaders.Add(Constants.HeaderNameAccept, "text/html,application/xhtml+xml,application/xml,application/json;q=0.9,*/*;q=0.8");
+        httpClient.DefaultRequestHeaders.Add(Constants.HeaderAccept, "text/html,application/xhtml+xml,application/xml,application/json;q=0.9,*/*;q=0.8");
 
-        var response = await httpClient.GetAsync(Constants.YahooBaseUrlAuthentication.ToLowerInvariant(), token).ConfigureAwait(false);
+        var response = await httpClient.GetAsync(Constants.YahooAuthenticationUrl.ToLowerInvariant(), token).ConfigureAwait(false);
 
-        var requestMessage = new HttpRequestMessage(HttpMethod.Get, Constants.YahooBaseUrlCrumbApi.ToLowerInvariant());
+        var requestMessage = new HttpRequestMessage(HttpMethod.Get, Constants.YahooCrumbApiUrl.ToLowerInvariant());
         var cookieHeader = response.Headers.GetValues("Set-Cookie").FirstOrDefault();
         requestMessage.Headers.Add("Cookie", cookieHeader);
         await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
@@ -114,23 +114,23 @@ internal class YahooSessionManager(ILogger<YahooSessionManager> logger,
     private async Task CreateUiCookies(CancellationToken token)
     {
         var httpClient = _httpClientFactory.CreateClient(Constants.YahooHttpClientName);
-        httpClient.DefaultRequestHeaders.Add(Constants.HeaderNameAccept, "text/html,application/xhtml+xml,application/xml,application/json;q=0.9,*/*;q=0.8");
+        httpClient.DefaultRequestHeaders.Add(Constants.HeaderAccept, "text/html,application/xhtml+xml,application/xml,application/json;q=0.9,*/*;q=0.8");
 
         // get consent
-        var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, Constants.YahooBaseUrlHtml, token).ConfigureAwait(false);
+        var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, Constants.YahooBaseUrl, token).ConfigureAwait(false);
         await DeclineConsentAsync(document, token).ConfigureAwait(false);
     }
 
     public async Task DeclineConsentAsync(IHtmlDocument document, CancellationToken token)
     {
         var httpClient = _httpClientFactory.CreateClient(Constants.YahooHttpClientName);
-        httpClient.DefaultRequestHeaders.Add(Constants.HeaderNameAccept, "text/html,application/xhtml+xml,application/xml,application/json;q=0.9,*/*;q=0.8");
+        httpClient.DefaultRequestHeaders.Add(Constants.HeaderAccept, "text/html,application/xhtml+xml,application/xml,application/json;q=0.9,*/*;q=0.8");
 
         var csrfTokenNode = document.QuerySelector("input[name='csrfToken']");
         var sessionIdNode = document.QuerySelector("input[name='sessionId']");
         if (csrfTokenNode == null || sessionIdNode == null)
         {
-            var responseConsent = await httpClient.GetAsync(Constants.YahooBaseUrlHtml, token).ConfigureAwait(false);
+            var responseConsent = await httpClient.GetAsync(Constants.YahooBaseUrl, token).ConfigureAwait(false);
             responseConsent.EnsureSuccessStatusCode();
 
             // no EU consent, call from coming outside of EU
@@ -157,25 +157,25 @@ internal class YahooSessionManager(ILogger<YahooSessionManager> logger,
                         {
                             new("csrfToken", csrfToken),
                             new("sessionId", sessionId),
-                            new("originalDoneUrl", Constants.YahooBaseUrlHtml),
+                            new("originalDoneUrl", Constants.YahooBaseUrl ),
                             new("namespace", "yahoo"),
                         };
         foreach (var value in new List<string> { "reject", "reject" })
         {
             postData.Add(new("reject", value));
         }
-        var requestMessage = new HttpRequestMessage(HttpMethod.Post, $"{Constants.YahooBaseUrlConsentCollect}?sessionId={sessionId}")
+        var requestMessage = new HttpRequestMessage(HttpMethod.Post, $"{Constants.YahooConsentCollectUrl}?sessionId={sessionId}")
         {
             Content = new FormUrlEncodedContent(postData)
         };
-        requestMessage.Headers.Add(Constants.HeaderNameAccept, "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+        requestMessage.Headers.Add(Constants.HeaderAccept, "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
         var response = await httpClient.SendAsync(requestMessage, token).ConfigureAwait(false);
         _logger.LogDebug("cookieNames={Cookies}", GetCookieNames());
         response.EnsureSuccessStatusCode();
         await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
 
         // finalize
-        response = await httpClient.GetAsync(Constants.YahooBaseUrlHtml, token).ConfigureAwait(false);
+        response = await httpClient.GetAsync(Constants.YahooBaseUrl, token).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
         await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
         if (_sessionState.GetCookieContainer().Count >= 3)

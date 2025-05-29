@@ -66,11 +66,11 @@ public class YahooFinanceService : IYahooFinanceService
             {
                 var instruments = await (instrumentType switch
                 {
-                    EInstrumentType.ETF => FetchSymbolsAsync($"{Constants.YahooBaseUrlHtml}/markets/etfs/most-active/", EInstrumentType.ETF, token),
-                    EInstrumentType.Stock => FetchSymbolsAsync($"{Constants.YahooBaseUrlHtml}/markets/stocks/most-active/", EInstrumentType.Stock, token),
-                    EInstrumentType.Forex => FetchSymbolsAsync($"{Constants.YahooBaseUrlHtml}/markets/currencies/", EInstrumentType.Forex, token),
-                    EInstrumentType.Crypto => FetchSymbolsAsync($"{Constants.YahooBaseUrlHtml}/markets/crypto/all/", EInstrumentType.Crypto, token),
-                    EInstrumentType.Index => FetchSymbolsAsync($"{Constants.YahooBaseUrlHtml}/markets/world-indices/", EInstrumentType.Index, token),
+                    EInstrumentType.ETF => FetchSymbolsAsync($"{Constants.YahooBaseUrl}/markets/etfs/most-active/", EInstrumentType.ETF, token),
+                    EInstrumentType.Stock => FetchSymbolsAsync($"{Constants.YahooBaseUrl}/markets/stocks/most-active/", EInstrumentType.Stock, token),
+                    EInstrumentType.Forex => FetchSymbolsAsync($"{Constants.YahooBaseUrl}/markets/currencies/", EInstrumentType.Forex, token),
+                    EInstrumentType.Crypto => FetchSymbolsAsync($"{Constants.YahooBaseUrl}/markets/crypto/all/", EInstrumentType.Crypto, token),
+                    EInstrumentType.Index => FetchSymbolsAsync($"{Constants.YahooBaseUrl}/markets/world-indices/", EInstrumentType.Index, token),
                     _ => throw new NotSupportedException()
                 }).ConfigureAwait(false);
                 result.AddRange(instruments);
@@ -96,7 +96,7 @@ public class YahooFinanceService : IYahooFinanceService
         await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
         var crumb = _yahooSession.GetApiCrumb();
         var httpClient = _httpClientFactory.CreateClient(Constants.YahooHttpClientName);
-        var url = $"{Constants.YahooBaseUrlQuoteApi}?" +
+        var url = $"{Constants.YahooQuoteApiUrl}?" +
             $"&symbols={string.Join(",", symbols).ToLowerInvariant()}" +
             $"&crumb={crumb}";
         try
@@ -151,7 +151,7 @@ public class YahooFinanceService : IYahooFinanceService
         var period1 = Helper.ToUnixTime(startDate.Value.Date);
         var period2 = Helper.ToUnixTime(endDate.Value.Date);
 
-        var url = $"{Constants.YahooBaseUrlQuoteHtml}/{symbol}/history/?period1={period1}&period2={period2}".ToLowerInvariant();
+        var url = $"{Constants.YahooQuoteHtmlUrl}/{symbol}/history/?period1={period1}&period2={period2}".ToLowerInvariant();
         try
         {
             return await _retryPolicy.ExecuteAsync(async () =>
@@ -160,7 +160,7 @@ public class YahooFinanceService : IYahooFinanceService
 
                 await CheckAndDeclineConsentAsync(document, token).ConfigureAwait(false);
                 var records = YahooHtmlParser.ParseHistoryRecords(document, _logger);
-                return records.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : records;
+                return records.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMessageAllFieldsEmpty) : records;
             }).ConfigureAwait(false);
         }
         catch (Exception ex)
@@ -193,7 +193,7 @@ public class YahooFinanceService : IYahooFinanceService
     {
         await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
         var httpClient = _httpClientFactory.CreateClient(Constants.YahooHttpClientName);
-        var url = $"{Constants.YahooBaseUrlQuoteHtml}/{symbol}/profile/".ToLowerInvariant();
+        var url = $"{Constants.YahooQuoteHtmlUrl}/{symbol}/profile/".ToLowerInvariant();
 
         try
         {
@@ -216,7 +216,7 @@ public class YahooFinanceService : IYahooFinanceService
     {
         await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
         var httpClient = _httpClientFactory.CreateClient(Constants.YahooHttpClientName);
-        var url = $"{Constants.YahooBaseUrlQuoteHtml}/{symbol}/financials/".ToLowerInvariant();
+        var url = $"{Constants.YahooQuoteHtmlUrl}/{symbol}/financials/".ToLowerInvariant();
 
         try
         {
@@ -239,7 +239,7 @@ public class YahooFinanceService : IYahooFinanceService
     {
         await _yahooSession.RefreshSessionAsync(token).ConfigureAwait(false);
         var httpClient = _httpClientFactory.CreateClient(Constants.YahooHttpClientName);
-        var url = $"{Constants.YahooBaseUrlQuoteHtml}/{symbol}/?nojs=true".ToLowerInvariant();
+        var url = $"{Constants.YahooQuoteHtmlUrl}/{symbol}/?nojs=true".ToLowerInvariant();
 
         try
         {
@@ -274,7 +274,7 @@ public class YahooFinanceService : IYahooFinanceService
                     await CheckAndDeclineConsentAsync(document, token).ConfigureAwait(false);
                     var parsed = YahooHtmlParser.ParseSymbols(document, instrumentType, _logger);
                     return Helper.AreAllPropertiesNull(parsed)
-                        ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty)
+                        ? throw new FinanceNetException(Constants.ValidationMessageAllFieldsEmpty)
                         : parsed;
                 }).ConfigureAwait(false);
 

@@ -7,7 +7,7 @@ namespace Finance.Net.Utilities;
 
 internal static class PollyPolicyFactory
 {
-    public static AsyncRetryPolicy GetRetryPolicy<T>(int retryCount, int waitTimeSecs, ILogger<T>? logger)
+    public static AsyncRetryPolicy GetRetryPolicy<T>(int retryCount, int waitTimeSecs, ILogger<T> logger)
     {
         return Policy
             .Handle<Exception>()

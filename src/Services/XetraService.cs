@@ -83,7 +83,7 @@ public class XetraService : IXetraService
                     }
                     result.Add(item);
                 }
-                return result.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
+                return result.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMessageAllFieldsEmpty ) : result;
             }).ConfigureAwait(false);
         }
         catch (Exception ex)

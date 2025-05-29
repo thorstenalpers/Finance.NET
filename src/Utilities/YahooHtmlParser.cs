@@ -50,7 +50,7 @@ internal static class YahooHtmlParser
         };
 
         var isNullObj = Helper.AreAllPropertiesNull(result);
-        return isNullObj ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
+        return isNullObj ? throw new FinanceNetException(Constants.ValidationMessageAllFieldsEmpty ) : result;
     }
 
     public static List<Record> ParseHistoryRecords<T>(IHtmlDocument document, ILogger<T> logger)
@@ -120,7 +120,7 @@ internal static class YahooHtmlParser
                 logger.LogInformation("No records in row {Row}", row.TextContent);    // e.g. date + dividend (over all columns)
             }
         }
-        return records.Count == 0 ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : records;
+        return records.Count == 0 ? throw new FinanceNetException(Constants.ValidationMessageAllFieldsEmpty ) : records;
     }
 
     public static Dictionary<string, FinancialReport> ParseFinancialReports<T>(IHtmlDocument document, ILogger<T> logger)
@@ -176,7 +176,7 @@ internal static class YahooHtmlParser
                 logger.LogWarning("Unknown row property {RowTitle}.", rowTitle);
             }
         }
-        return result.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : result;
+        return result.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMessageAllFieldsEmpty ) : result;
     }
 
     public static Summary ParseSummary<T>(IHtmlDocument document, ILogger<T> logger)
@@ -275,7 +275,7 @@ internal static class YahooHtmlParser
             WeekRange52_Min = weekRange52_Min
         };
         var isNullObj = Helper.AreAllPropertiesNull(summary);
-        return isNullObj ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : summary;
+        return isNullObj ? throw new FinanceNetException(Constants.ValidationMessageAllFieldsEmpty ) : summary;
     }
 
     public static List<Instrument> ParseSymbols<T>(IHtmlDocument document, EInstrumentType type, ILogger<T> logger)
@@ -326,6 +326,6 @@ internal static class YahooHtmlParser
             }
         }
 
-        return instruments.Count == 0 ? throw new FinanceNetException(Constants.ValidationMsgAllFieldsEmpty) : instruments;
+        return instruments.Count == 0 ? throw new FinanceNetException(Constants.ValidationMessageAllFieldsEmpty ) : instruments;
     }
 }
