@@ -10,15 +10,15 @@
 	<EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
 	<LangVersion>latest</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-
-    <PackageId>Finance.NET</PackageId>
-	<Version>1.0.7</Version>
+	<IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+	<PackageId>Finance.NET</PackageId>
+	<Version>1.0.8</Version>
 	<Authors>Thorsten Alpers</Authors>
 	<Owners>Thorsten Alpers</Owners>
 	<Description>Access financial data from Yahoo Finance and other sources.</Description>
 	<PackageProjectUrl>https://github.com/thorstenalpers/Finance.NET</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/thorstenalpers/Finance.NET</RepositoryUrl>
-	<PackageTags>Finance.NET;Yahoo;DataHub;Alpha Vantage;Nasdaq;Xetra;Finance;Trading</PackageTags>
+	<PackageTags>Finance.NET;Yahoo;Yahoo Finance;DataHub;Alpha Vantage;Nasdaq;Xetra;Finance;Trading</PackageTags>
 	<Copyright>Copyright 2024-2025</Copyright>
 	<RepositoryType>git</RepositoryType>
 	<PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -26,15 +26,15 @@
 	<PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="AngleSharp" Version="1.1.2" />
-    <PackageReference Include="AngleSharp.XPath" Version="2.0.4" />
+    <PackageReference Include="AngleSharp" Version="1.3.0" />
+    <PackageReference Include="AngleSharp.XPath" Version="2.0.5" />
     <PackageReference Include="Ardalis.GuardClauses" Version="5.0.0" />
     <PackageReference Include="AutoMapper" Version="10.1.1" />
     <PackageReference Include="CsvHelper" Version="33.0.1" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.4" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="Polly" Version="7.2.4" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Polly" Version="8.5.2" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
   </ItemGroup>
 
