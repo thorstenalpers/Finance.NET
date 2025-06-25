@@ -32,11 +32,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{
 		.github\workflows\_tests-template.yml = .github\workflows\_tests-template.yml
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "release-notes", "release-notes", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
-	ProjectSection(SolutionItems) = preProject
-		release-notes\v1.0.6.md = release-notes\v1.0.6.md
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,7 +56,6 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{F1FD197B-FC16-4077-9907-D1FDDFCBC34A} = {1AC96238-D4F7-4B75-82EF-2EAD87CC9522}
-		{02EA681E-C7D8-13C7-8484-4AC65E1B71E8} = {1AC96238-D4F7-4B75-82EF-2EAD87CC9522}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E969B093-711E-4F11-A37F-6C82D71817C3}
