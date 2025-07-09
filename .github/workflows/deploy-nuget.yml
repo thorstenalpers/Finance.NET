@@ -3,6 +3,12 @@ name: "Deploy Nuget"
 on:  
   workflow_dispatch: # Manual trigger
 
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+  id-token: write
+
 jobs:
   build:
     runs-on: ubuntu-latest

@@ -6,7 +6,13 @@ on:
   schedule:
     - cron: '0 2 * * *'  # each day at 2 AM UTC
   workflow_dispatch:     # manual trigger
-  
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+  id-token: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
