@@ -7,6 +7,12 @@ on:
   schedule:
     - cron: '0 2 * * *'  # Runs nightly at 2 AM UTC on main branch
 
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+  id-token: write
+
 jobs:
   run-test:
     uses: ./.github/workflows/_tests-template.yml
