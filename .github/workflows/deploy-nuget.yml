@@ -64,19 +64,19 @@ jobs:
         git config --global user.email "actions@github.com"
         git remote set-url origin https://x-access-token:${{ secrets.GH_APIKEY }}@github.com/thorstenalpers/Finance.NET.git
 
-    - name: Create Git Tag
-      run: |
-        git tag -a "v${{ env.VERSION }}" -m "Release v${{ env.VERSION }}"
-        git push origin "v${{ env.VERSION }}"
+#    - name: Create Git Tag
+#      run: |
+#        git tag -a "v${{ env.VERSION }}" -m "Release v${{ env.VERSION }}"
+#        git push origin "v${{ env.VERSION }}"
 
-    - name: Create GitHub Release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: "v${{ env.VERSION }}"
-        release_name: "Finance.NET ${{ env.VERSION }}"
-        body_path: ./release-notes/v${{ env.VERSION }}.md
+#    - name: Create GitHub Release
+#      uses: actions/create-release@v1
+#      env:
+#        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#      with:
+#        tag_name: "v${{ env.VERSION }}"
+#        release_name: "Finance.NET ${{ env.VERSION }}"
+#        body_path: ./release-notes/v${{ env.VERSION }}.md
 
     - name: Add GitHub Packages NuGet Source
       run: |
