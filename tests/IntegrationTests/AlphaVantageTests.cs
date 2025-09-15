@@ -95,7 +95,7 @@ public class AlphaVantageTests
     {
         if (shouldHave)
         {
-            var records = await _service.GetForexRecordsAsync(currency1, currency2, DateTime.UtcNow.AddDays(-3));
+            var records = await _service.GetForexRecordsAsync(currency1, currency2, DateTime.UtcNow.AddDays(-3).Date);
             Assert.That(records, Is.Not.Empty);
             Assert.Pass(JsonConvert.SerializeObject(records.LastOrDefault()));
         }
