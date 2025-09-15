@@ -35,19 +35,19 @@ jobs:
     - name: Build
       run: dotnet build "${{ env.Solution_Name }}" --configuration Release  --no-restore
 
-#    - name: Run tests
-#      run: dotnet test "${{ env.Test_Project_Path }}" --configuration Release --logger "console;verbosity=detailed"  --logger "console;verbosity=detailed" --filter "TestCategory!=Long-Running"
-#      env:
-#          FinanceNet__AlphaVantageApiKey: ${{ secrets.ALPHAVANTAGEAPIKEY }}      
+    - name: Run tests
+      run: dotnet test "${{ env.Test_Project_Path }}" --configuration Release --logger "console;verbosity=detailed"  --logger "console;verbosity=detailed" --filter "TestCategory!=Long-Running"
+      env:
+          FinanceNet__AlphaVantageApiKey: ${{ secrets.ALPHAVANTAGEAPIKEY }}      
           
     - name: Pack NuGet Package
       run: dotnet pack "${{ env.Nuget_Project_Path }}" --configuration Release --no-build --output ./nupkg
 
-#    - name: Publish to NuGet
-#      if: success()
-#      env:
-#         NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
-#      run: dotnet nuget push ./nupkg/*.nupkg --source https://api.nuget.org/v3/index.json --api-key $NUGET_API_KEY
+    - name: Publish to NuGet
+      if: success()
+      env:
+         NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+      run: dotnet nuget push ./nupkg/*.nupkg --source https://api.nuget.org/v3/index.json --api-key $NUGET_API_KEY
 
     - name: Extract Version
       id: get_version
@@ -64,19 +64,19 @@ jobs:
         git config --global user.email "actions@github.com"
         git remote set-url origin https://x-access-token:${{ secrets.GH_APIKEY }}@github.com/thorstenalpers/Finance.NET.git
 
-#    - name: Create Git Tag
-#      run: |
-#        git tag -a "v${{ env.VERSION }}" -m "Release v${{ env.VERSION }}"
-#        git push origin "v${{ env.VERSION }}"
+    - name: Create Git Tag
+      run: |
+        git tag -a "v${{ env.VERSION }}" -m "Release v${{ env.VERSION }}"
+        git push origin "v${{ env.VERSION }}"
 
-#    - name: Create GitHub Release
-#      uses: actions/create-release@v1
-#      env:
-#        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#      with:
-#        tag_name: "v${{ env.VERSION }}"
-#        release_name: "Finance.NET ${{ env.VERSION }}"
-#        body_path: ./release-notes/v${{ env.VERSION }}.md
+    - name: Create GitHub Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: "v${{ env.VERSION }}"
+        release_name: "Finance.NET ${{ env.VERSION }}"
+        body_path: ./release-notes/v${{ env.VERSION }}.md
 
     - name: Add GitHub Packages NuGet Source
       run: |
