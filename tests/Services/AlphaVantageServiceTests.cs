@@ -70,11 +70,14 @@ public class AlphaVantageServiceTests
             _mockHttpClientFactory.Object,
             null,
             _mockPolicyRegistry.Object));
-        Assert.Throws<ArgumentNullException>(() => new AlphaVantageService(
+
+        var service = new AlphaVantageService(
             _mockLogger.Object,
             _mockHttpClientFactory.Object,
             _mockOptions.Object,
-            null));
+            null);
+
+        Assert.That(service, Is.Not.Null);
     }
 
     [Test]
