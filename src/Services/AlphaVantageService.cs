@@ -18,15 +18,51 @@ using Polly.Registry;
 
 namespace Finance.Net.Services;
 /// <inheritdoc />
-public class AlphaVantageService(ILogger<AlphaVantageService> logger,
-IHttpClientFactory httpClientFactory,
-IOptions<FinanceNetConfiguration> options,
-IReadOnlyPolicyRegistry<string> policyRegistry) : IAlphaVantageService
+public class AlphaVantageService : IAlphaVantageService
 {
-    private readonly ILogger<AlphaVantageService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    private readonly IHttpClientFactory _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
-    private readonly FinanceNetConfiguration _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
-    private readonly AsyncPolicy _retryPolicy = policyRegistry?.Get<AsyncPolicy>(Constants.DefaultHttpRetryPolicy) ?? throw new ArgumentNullException(nameof(policyRegistry));
+    private readonly ILogger<AlphaVantageService> _logger;
+    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly FinanceNetConfiguration _options;
+    private readonly IAsyncPolicy _retryPolicy;
+
+    /// <inheritdoc />
+    public AlphaVantageService(
+        ILogger<AlphaVantageService> logger,
+        IHttpClientFactory httpClientFactory,
+        IOptions<FinanceNetConfiguration> options,
+        IReadOnlyPolicyRegistry<string>? policyRegistry = null)
+    {
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+        _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
+
+        if (policyRegistry != null &&
+            policyRegistry.TryGet<IAsyncPolicy>(Constants.DefaultHttpRetryPolicy, out var found))
+        {
+            _retryPolicy = found;
+        }
+        else
+        {
+            _retryPolicy = Policy
+                .Handle<HttpRequestException>()
+                .Or<TaskCanceledException>()
+                .WaitAndRetryAsync(
+                    3,
+                    attempt => TimeSpan.FromSeconds(Math.Pow(2, attempt - 1)),
+                    (ex, ts, retryCount, ctx) =>
+                    {
+                        _logger.LogWarning(
+                            "Retry {RetryCount} wegen {Reason}, warte {Delay}s",
+                            retryCount,
+                            ex?.Message ?? "Unbekannt",
+                            ts.TotalSeconds);
+                    });
+
+            _logger.LogWarning(
+                "Retry-Policy '{PolicyKey}' nicht gefunden – verwende Default (3x Retry, Backoff).",
+                Constants.DefaultHttpRetryPolicy);
+        }
+    }
 
     /// <inheritdoc />
     public async Task<InstrumentOverview?> GetOverviewAsync(string symbol, CancellationToken token = default)
