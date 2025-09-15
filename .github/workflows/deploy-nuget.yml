@@ -60,6 +60,7 @@ jobs:
         git config --global credential.helper store
         git config --global user.name "GitHub Actions"
         git config --global user.email "actions@github.com"
+        git remote set-url origin https://x-access-token:${{ secrets.GH_APIKEY }}@github.com/thorstenalpers/Finance.NET.git
 
     - name: Create Git Tag
       run: |
