@@ -1,4 +1,4 @@
-![Banner](./src/banner.png)
+![Banner](https://raw.githubusercontent.com/thorstenalpers/Finance.NET/main/src/banner.png)
 
 [![.NET Standard 2.1](https://img.shields.io/badge/.NET%20Standard-2.1-blue)](#)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)

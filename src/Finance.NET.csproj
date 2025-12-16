@@ -12,7 +12,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 	<IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
 	<PackageId>Finance.NET</PackageId>
-	<Version>1.1.12</Version>
+	<Version>1.1.13</Version>
 	<Authors>Thorsten Alpers</Authors>
 	<Owners>Thorsten Alpers</Owners>
 	<Description>A .NET library for retrieving real-time and historical financial data from Yahoo Finance and other popular sources.</Description>
@@ -31,7 +31,6 @@
     <PackageReference Include="Ardalis.GuardClauses" Version="5.0.0" />
     <PackageReference Include="AutoMapper" Version="16.0.0" />
     <PackageReference Include="CsvHelper" Version="33.1.0" />
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.1" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
