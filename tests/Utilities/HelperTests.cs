@@ -4,6 +4,7 @@ using Finance.Net.Enums;
 using Finance.Net.Mappings;
 using Finance.Net.Models.Yahoo.Dtos;
 using Finance.Net.Utilities;
+using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 
 namespace Finance.Net.Tests.Utilities;
@@ -265,7 +266,9 @@ public class HelperTests
         {
             cfg.ShouldMapMethod = m => false;
             cfg.AddProfile<YahooQuoteAutomapperProfile>();
-        });
+        }, new LoggerFactory());
+
+        config.AssertConfigurationIsValid();
 
         // This will throw an exception if the configuration is invalid
         config.AssertConfigurationIsValid();

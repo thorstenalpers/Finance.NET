@@ -9,7 +9,6 @@ using AutoMapper;
 using Finance.Net.Enums;
 using Finance.Net.Exceptions;
 using Finance.Net.Interfaces;
-using Finance.Net.Mappings;
 using Finance.Net.Models.Yahoo;
 using Finance.Net.Models.Yahoo.Dtos;
 using Finance.Net.Utilities;
@@ -34,20 +33,15 @@ public class YahooFinanceService : IYahooFinanceService
         ILogger<YahooFinanceService> logger,
         IHttpClientFactory httpClientFactory,
         IReadOnlyPolicyRegistry<string> policyRegistry,
-        IYahooSessionManager yahooSession)
+        IYahooSessionManager yahooSession,
+        IMapper mapper)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
         _yahooSession = yahooSession ?? throw new ArgumentNullException(nameof(yahooSession));
         _retryPolicy = policyRegistry?.Get<AsyncPolicy>(Constants.DefaultHttpRetryPolicy) ?? throw new ArgumentNullException(nameof(policyRegistry));
 
-        // do not use IoC, so users can use Automapper independently
-        var config = new MapperConfiguration(cfg =>
-        {
-            cfg.ShouldMapMethod = m => false;
-            cfg.AddProfile<YahooQuoteAutomapperProfile>();
-        });
-        _mapper = config.CreateMapper();
+        _mapper = mapper;
     }
 
     /// <inheritdoc />

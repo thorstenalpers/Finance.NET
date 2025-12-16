@@ -107,5 +107,9 @@ public static class Program
             $"Price={quote.RegularMarketPrice}, " +
             $"Bid={quote.Bid}, " +
             $"Ask={quote.Ask}");
+
+        Console.WriteLine("\nPress any key to continue ...");
+
+        Console.ReadKey();
     }
 }
