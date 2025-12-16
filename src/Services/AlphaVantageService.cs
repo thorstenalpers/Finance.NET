@@ -232,6 +232,10 @@ public class AlphaVantageService : IAlphaVantageService
                 {
                     throw new FinanceNetException($"{Constants.ApiResponseLimitExceeded} for {currency1} /{currency2}");
                 }
+                if (jsonResponse.Contains(Constants.ApiResponseApiKeyInvalid))
+                {
+                    throw new FinanceNetException($"{Constants.ApiResponseApiKeyInvalid}");
+                }
                 var result = AlphaVantageParser.ParseForexRecords(currency1, currency2, startDate, endDate, jsonResponse, _logger);
                 return result.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMessageAllFieldsEmpty) : result;
             }).ConfigureAwait(false);

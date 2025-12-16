@@ -33,19 +33,13 @@ public class XetraService : IXetraService
     /// <inheritdoc />
     public XetraService(ILogger<XetraService> logger,
                         IHttpClientFactory httpClientFactory,
-                        IReadOnlyPolicyRegistry<string> policyRegistry)
+                        IReadOnlyPolicyRegistry<string> policyRegistry,
+                        IMapper mapper)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
         _retryPolicy = policyRegistry?.Get<AsyncPolicy>(Constants.DefaultHttpRetryPolicy) ?? throw new ArgumentNullException(nameof(policyRegistry));
-
-        // do not use IoC, so users can use Automapper independently
-        var config = new MapperConfiguration(cfg =>
-        {
-            cfg.ShouldMapMethod = m => false;
-            cfg.AddProfile<XetraInstrumentAutomapperProfile>();
-        });
-        _mapper = config.CreateMapper();
+        _mapper = mapper;
     }
 
     /// <inheritdoc />
@@ -69,8 +63,18 @@ public class XetraService : IXetraService
                 using var csv = new CsvReader(reader, config);
                 await csv.ReadAsync().ConfigureAwait(false);
                 await csv.ReadAsync().ConfigureAwait(false);
+
                 csv.Context.RegisterClassMap<XetraInstrumentsMapping>();
-                var records = csv.GetRecords<InstrumentItem>().ToList();
+
+                var records = new List<InstrumentItem>();
+                await foreach (var record in csv.GetRecordsAsync<InstrumentItem>(token))
+                {
+                    records.Add(record);
+                }
+                if (records.Count == 0)
+                {
+                    throw new FinanceNetException("CSV liefert keine InstrumentItem-Daten.");
+                }
 
                 var instruments = _mapper.Map<List<Instrument>>(records);
                 var result = new List<Instrument>();
@@ -83,7 +87,7 @@ public class XetraService : IXetraService
                     }
                     result.Add(item);
                 }
-                return result.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMessageAllFieldsEmpty ) : result;
+                return result.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMessageAllFieldsEmpty) : result;
             }).ConfigureAwait(false);
         }
         catch (Exception ex)

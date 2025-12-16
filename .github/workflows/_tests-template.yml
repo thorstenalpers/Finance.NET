@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     
     env:
-      Solution_Name: "Finance.NET.sln"
+      Solution_Name: "Finance.NET.slnx"
       Test_Project_Path: "tests/Tests.csproj"     
       FORCE_COLOR: "true"
       DOTNET_LOGGING__CONSOLE__COLORBEHAVIOR: Enabled
@@ -34,7 +34,7 @@ jobs:
     - name: Install dotnet
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.x
+        dotnet-version: 10.x
 
     - name: Restore
       run: dotnet restore "${{ env.Solution_Name }}"

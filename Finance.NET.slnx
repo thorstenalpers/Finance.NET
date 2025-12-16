@@ -1,0 +1,23 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitattributes" />
+    <File Path=".gitignore" />
+    <File Path="CODE_OF_CONDUCT.md" />
+    <File Path="CONTRIBUTING.md" />
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/Solution Items/workflows/">
+    <File Path=".github/workflows/ci.yml" />
+    <File Path=".github/workflows/deploy-nuget.yml" />
+    <File Path=".github/workflows/tests-alphavantage.yml" />
+    <File Path=".github/workflows/tests-datahub.yml" />
+    <File Path=".github/workflows/tests-xetra.yml" />
+    <File Path=".github/workflows/tests-yahoo.yml" />
+    <File Path=".github/workflows/_tests-template.yml" />
+  </Folder>
+  <Project Path="example/Example.csproj" />
+  <Project Path="src/Finance.NET.csproj" />
+  <Project Path="tests/Tests.csproj" />
+</Solution>

@@ -14,6 +14,7 @@ internal static class Constants
 
     // Messages
     public const string ApiResponseLimitExceeded = "higher API call volume";
+    public const string ApiResponseApiKeyInvalid = "apikey is invalid";
     public const string ValidationMessageAllFieldsEmpty = "All fields empty";
 
     #region Yahoo Finance

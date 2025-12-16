@@ -6,7 +6,9 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using AutoMapper;
 using Finance.Net.Exceptions;
+using Finance.Net.Mappings;
 using Finance.Net.Services;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -25,10 +27,19 @@ public class XetraServiceTests
     private Mock<IHttpClientFactory> _mockHttpClientFactory;
     private Mock<HttpMessageHandler> _mockHandler;
     private Mock<IReadOnlyPolicyRegistry<string>> _mockPolicyRegistry;
+    private IMapper _mapper;
 
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
+        var config = new MapperConfiguration(cfg =>
+        {
+            cfg.AddProfile<YahooQuoteAutomapperProfile>();
+            cfg.AddProfile<XetraInstrumentAutomapperProfile>();
+        }, new LoggerFactory());
+        config.AssertConfigurationIsValid();
+        _mapper = config.CreateMapper();
+
         _mockHttpClientFactory = new Mock<IHttpClientFactory>();
         _mockHandler = new Mock<HttpMessageHandler>();
         _mockLogger = new Mock<ILogger<XetraService>>();
@@ -51,15 +62,18 @@ public class XetraServiceTests
         Assert.Throws<ArgumentNullException>(() => new XetraService(
             null,
             _mockHttpClientFactory.Object,
-            _mockPolicyRegistry.Object));
+            _mockPolicyRegistry.Object,
+            _mapper));
         Assert.Throws<ArgumentNullException>(() => new XetraService(
             _mockLogger.Object,
             null,
-            _mockPolicyRegistry.Object));
+            _mockPolicyRegistry.Object,
+            _mapper));
         Assert.Throws<ArgumentNullException>(() => new XetraService(
             _mockLogger.Object,
             _mockHttpClientFactory.Object,
-            null));
+            null,
+            _mapper));
     }
 
     [Test]
@@ -74,7 +88,8 @@ public class XetraServiceTests
         var service = new XetraService(
             _mockLogger.Object,
             _mockHttpClientFactory.Object,
-            _mockPolicyRegistry.Object);
+            _mockPolicyRegistry.Object,
+            _mapper);
 
         // Act
         var result = await service.GetInstrumentsAsync();
@@ -96,7 +111,8 @@ public class XetraServiceTests
         var service = new XetraService(
             _mockLogger.Object,
             _mockHttpClientFactory.Object,
-            _mockPolicyRegistry.Object);
+            _mockPolicyRegistry.Object,
+            _mapper);
 
         // Act
         Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetInstrumentsAsync());
@@ -113,7 +129,8 @@ public class XetraServiceTests
         var service = new XetraService(
             _mockLogger.Object,
             _mockHttpClientFactory.Object,
-            _mockPolicyRegistry.Object);
+            _mockPolicyRegistry.Object,
+            _mapper);
 
         // Act
         Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetInstrumentsAsync());

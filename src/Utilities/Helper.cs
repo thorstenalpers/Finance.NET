@@ -26,20 +26,20 @@ internal static class Helper
     {
         return dateTime == null
             ? null
-            : (long)(dateTime.Value - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
+            : (long)(dateTime.Value - DateTime.UnixEpoch).TotalSeconds;
     }
 
     public static DateTime? UnixToDateTime(long? unixTimeSeconds)
     {
         return unixTimeSeconds == null
             ? null
-            : new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(unixTimeSeconds.Value).ToUniversalTime();
+            : DateTime.UnixEpoch.AddSeconds(unixTimeSeconds.Value).ToUniversalTime();
     }
     public static DateTime? UnixMillisecsToDate(long? unixTimeMilliseconds)
     {
         return unixTimeMilliseconds == null
             ? null
-            : new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+            : DateTime.UnixEpoch
                   .AddMilliseconds(unixTimeMilliseconds.Value)
                   .ToUniversalTime();
     }
