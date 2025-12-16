@@ -4,7 +4,7 @@ on:
   workflow_dispatch: # Manual trigger
 
 permissions:
-  contents: read
+  contents: write
   pull-requests: write
   checks: write
   id-token: write
@@ -21,6 +21,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
     - name: Install .NET
       uses: actions/setup-dotnet@v4
@@ -60,6 +62,7 @@ jobs:
         git config --global credential.helper store
         git config --global user.name "GitHub Actions"
         git config --global user.email "actions@github.com"
+        git remote set-url origin https://x-access-token:${{ secrets.GH_APIKEY }}@github.com/thorstenalpers/Finance.NET.git
 
     - name: Create Git Tag
       run: |
