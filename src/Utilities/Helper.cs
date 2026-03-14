@@ -176,6 +176,7 @@ internal static class Helper
     {
         return CreateRandomUserAgent(GetRandomInt32);
     }
+    // Using cryptographically secure RNG as per RSPEC-2245 guidance
     private static int GetRandomInt32(int minValue, int maxValue)
     {
         return RandomNumberGenerator.GetInt32(minValue, maxValue);
