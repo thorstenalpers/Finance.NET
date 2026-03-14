@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -177,7 +178,7 @@ internal static class Helper
     }
     private static int GetRandomInt32(int minValue, int maxValue)
     {
-        return new Random().Next(minValue, maxValue);
+        return RandomNumberGenerator.GetInt32(minValue, maxValue);
     }
 
     public static bool AreAllPropertiesNull<T>(T obj)
