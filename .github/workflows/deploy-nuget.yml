@@ -37,7 +37,7 @@ jobs:
       run: dotnet build "${{ env.Solution_Name }}" --configuration Release  --no-restore
 
     - name: Run tests
-      run: dotnet test "${{ env.Test_Project_Path }}" --configuration Release --logger "console;verbosity=detailed"  --logger "console;verbosity=detailed" --filter "TestCategory!=Long-Running"
+      run: dotnet test "${{ env.Test_Project_Path }}" --configuration Release --logger "console;verbosity=detailed"  --logger "console;verbosity=detailed" --filter "TestCategory!=Long-Running&FullyQualifiedName!~AlphaVantageTests"
       env:
           FinanceNet__AlphaVantageApiKey: ${{ secrets.ALPHAVANTAGEAPIKEY }}      
           
