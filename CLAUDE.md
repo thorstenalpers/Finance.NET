@@ -28,7 +28,7 @@ dotnet test tests/Tests.csproj --filter "TestCategory!=Integration"
 run-code-coverage.cmd
 ```
 
-Tests use NUnit + Moq and target net10.0. CI (`.github/workflows/ci.yml`) additionally excludes `AlphaVantageTests` (rate limits); per-provider workflows (`tests-*.yml`) build on `_tests-template.yml`. Integration tests for Alpha Vantage need the key `FinanceNet:AlphaVantageApiKey` via user secrets or environment variable (see `tests/TestHelper.cs`).
+Tests use NUnit + Moq and target net10.0. Three categories gate what runs: `Unit` (mocked, deterministic), `Integration` (live provider endpoints), and `Long-Running`. The main CI (`.github/workflows/ci.yml`) runs `TestCategory=Unit` only, so a provider outage cannot break the build; the live `Integration` tests run on schedule via the per-provider workflows (`tests-*.yml`, built on `_tests-template.yml`). Integration tests for Alpha Vantage need the key `FinanceNet:AlphaVantageApiKey` via user secrets or environment variable (see `tests/TestHelper.cs`).
 
 ## Architecture
 
