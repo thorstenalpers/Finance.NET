@@ -6,7 +6,6 @@
 [![NuGet](https://img.shields.io/nuget/v/Finance.NET?style=flat-square&logo=nuget&logoColor=white&label=nuget)](https://www.nuget.org/packages/Finance.NET)
 [![Downloads](https://img.shields.io/nuget/dt/Finance.NET?style=flat-square&logo=nuget&logoColor=white&label=downloads)](https://www.nuget.org/packages/Finance.NET)
 [![.NET Standard](https://img.shields.io/badge/.NET%20Standard-2.1-blue?style=flat-square&logo=dotnet&logoColor=white)](#)
-[![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](./LICENSE)
 [![Stars](https://img.shields.io/github/stars/thorstenalpers/Finance.NET?style=flat-square&logo=github&label=stars)](https://github.com/thorstenalpers/Finance.NET)
 
 An easy-to-use .NET library for accessing and aggregating financial data from multiple sources. 
