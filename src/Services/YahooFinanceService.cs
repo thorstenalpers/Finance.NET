@@ -5,10 +5,10 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using AngleSharp.Html.Dom;
-using AutoMapper;
 using Finance.Net.Enums;
 using Finance.Net.Exceptions;
 using Finance.Net.Interfaces;
+using Finance.Net.Mappings;
 using Finance.Net.Models.Yahoo;
 using Finance.Net.Models.Yahoo.Dtos;
 using Finance.Net.Utilities;
@@ -25,7 +25,6 @@ public class YahooFinanceService : IYahooFinanceService
     private readonly ILogger<YahooFinanceService> _logger;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IYahooSessionManager _yahooSession;
-    private readonly IMapper _mapper;
     private readonly AsyncPolicy _retryPolicy;
 
     /// <inheritdoc />
@@ -33,15 +32,12 @@ public class YahooFinanceService : IYahooFinanceService
         ILogger<YahooFinanceService> logger,
         IHttpClientFactory httpClientFactory,
         IReadOnlyPolicyRegistry<string> policyRegistry,
-        IYahooSessionManager yahooSession,
-        IMapper mapper)
+        IYahooSessionManager yahooSession)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
         _yahooSession = yahooSession ?? throw new ArgumentNullException(nameof(yahooSession));
         _retryPolicy = policyRegistry?.Get<AsyncPolicy>(Constants.DefaultHttpRetryPolicy) ?? throw new ArgumentNullException(nameof(policyRegistry));
-
-        _mapper = mapper;
     }
 
     /// <inheritdoc />
@@ -119,7 +115,7 @@ public class YahooFinanceService : IYahooFinanceService
                     {
                         throw new FinanceNetException("Invalid quote field symbol");
                     }
-                    var quote = _mapper.Map<Quote>(quoteResponse);
+                    var quote = quoteResponse.ToQuote();
                     quotes.Add(quote);
                 }
                 return quotes;

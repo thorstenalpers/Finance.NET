@@ -28,8 +28,8 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
       with:
-        ref: develop
-        fetch-depth: 0 
+        ref: main
+        fetch-depth: 0
 
     - name: Install dotnet
       uses: actions/setup-dotnet@v4

@@ -7,7 +7,6 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using AngleSharp.XPath;
-using AutoMapper;
 using CsvHelper;
 using CsvHelper.Configuration;
 using Finance.Net.Exceptions;
@@ -27,19 +26,16 @@ public class XetraService : IXetraService
 {
     private readonly ILogger<XetraService> _logger;
     private readonly IHttpClientFactory _httpClientFactory;
-    private readonly IMapper _mapper;
     private readonly AsyncPolicy _retryPolicy;
 
     /// <inheritdoc />
     public XetraService(ILogger<XetraService> logger,
                         IHttpClientFactory httpClientFactory,
-                        IReadOnlyPolicyRegistry<string> policyRegistry,
-                        IMapper mapper)
+                        IReadOnlyPolicyRegistry<string> policyRegistry)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
         _retryPolicy = policyRegistry?.Get<AsyncPolicy>(Constants.DefaultHttpRetryPolicy) ?? throw new ArgumentNullException(nameof(policyRegistry));
-        _mapper = mapper;
     }
 
     /// <inheritdoc />
@@ -76,17 +72,10 @@ public class XetraService : IXetraService
                     throw new FinanceNetException("CSV liefert keine InstrumentItem-Daten.");
                 }
 
-                var instruments = _mapper.Map<List<Instrument>>(records);
-                var result = new List<Instrument>();
-                foreach (var item in instruments)
-                {
-                    var mnemonic = item.Mnemonic;
-                    if (string.IsNullOrWhiteSpace(mnemonic))
-                    {
-                        continue;
-                    }
-                    result.Add(item);
-                }
+                var result = records
+                    .Select(record => record.ToInstrument())
+                    .Where(instrument => !string.IsNullOrWhiteSpace(instrument.Mnemonic))
+                    .ToList();
                 return result.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMessageAllFieldsEmpty) : result;
             }).ConfigureAwait(false);
         }
