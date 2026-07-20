@@ -23,14 +23,6 @@ licenseUrl:https://www.nuget.org/packages/Ardalis.GuardClauses/5.0.0/License
 license Type:LICENSE
 
 ####################################################################################################
-Package:AutoMapper
-Version:16.1.1
-project URL:https://automapper.io/
-Description:A convention-based object-object mapper.
-licenseUrl:https://www.nuget.org/packages/AutoMapper/16.1.1/License
-license Type:LICENSE.md
-
-####################################################################################################
 Package:CsvHelper
 Version:33.1.0
 project URL:https://joshclose.github.io/CsvHelper/

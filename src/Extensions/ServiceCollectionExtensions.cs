@@ -1,8 +1,6 @@
 using System;
 using System.Net.Http;
-using System.Reflection;
 using Finance.Net.Interfaces;
-using Finance.Net.Mappings;
 using Finance.Net.Services;
 using Finance.Net.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -60,8 +58,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IXetraService, XetraService>();
         services.AddScoped<IAlphaVantageService, AlphaVantageService>();
         services.AddScoped<IDataHubService, DataHubService>();
-
-        services.AddAutoMapper(cfg => { }, Assembly.GetAssembly(typeof(XetraInstrumentAutomapperProfile)));
 
         services.AddHttpClient(Constants.YahooHttpClientName)
             .ConfigureHttpClient((provider, client) =>

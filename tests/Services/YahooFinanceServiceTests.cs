@@ -7,11 +7,9 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using AutoMapper;
 using Finance.Net.Enums;
 using Finance.Net.Exceptions;
 using Finance.Net.Interfaces;
-using Finance.Net.Mappings;
 using Finance.Net.Services;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -31,7 +29,6 @@ public class YahooFinanceServiceTests
     private Mock<IYahooSessionManager> _mockYahooSession;
     private Mock<HttpMessageHandler> _mockHandler;
     private Mock<IReadOnlyPolicyRegistry<string>> _mockPolicyRegistry;
-    private IMapper _mapper;
 
     [OneTimeSetUp]
     public void OneTimeSetUp()
@@ -41,13 +38,6 @@ public class YahooFinanceServiceTests
         _mockHandler = new Mock<HttpMessageHandler>();
         _mockYahooSession = new Mock<IYahooSessionManager>();
         _mockPolicyRegistry = new Mock<IReadOnlyPolicyRegistry<string>>();
-        var config = new MapperConfiguration(cfg =>
-        {
-            cfg.AddProfile<YahooQuoteAutomapperProfile>();
-            cfg.AddProfile<XetraInstrumentAutomapperProfile>();
-        }, new LoggerFactory());
-        config.AssertConfigurationIsValid();
-        _mapper = config.CreateMapper();
 
         var realPolicy = Policy.Handle<Exception>().RetryAsync(1);
         _mockPolicyRegistry
@@ -75,26 +65,22 @@ public class YahooFinanceServiceTests
             null,
             _mockHttpClientFactory.Object,
             _mockPolicyRegistry.Object,
-            _mockYahooSession.Object,
-            _mapper));
+            _mockYahooSession.Object));
         Assert.Throws<ArgumentNullException>(() => new YahooFinanceService(
             _mockLogger.Object,
             null,
             _mockPolicyRegistry.Object,
-            _mockYahooSession.Object,
-            _mapper));
+            _mockYahooSession.Object));
         Assert.Throws<ArgumentNullException>(() => new YahooFinanceService(
             _mockLogger.Object,
             _mockHttpClientFactory.Object,
             null,
-            _mockYahooSession.Object,
-            _mapper));
+            _mockYahooSession.Object));
         Assert.Throws<ArgumentNullException>(() => new YahooFinanceService(
             _mockLogger.Object,
             _mockHttpClientFactory.Object,
             _mockPolicyRegistry.Object,
-            null,
-            _mapper));
+            null));
     }
 
     [Test]
@@ -108,8 +94,7 @@ public class YahooFinanceServiceTests
             _mockLogger.Object,
             _mockHttpClientFactory.Object,
             _mockPolicyRegistry.Object,
-            _mockYahooSession.Object,
-            _mapper);
+            _mockYahooSession.Object);
 
         // Act
         var result = await service.GetQuoteAsync("IBM");
@@ -138,8 +123,7 @@ public class YahooFinanceServiceTests
             _mockLogger.Object,
             _mockHttpClientFactory.Object,
             _mockPolicyRegistry.Object,
-            _mockYahooSession.Object,
-            _mapper);
+            _mockYahooSession.Object);
 
         // Act
         var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetQuoteAsync("IBM"));
@@ -156,8 +140,7 @@ public class YahooFinanceServiceTests
             _mockLogger.Object,
             _mockHttpClientFactory.Object,
             _mockPolicyRegistry.Object,
-            _mockYahooSession.Object,
-            _mapper);
+            _mockYahooSession.Object);
 
         // Act
         var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetQuoteAsync("IBM"));
@@ -171,8 +154,7 @@ public class YahooFinanceServiceTests
             _mockLogger.Object,
             _mockHttpClientFactory.Object,
             _mockPolicyRegistry.Object,
-            _mockYahooSession.Object,
-            _mapper);
+            _mockYahooSession.Object);
 
         // Act
         service.InvalidateSession();
@@ -192,8 +174,7 @@ public class YahooFinanceServiceTests
             _mockLogger.Object,
             _mockHttpClientFactory.Object,
             _mockPolicyRegistry.Object,
-            _mockYahooSession.Object,
-            _mapper);
+            _mockYahooSession.Object);
 
         // Act
         Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetQuoteAsync("IBM"));
@@ -210,8 +191,7 @@ public class YahooFinanceServiceTests
             _mockLogger.Object,
             _mockHttpClientFactory.Object,
             _mockPolicyRegistry.Object,
-            _mockYahooSession.Object,
-            _mapper);
+            _mockYahooSession.Object);
 
         // Act
         Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetQuoteAsync("SAP"));
@@ -228,8 +208,7 @@ public class YahooFinanceServiceTests
             _mockLogger.Object,
             _mockHttpClientFactory.Object,
             _mockPolicyRegistry.Object,
-            _mockYahooSession.Object,
-            _mapper);
+            _mockYahooSession.Object);
 
         var symbols = new List<string> { "IBM" };
 
@@ -255,8 +234,7 @@ public class YahooFinanceServiceTests
             _mockLogger.Object,
             _mockHttpClientFactory.Object,
             _mockPolicyRegistry.Object,
-            _mockYahooSession.Object,
-            _mapper);
+            _mockYahooSession.Object);
 
         // Act
         var result = await service.GetProfileAsync("IBM");
@@ -285,8 +263,7 @@ public class YahooFinanceServiceTests
             _mockLogger.Object,
             _mockHttpClientFactory.Object,
             _mockPolicyRegistry.Object,
-            _mockYahooSession.Object,
-            _mapper);
+            _mockYahooSession.Object);
 
         // Act
         var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetProfileAsync("IBM"));
@@ -303,8 +280,7 @@ public class YahooFinanceServiceTests
             _mockLogger.Object,
             _mockHttpClientFactory.Object,
             _mockPolicyRegistry.Object,
-            _mockYahooSession.Object,
-            _mapper);
+            _mockYahooSession.Object);
 
         // Act
         var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetProfileAsync("IBM"));
@@ -322,8 +298,7 @@ public class YahooFinanceServiceTests
             _mockLogger.Object,
             _mockHttpClientFactory.Object,
             _mockPolicyRegistry.Object,
-            _mockYahooSession.Object,
-            _mapper);
+            _mockYahooSession.Object);
 
         // Act
         var result = await service.GetSummaryAsync("IBM");
@@ -353,8 +328,7 @@ public class YahooFinanceServiceTests
             _mockLogger.Object,
             _mockHttpClientFactory.Object,
             _mockPolicyRegistry.Object,
-            _mockYahooSession.Object,
-            _mapper);
+            _mockYahooSession.Object);
 
         // Act
         var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetSummaryAsync("IBM"));
@@ -372,8 +346,7 @@ public class YahooFinanceServiceTests
             _mockLogger.Object,
             _mockHttpClientFactory.Object,
             _mockPolicyRegistry.Object,
-            _mockYahooSession.Object,
-            _mapper);
+            _mockYahooSession.Object);
 
         // Act
         var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetSummaryAsync("IBM"));
@@ -391,8 +364,7 @@ public class YahooFinanceServiceTests
             _mockLogger.Object,
             _mockHttpClientFactory.Object,
             _mockPolicyRegistry.Object,
-            _mockYahooSession.Object,
-            _mapper);
+            _mockYahooSession.Object);
 
         // Act
         var result = await service.GetFinancialsAsync("IBM");
@@ -418,8 +390,7 @@ public class YahooFinanceServiceTests
             _mockLogger.Object,
             _mockHttpClientFactory.Object,
             _mockPolicyRegistry.Object,
-            _mockYahooSession.Object,
-            _mapper);
+            _mockYahooSession.Object);
 
         // Act
         var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetFinancialsAsync("IBM"));
@@ -444,8 +415,7 @@ public class YahooFinanceServiceTests
             _mockLogger.Object,
             _mockHttpClientFactory.Object,
             _mockPolicyRegistry.Object,
-            _mockYahooSession.Object,
-            _mapper);
+            _mockYahooSession.Object);
 
         // Act
         var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetFinancialsAsync("IBM"));
@@ -462,8 +432,7 @@ public class YahooFinanceServiceTests
             _mockLogger.Object,
             _mockHttpClientFactory.Object,
             _mockPolicyRegistry.Object,
-            _mockYahooSession.Object,
-            _mapper);
+            _mockYahooSession.Object);
 
         DateTime startDate = default;
 
@@ -495,8 +464,7 @@ public class YahooFinanceServiceTests
             _mockLogger.Object,
             _mockHttpClientFactory.Object,
             _mockPolicyRegistry.Object,
-            _mockYahooSession.Object,
-            _mapper);
+            _mockYahooSession.Object);
 
         DateTime startDate = default;
 
@@ -514,8 +482,7 @@ public class YahooFinanceServiceTests
             _mockLogger.Object,
             _mockHttpClientFactory.Object,
             _mockPolicyRegistry.Object,
-            _mockYahooSession.Object,
-            _mapper);
+            _mockYahooSession.Object);
 
         DateTime startDate = default;
 
@@ -541,8 +508,7 @@ public class YahooFinanceServiceTests
             _mockLogger.Object,
             _mockHttpClientFactory.Object,
             _mockPolicyRegistry.Object,
-            _mockYahooSession.Object,
-            _mapper);
+            _mockYahooSession.Object);
 
         // Act
         var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetInstrumentsAsync());
@@ -559,8 +525,7 @@ public class YahooFinanceServiceTests
             _mockLogger.Object,
             _mockHttpClientFactory.Object,
             _mockPolicyRegistry.Object,
-            _mockYahooSession.Object,
-            _mapper);
+            _mockYahooSession.Object);
 
         // Act
         var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetInstrumentsAsync());
@@ -604,8 +569,7 @@ public class YahooFinanceServiceTests
             _mockLogger.Object,
             _mockHttpClientFactory.Object,
             _mockPolicyRegistry.Object,
-            _mockYahooSession.Object,
-            _mapper);
+            _mockYahooSession.Object);
 
         // Act
         var result = await service.GetInstrumentsAsync(type);
