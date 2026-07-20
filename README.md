@@ -4,7 +4,7 @@
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=thorstenalpers_Finance.NET&metric=alert_status)](https://sonarcloud.io/project/issues?issueStatuses=OPEN%2CCONFIRMED&id=thorstenalpers_Finance.NET)
 [![CI Tests](https://github.com/thorstenalpers/Finance.NET/actions/workflows/ci.yml/badge.svg)](https://github.com/thorstenalpers/Finance.NET/actions/workflows/ci.yml)
-[![Coverage Status](https://coveralls.io/repos/github/thorstenalpers/Finance.NET/badge.svg?branch=develop)](https://coveralls.io/github/thorstenalpers/Finance.NET?branch=develop)
+[![Coverage Status](https://coveralls.io/repos/github/thorstenalpers/Finance.NET/badge.svg?branch=main)](https://coveralls.io/github/thorstenalpers/Finance.NET?branch=main)
 [![NuGet Version](https://img.shields.io/nuget/v/Finance.NET.svg)](https://www.nuget.org/packages/Finance.NET)
 [![NuGet Downloads](https://img.shields.io/nuget/dt/Finance.NET.svg)](https://www.nuget.org/packages/Finance.NET)
 [![Donate](https://img.shields.io/badge/donate-PayPal-yellow)](https://www.paypal.com/donate/?hosted_button_id=QYHGE9LA9SNAN)
@@ -50,8 +50,8 @@ Optional: Configure with custom settings.
 ```csharp
 services.AddFinanceNet(new FinanceNetConfiguration
 {
-    HttpTimeout = 5,
-    HttpRetryCount = 3,                                
+    HttpTimeout = 5,        // seconds (default: 20)
+    HttpRetryCount = 3,     // default: 10
     AlphaVantageApiKey = "ALPHA_VANTAGE__API_KEY"
 });
 ```
@@ -213,7 +213,7 @@ A task that resolves to a `Summary` containing the following properties:
 | `Forward_Dividend`      | `decimal?`    | Expected forward dividend.                                    | 0.88                    |
 | `Forward_Yield`         | `decimal?`    | Forward dividend yield.                                       | 0.49%                   |
 | `Ex_DividendDate`       | `DateTime?`   | Ex-dividend date.                                             | 2025-01-10              |
-| `OneYearTargetEst`      | `decimal?`    | One-year target price estimate.
+| `OneYearTargetEst`      | `decimal?`    | One-year target price estimate.                               | 200.00                  |
 
 #### Example
 
@@ -392,7 +392,7 @@ A task that resolves to a `Quote` object. The `Quote` record contains detailed i
 | `ExchangeTimezoneShortName`        | `string?`    | The abbreviated time zone of the exchange.                               | "EST"             |
 | `GmtOffSetMilliseconds`            | `long?`      | The GMT offset in milliseconds.             | -18000000         |
 | `Market`                           | `string?`    | The market the instrument is listed on.                                  | "Equity"          |
-| `EsgPopulated`                     | `bool?`      | Indicates if ESG.  | `true`            |
+| `EsgPopulated`                     | `bool?`      | Indicates if ESG (Environmental, Social, Governance) data is populated. | `true`            |
 | `RegularMarketChangePercent`       | `double?`    | The percentage change in the regular market price.                       | 2.35              |
 | `RegularMarketPrice`               | `double?`    | The regular market price of the stock.                                   | 145.67            |
 | `MarketState`                      | `string?`    | The market state (e.g., open or closed).                                 | "OPEN"            |
@@ -474,7 +474,7 @@ A task that resolves to an `IEnumerable<Quote>`, where each `Quote` provides com
 | `ExchangeTimezoneShortName`        | `string?`    | The abbreviated time zone of the exchange.                               | "EST"             |
 | `GmtOffSetMilliseconds`            | `long?`      | The GMT offset in milliseconds.             | -18000000         |
 | `Market`                           | `string?`    | The market the instrument is listed on.                                  | "Equity"          |
-| `EsgPopulated`                     | `bool?`      | Indicates if ESG.  | `true`            |
+| `EsgPopulated`                     | `bool?`      | Indicates if ESG (Environmental, Social, Governance) data is populated. | `true`            |
 | `RegularMarketChangePercent`       | `double?`    | The percentage change in the regular market price.                       | 2.35              |
 | `RegularMarketPrice`               | `double?`    | The regular market price of the stock.                                   | 145.67            |
 | `MarketState`                      | `string?`    | The market state (e.g., open or closed).                                 | "OPEN"            |
@@ -624,7 +624,7 @@ A task that resolves to an `InstrumentOverview?`. The `InstrumentOverview` conta
 | `TwoHundredDayMovingAverage`   | `string?`  | 200-day moving average.                                                                     | "157.80"                          |
 | `SharesOutstanding`            | `string?`  | Number of shares outstanding.                                                               | "5000000000"                      |
 | `DividendDate`                 | `string?`  | Next dividend payment date.                                                                  | "2025-02-01"                      |
-| `ExDividendDate`               | `string?`  | Ex-dividend date.
+| `ExDividendDate`               | `string?`  | Ex-dividend date.                                                                            | "2025-01-10"                      |
 
 #### Example
 
