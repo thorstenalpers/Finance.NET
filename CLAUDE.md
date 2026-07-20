@@ -28,7 +28,7 @@ dotnet test tests/Tests.csproj --filter "TestCategory!=Integration"
 run-code-coverage.cmd
 ```
 
-Tests use NUnit + Moq and target net10.0. Three categories gate what runs: `Unit` (mocked, deterministic), `Integration` (live provider endpoints), and `Long-Running`. The main CI (`.github/workflows/ci.yml`) runs everything except `Long-Running` and `AlphaVantageTests` — so the live Yahoo/Xetra/DataHub integration tests do run in CI. To tolerate transient provider outages, `TestHelper.SetUpServiceProvider` raises `HttpRetryCount` to 10 (retries only cost time on failure); the per-provider workflows (`tests-*.yml`, built on `_tests-template.yml`) additionally exercise each provider on schedule. Integration tests for Alpha Vantage need the key `FinanceNet:AlphaVantageApiKey` via user secrets or environment variable (see `tests/TestHelper.cs`).
+Tests use NUnit + Moq and target net10.0. Three categories gate what runs: `Unit` (mocked, deterministic), `Integration` (live provider endpoints), and `Long-Running`. The main CI (`.github/workflows/ci.yml`) runs `TestCategory=Unit` only, so a provider outage cannot break the build. The live `Integration` tests run on schedule via the per-provider workflows (`tests-*.yml`, built on `_tests-template.yml`); `TestHelper.SetUpServiceProvider` raises `HttpRetryCount` to 10 there to tolerate transient provider blips. Integration tests for Alpha Vantage need the key `FinanceNet:AlphaVantageApiKey` via user secrets or environment variable (see `tests/TestHelper.cs`).
 
 ## Architecture
 
