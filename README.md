@@ -1,14 +1,13 @@
 ![Banner](https://raw.githubusercontent.com/thorstenalpers/Finance.NET/main/src/banner.png)
 
-[![.NET Standard 2.1](https://img.shields.io/badge/.NET%20Standard-2.1-blue)](#)
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=thorstenalpers_Finance.NET&metric=alert_status)](https://sonarcloud.io/project/issues?issueStatuses=OPEN%2CCONFIRMED&id=thorstenalpers_Finance.NET)
-[![CI Tests](https://github.com/thorstenalpers/Finance.NET/actions/workflows/ci.yml/badge.svg)](https://github.com/thorstenalpers/Finance.NET/actions/workflows/ci.yml)
-[![Coverage Status](https://coveralls.io/repos/github/thorstenalpers/Finance.NET/badge.svg?branch=main)](https://coveralls.io/github/thorstenalpers/Finance.NET?branch=main)
-[![NuGet Version](https://img.shields.io/nuget/v/Finance.NET.svg)](https://www.nuget.org/packages/Finance.NET)
-[![NuGet Downloads](https://img.shields.io/nuget/dt/Finance.NET.svg)](https://www.nuget.org/packages/Finance.NET)
-[![Donate](https://img.shields.io/badge/donate-PayPal-yellow)](https://www.paypal.com/donate/?hosted_button_id=QYHGE9LA9SNAN)
-[![Star this repo](https://img.shields.io/github/stars/thorstenalpers/Finance.NET.svg?style=social&label=Star&maxAge=60)](https://github.com/thorstenalpers/Finance.NET)
+[![CI](https://img.shields.io/github/actions/workflow/status/thorstenalpers/Finance.NET/ci.yml?branch=main&style=flat-square&logo=githubactions&logoColor=white&label=CI)](https://github.com/thorstenalpers/Finance.NET/actions/workflows/ci.yml)
+[![Coverage](https://img.shields.io/coverallsCoverage/github/thorstenalpers/Finance.NET?branch=main&style=flat-square&logo=coveralls&label=coverage)](https://coveralls.io/github/thorstenalpers/Finance.NET?branch=main)
+[![Quality Gate](https://img.shields.io/sonar/quality_gate/thorstenalpers_Finance.NET?server=https%3A%2F%2Fsonarcloud.io&style=flat-square&logo=sonarcloud&logoColor=white&label=quality)](https://sonarcloud.io/project/overview?id=thorstenalpers_Finance.NET)
+[![NuGet](https://img.shields.io/nuget/v/Finance.NET?style=flat-square&logo=nuget&logoColor=white&label=nuget)](https://www.nuget.org/packages/Finance.NET)
+[![Downloads](https://img.shields.io/nuget/dt/Finance.NET?style=flat-square&logo=nuget&logoColor=white&label=downloads)](https://www.nuget.org/packages/Finance.NET)
+[![.NET Standard](https://img.shields.io/badge/.NET%20Standard-2.1-blue?style=flat-square&logo=dotnet&logoColor=white)](#)
+[![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](./LICENSE)
+[![Stars](https://img.shields.io/github/stars/thorstenalpers/Finance.NET?style=flat-square&logo=github&label=stars)](https://github.com/thorstenalpers/Finance.NET)
 
 An easy-to-use .NET library for accessing and aggregating financial data from multiple sources. 
 
