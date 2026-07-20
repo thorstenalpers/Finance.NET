@@ -959,7 +959,7 @@ For legal usage, refer to the terms of each data provider:
 * Xetra: [Terms of use](https://www.xetra.com/xetra-de/instrumente/alle-handelbaren-instrumente)
 
 
-For additional licensing and attribution details, see [NOTICE.md](./NOTICE.md) and [THIRD_PARTY_LICENSES.md](./THIRD_PARTY_LICENSES.md).
+For additional licensing and attribution details, see [NOTICE.md](./NOTICE.md).
 
 ---
 

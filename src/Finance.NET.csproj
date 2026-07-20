@@ -58,9 +58,5 @@
 	  <Pack>true</Pack>
 	  <PackagePath>/LICENSE</PackagePath>
 	</None>
-    <None Include="../THIRD_PARTY_LICENSES.txt" Visible="false">
-	  <Pack>true</Pack>
-	  <PackagePath>/THIRD_PARTY_LICENSES.txt</PackagePath>
-  </None>
   </ItemGroup>
 </Project>
