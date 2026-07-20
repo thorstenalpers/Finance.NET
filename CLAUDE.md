@@ -48,3 +48,7 @@ All failures are wrapped in `FinanceNetException`.
 - Analyzers are enforced at build time (`EnforceCodeStyleInBuild`, SonarAnalyzer, `.editorconfig`); warnings will fail style checks in CI/SonarCloud.
 - Public API surfaces carry XML `<summary>` docs (`GenerateDocumentationFile` is on).
 - Unit tests mock `IHttpClientFactory` and feed fixture files from `tests/TestData/` (must be registered in `Tests.csproj` with `CopyToOutputDirectory`).
+
+## Releases
+
+The version is `<Version>` in `src/Finance.NET.csproj`; publishing is a manual `workflow_dispatch` (`deploy-nuget.yml`, "Deploy Nuget") that tags `v<version>`. Every release **requires** a `release-notes/v<version>.md` file (format `### What's Changed` + user-facing bullets) — the deploy's "Create GitHub Release" step reads it via `body_path` and **fails if it is missing**. Bumping the version without adding that file is the classic broken release. Use the `prepare-release` skill (`.claude/skills/prepare-release/`), which walks the version bump, notes, and release PR to `main`.
