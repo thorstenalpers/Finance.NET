@@ -32,9 +32,9 @@ public class DataHubService(IHttpClientFactory httpClientFactory,
         var config = new CsvConfiguration(CultureInfo.InvariantCulture);
         try
         {
-            return await _retryPolicy.ExecuteAsync(async () =>
+            return await _retryPolicy.ExecuteAsync(async ct =>
             {
-                var response = await httpClient.GetAsync(Constants.DatahubNasdaqSymbolsUrl, token).ConfigureAwait(false);
+                var response = await httpClient.GetAsync(Constants.DatahubNasdaqSymbolsUrl, ct).ConfigureAwait(false);
                 response.EnsureSuccessStatusCode();
 
                 var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -43,7 +43,11 @@ public class DataHubService(IHttpClientFactory httpClientFactory,
                 csv.Context.RegisterClassMap<NasdaqInstrumentMapping>();
                 var instruments = csv.GetRecords<NasdaqInstrument>().ToList();
                 return instruments.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMessageAllFieldsEmpty) : instruments;
-            }).ConfigureAwait(false);
+            }, token).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) when (token.IsCancellationRequested)
+        {
+            throw;
         }
         catch (Exception ex)
         {
@@ -57,9 +61,9 @@ public class DataHubService(IHttpClientFactory httpClientFactory,
         var httpClient = _httpClientFactory.CreateClient(Constants.DatahubIoHttpClientName);
         try
         {
-            return await _retryPolicy.ExecuteAsync(async () =>
+            return await _retryPolicy.ExecuteAsync(async ct =>
             {
-                var response = await httpClient.GetAsync(Constants.DatahubSp500SymbolsUrl, token).ConfigureAwait(false);
+                var response = await httpClient.GetAsync(Constants.DatahubSp500SymbolsUrl, ct).ConfigureAwait(false);
                 response.EnsureSuccessStatusCode();
                 var config = new CsvConfiguration(CultureInfo.InvariantCulture);
 
@@ -70,7 +74,11 @@ public class DataHubService(IHttpClientFactory httpClientFactory,
 
                 var instruments = csv.GetRecords<Sp500Instrument>().ToList();
                 return instruments.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMessageAllFieldsEmpty) : instruments;
-            }).ConfigureAwait(false);
+            }, token).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) when (token.IsCancellationRequested)
+        {
+            throw;
         }
         catch (Exception ex)
         {
