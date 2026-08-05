@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -143,9 +143,9 @@ public class AlphaVantageServiceTests
             _mockPolicyRegistry.Object);
 
         // Act
-        var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetOverviewAsync("IBM"));
-        Assert.That(exception.Message, Does.Contain("No overview "));
-        Assert.That(exception.InnerException.Message, Does.Contain("All fields empty"));
+        var exception = Assert.ThrowsAsync<FinanceNetNoDataException>(async () => await service.GetOverviewAsync("IBM"));
+        Assert.That(exception.Message, Does.Contain("returned no overview for IBM"));
+        Assert.That(exception.InnerException, Is.Null);
     }
 
     [Test]
@@ -168,9 +168,9 @@ public class AlphaVantageServiceTests
             _mockPolicyRegistry.Object);
 
         // Act
-        var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetOverviewAsync("IBM"));
-        Assert.That(exception.Message, Does.Contain("No overview"));
-        Assert.That(exception.InnerException.Message, Does.Contain("All fields empty"));
+        var exception = Assert.ThrowsAsync<FinanceNetNoDataException>(async () => await service.GetOverviewAsync("IBM"));
+        Assert.That(exception.Message, Does.Contain("returned no overview for IBM"));
+        Assert.That(exception.InnerException, Is.Null);
     }
 
     [Test]
@@ -248,9 +248,9 @@ public class AlphaVantageServiceTests
         var startDate = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Utc);
 
         // Act
-        var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetRecordsAsync("IBM", startDate));
-        Assert.That(exception.Message, Does.Contain("No Record found "));
-        Assert.That(exception.InnerException.Message, Does.Contain("All fields empty"));
+        var exception = Assert.ThrowsAsync<FinanceNetNoDataException>(async () => await service.GetRecordsAsync("IBM", startDate));
+        Assert.That(exception.Message, Does.Contain("returned no records for IBM"));
+        Assert.That(exception.InnerException, Is.Null);
     }
 
     [Test]
@@ -385,9 +385,9 @@ public class AlphaVantageServiceTests
         var startDate = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Utc);
 
         // Act
-        var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetIntradayRecordsAsync("IBM", startDate));
-        Assert.That(exception.Message, Does.Contain("No intraday record"));
-        Assert.That(exception.InnerException.Message, Does.Contain("All fields empty"));
+        var exception = Assert.ThrowsAsync<FinanceNetNoDataException>(async () => await service.GetIntradayRecordsAsync("IBM", startDate));
+        Assert.That(exception.Message, Does.Contain("returned no intraday records for IBM"));
+        Assert.That(exception.InnerException, Is.Null);
     }
 
     [Test]
@@ -520,9 +520,9 @@ public class AlphaVantageServiceTests
         var startDate = new DateTime(2024, 11, 01, 0, 0, 0, DateTimeKind.Utc);
 
         // Act
-        var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetForexRecordsAsync("EUR", "USD", startDate));
-        Assert.That(exception.Message, Does.Contain("No forex record found"));
-        Assert.That(exception.InnerException.Message, Does.Contain("All fields empty"));
+        var exception = Assert.ThrowsAsync<FinanceNetNoDataException>(async () => await service.GetForexRecordsAsync("EUR", "USD", startDate));
+        Assert.That(exception.Message, Does.Contain("returned no forex records for EUR/USD"));
+        Assert.That(exception.InnerException, Is.Null);
     }
 
     [Test]

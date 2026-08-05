@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -69,17 +69,17 @@ public class XetraService : IXetraService
                 }
                 if (records.Count == 0)
                 {
-                    throw new FinanceNetException("CSV liefert keine InstrumentItem-Daten.");
+                    throw new FinanceNetNoDataException("CSV liefert keine InstrumentItem-Daten.");
                 }
 
                 var result = records
                     .Select(record => record.ToInstrument())
                     .Where(instrument => !string.IsNullOrWhiteSpace(instrument.Mnemonic))
                     .ToList();
-                return result.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMessageAllFieldsEmpty) : result;
+                return result.IsNullOrEmpty() ? throw new FinanceNetNoDataException("Xetra returned no instruments") : result;
             }).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not FinanceNetNoDataException)
         {
             throw new FinanceNetException("Cannot fetch from Xetra", ex);
         }
@@ -101,7 +101,7 @@ public class XetraService : IXetraService
                 return new Uri(baseUri, relativeDownloadUrl);
             }).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not FinanceNetNoDataException)
         {
             throw new FinanceNetException($"Cannot fetch from {Constants.XetraInstrumentsUrl}", ex);
         }

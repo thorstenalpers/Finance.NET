@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -283,8 +283,9 @@ public class YahooFinanceServiceTests
             _mockYahooSession.Object);
 
         // Act
-        var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetProfileAsync("IBM"));
-        Assert.That(exception.InnerException.Message, Does.Contain("All fields empty"));
+        var exception = Assert.ThrowsAsync<FinanceNetNoDataException>(async () => await service.GetProfileAsync("IBM"));
+        Assert.That(exception.Message, Does.Contain("No profile data in Yahoo response"));
+        Assert.That(exception.InnerException, Is.Null);
     }
 
     [Test]
@@ -349,8 +350,9 @@ public class YahooFinanceServiceTests
             _mockYahooSession.Object);
 
         // Act
-        var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetSummaryAsync("IBM"));
-        Assert.That(exception.InnerException.Message, Does.Contain("All fields empty"));
+        var exception = Assert.ThrowsAsync<FinanceNetNoDataException>(async () => await service.GetSummaryAsync("IBM"));
+        Assert.That(exception.Message, Does.Contain("No summary data in Yahoo response"));
+        Assert.That(exception.InnerException, Is.Null);
     }
 
     [Test]
@@ -511,7 +513,7 @@ public class YahooFinanceServiceTests
             _mockYahooSession.Object);
 
         // Act
-        var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetInstrumentsAsync());
+        var exception = Assert.ThrowsAsync<FinanceNetNoDataException>(async () => await service.GetInstrumentsAsync());
         Assert.That(exception.Message, Does.Contain("No instruments found"));
     }
 
@@ -528,7 +530,7 @@ public class YahooFinanceServiceTests
             _mockYahooSession.Object);
 
         // Act
-        var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetInstrumentsAsync());
+        var exception = Assert.ThrowsAsync<FinanceNetNoDataException>(async () => await service.GetInstrumentsAsync());
         Assert.That(exception.Message, Does.Contain("No instruments found"));
     }
 

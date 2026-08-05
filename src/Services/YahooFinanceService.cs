@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -70,7 +70,7 @@ public class YahooFinanceService : IYahooFinanceService
                 _logger.LogWarning(ex, "Failed to load {Type}", instrumentType);
             }
         }
-        return result.IsNullOrEmpty() ? throw new FinanceNetException("No instruments found") : result;
+        return result.IsNullOrEmpty() ? throw new FinanceNetNoDataException("No instruments found") : result;
     }
 
     /// <inheritdoc />
@@ -106,7 +106,7 @@ public class YahooFinanceService : IYahooFinanceService
                 }
                 if (responseObj.Result == null || responseObj.Result.Length == 0)
                 {
-                    throw new FinanceNetException("No response from Yahoo");
+                    throw new FinanceNetNoDataException($"Yahoo returned no data for {string.Join(", ", symbols)}");
                 }
 
                 foreach (var quoteResponse in responseObj.Result)
@@ -121,7 +121,7 @@ public class YahooFinanceService : IYahooFinanceService
                 return quotes;
             }).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not FinanceNetNoDataException)
         {
             throw new FinanceNetException("No way to fetch quotes", ex);
         }
@@ -150,10 +150,10 @@ public class YahooFinanceService : IYahooFinanceService
 
                 await CheckAndDeclineConsentAsync(document, token).ConfigureAwait(false);
                 var records = YahooHtmlParser.ParseHistoryRecords(document, _logger);
-                return records.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMessageAllFieldsEmpty) : records;
+                return records.IsNullOrEmpty() ? throw new FinanceNetNoDataException($"Yahoo returned no records for {symbol}") : records;
             }).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not FinanceNetNoDataException)
         {
             throw new FinanceNetException("No records found", ex);
         }
@@ -195,7 +195,7 @@ public class YahooFinanceService : IYahooFinanceService
                 return result;
             }).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not FinanceNetNoDataException)
         {
             throw new FinanceNetException("No profile found", ex);
         }
@@ -218,7 +218,7 @@ public class YahooFinanceService : IYahooFinanceService
                 return result;
             }).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not FinanceNetNoDataException)
         {
             throw new FinanceNetException("No financial reports found", ex);
         }
@@ -241,7 +241,7 @@ public class YahooFinanceService : IYahooFinanceService
                 return result;
             }).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not FinanceNetNoDataException)
         {
             throw new FinanceNetException("No summary found", ex);
         }
@@ -264,7 +264,7 @@ public class YahooFinanceService : IYahooFinanceService
                     await CheckAndDeclineConsentAsync(document, token).ConfigureAwait(false);
                     var parsed = YahooHtmlParser.ParseSymbols(document, instrumentType, _logger);
                     return Helper.AreAllPropertiesNull(parsed)
-                        ? throw new FinanceNetException(Constants.ValidationMessageAllFieldsEmpty)
+                        ? throw new FinanceNetNoDataException($"Yahoo returned no {instrumentType} symbols")
                         : parsed;
                 }).ConfigureAwait(false);
 
