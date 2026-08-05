@@ -91,7 +91,7 @@ public class YahooFinanceService : IYahooFinanceService
             $"&crumb={crumb}";
         try
         {
-            return await _retryPolicy.ExecuteAsync(async () =>
+            var quotes = await _retryPolicy.ExecuteAsync(async () =>
             {
                 var quotes = new List<Quote>();
 
@@ -120,10 +120,29 @@ public class YahooFinanceService : IYahooFinanceService
                 }
                 return quotes;
             }).ConfigureAwait(false);
+
+            WarnAboutUnresolvedSymbols(symbols, quotes);
+            return quotes;
         }
         catch (Exception ex)
         {
             throw new FinanceNetException("No way to fetch quotes", ex);
+        }
+    }
+
+    /// <summary>
+    /// Yahoo silently omits symbols it cannot resolve. Report the shortfall, so a caller
+    /// doing a scheduled refresh can spot bad tickers without diffing the request itself.
+    /// </summary>
+    private void WarnAboutUnresolvedSymbols(List<string> requested, List<Quote> quotes)
+    {
+        // Symbol is never null here - a null one is rejected while building the list above.
+        var resolved = new HashSet<string>(quotes.Select(quote => quote.Symbol!), StringComparer.OrdinalIgnoreCase);
+        var unresolved = requested.Where(symbol => !resolved.Contains(symbol)).ToList();
+        if (unresolved.Count != 0)
+        {
+            _logger.LogWarning("Yahoo returned no data for {Count} of {RequestedCount} requested symbols: {Symbols}",
+                unresolved.Count, requested.Count, string.Join(", ", unresolved));
         }
     }
 
