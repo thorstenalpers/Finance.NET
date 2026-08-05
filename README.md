@@ -48,8 +48,9 @@ Optional: Configure with custom settings.
 ```csharp
 services.AddFinanceNet(new FinanceNetConfiguration
 {
-    HttpTimeout = 5,        // seconds (default: 20)
-    HttpRetryCount = 3,     // default: 10
+    HttpTimeout = 5,          // seconds (default: 20)
+    HttpRetryCount = 3,       // default: 10
+    HttpRetrySleepTime = 1,   // seconds, base for exponential back-off (default: 1)
     AlphaVantageApiKey = "ALPHA_VANTAGE__API_KEY"
 });
 ```
