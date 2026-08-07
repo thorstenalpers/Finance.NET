@@ -35,6 +35,7 @@ public static class ServiceCollectionExtensions
         {
             opt.HttpRetryCount = cfg.HttpRetryCount;
             opt.HttpTimeout = cfg.HttpTimeout;
+            opt.HttpRetrySleepTime = cfg.HttpRetrySleepTime;
             opt.AlphaVantageApiKey = cfg.AlphaVantageApiKey;
         });
 
@@ -46,7 +47,7 @@ public static class ServiceCollectionExtensions
             return new PolicyRegistry
             {
                 {
-                    Constants.DefaultHttpRetryPolicy, PollyPolicyFactory.GetRetryPolicy(options.Value.HttpRetryCount, options.Value.HttpTimeout, logger)
+                    Constants.DefaultHttpRetryPolicy, PollyPolicyFactory.GetRetryPolicy(options.Value.HttpRetryCount, options.Value.HttpRetrySleepTime, logger)
                 }
             };
         });

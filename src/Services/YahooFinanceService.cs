@@ -65,6 +65,10 @@ public class YahooFinanceService : IYahooFinanceService
                 }).ConfigureAwait(false);
                 result.AddRange(instruments);
             }
+            catch (OperationCanceledException) when (token.IsCancellationRequested)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
                 _logger.LogWarning(ex, "Failed to load {Type}", instrumentType);
@@ -91,11 +95,11 @@ public class YahooFinanceService : IYahooFinanceService
             $"&crumb={crumb}";
         try
         {
-            var quotes = await _retryPolicy.ExecuteAsync(async () =>
+            var quotes = await _retryPolicy.ExecuteAsync(async ct =>
             {
                 var quotes = new List<Quote>();
 
-                var jsonContent = await Helper.FetchJsonDocumentAsync(httpClient, _logger, url, token).ConfigureAwait(false);
+                var jsonContent = await Helper.FetchJsonDocumentAsync(httpClient, _logger, url, ct).ConfigureAwait(false);
                 var parsedData = JsonConvert.DeserializeObject<QuoteResponseRoot>(jsonContent) ?? throw new FinanceNetException("Invalid data returned by Yahoo");
                 var responseObj = parsedData.QuoteResponse ?? throw new FinanceNetException("Invalid content from Yahoo");
 
@@ -119,10 +123,14 @@ public class YahooFinanceService : IYahooFinanceService
                     quotes.Add(quote);
                 }
                 return quotes;
-            }).ConfigureAwait(false);
+            }, token).ConfigureAwait(false);
 
             WarnAboutUnresolvedSymbols(symbols, quotes);
             return quotes;
+        }
+        catch (OperationCanceledException) when (token.IsCancellationRequested)
+        {
+            throw;
         }
         catch (Exception ex)
         {
@@ -163,14 +171,18 @@ public class YahooFinanceService : IYahooFinanceService
         var url = $"{Constants.YahooQuoteHtmlUrl}/{symbol}/history/?period1={period1}&period2={period2}".ToLowerInvariant();
         try
         {
-            return await _retryPolicy.ExecuteAsync(async () =>
+            return await _retryPolicy.ExecuteAsync(async ct =>
             {
-                var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, token).ConfigureAwait(false);
+                var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, ct).ConfigureAwait(false);
 
-                await CheckAndDeclineConsentAsync(document, token).ConfigureAwait(false);
+                await CheckAndDeclineConsentAsync(document, ct).ConfigureAwait(false);
                 var records = YahooHtmlParser.ParseHistoryRecords(document, _logger);
                 return records.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMessageAllFieldsEmpty) : records;
-            }).ConfigureAwait(false);
+            }, token).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) when (token.IsCancellationRequested)
+        {
+            throw;
         }
         catch (Exception ex)
         {
@@ -206,13 +218,17 @@ public class YahooFinanceService : IYahooFinanceService
 
         try
         {
-            return await _retryPolicy.ExecuteAsync(async () =>
+            return await _retryPolicy.ExecuteAsync(async ct =>
             {
-                var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, token).ConfigureAwait(false);
-                await CheckAndDeclineConsentAsync(document, token).ConfigureAwait(false);
+                var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, ct).ConfigureAwait(false);
+                await CheckAndDeclineConsentAsync(document, ct).ConfigureAwait(false);
                 var result = YahooHtmlParser.ParseProfile(document);
                 return result;
-            }).ConfigureAwait(false);
+            }, token).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) when (token.IsCancellationRequested)
+        {
+            throw;
         }
         catch (Exception ex)
         {
@@ -229,13 +245,17 @@ public class YahooFinanceService : IYahooFinanceService
 
         try
         {
-            return await _retryPolicy.ExecuteAsync(async () =>
+            return await _retryPolicy.ExecuteAsync(async ct =>
             {
-                var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, token).ConfigureAwait(false);
-                await CheckAndDeclineConsentAsync(document, token).ConfigureAwait(false);
+                var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, ct).ConfigureAwait(false);
+                await CheckAndDeclineConsentAsync(document, ct).ConfigureAwait(false);
                 var result = YahooHtmlParser.ParseFinancialReports(document, _logger);
                 return result;
-            }).ConfigureAwait(false);
+            }, token).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) when (token.IsCancellationRequested)
+        {
+            throw;
         }
         catch (Exception ex)
         {
@@ -252,13 +272,17 @@ public class YahooFinanceService : IYahooFinanceService
 
         try
         {
-            return await _retryPolicy.ExecuteAsync(async () =>
+            return await _retryPolicy.ExecuteAsync(async ct =>
             {
-                var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, token).ConfigureAwait(false);
-                await CheckAndDeclineConsentAsync(document, token).ConfigureAwait(false);
+                var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, ct).ConfigureAwait(false);
+                await CheckAndDeclineConsentAsync(document, ct).ConfigureAwait(false);
                 var result = YahooHtmlParser.ParseSummary(document, _logger);
                 return result;
-            }).ConfigureAwait(false);
+            }, token).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) when (token.IsCancellationRequested)
+        {
+            throw;
         }
         catch (Exception ex)
         {
@@ -277,15 +301,15 @@ public class YahooFinanceService : IYahooFinanceService
             for (var i = 0; i < 100; i++)
             {
                 var url = $"{baseUrl}?start={i * 100}&count=100".ToLowerInvariant();
-                var items = await _retryPolicy.ExecuteAsync(async () =>
+                var items = await _retryPolicy.ExecuteAsync(async ct =>
                 {
-                    var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, token).ConfigureAwait(false);
-                    await CheckAndDeclineConsentAsync(document, token).ConfigureAwait(false);
+                    var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, ct).ConfigureAwait(false);
+                    await CheckAndDeclineConsentAsync(document, ct).ConfigureAwait(false);
                     var parsed = YahooHtmlParser.ParseSymbols(document, instrumentType, _logger);
                     return Helper.AreAllPropertiesNull(parsed)
                         ? throw new FinanceNetException(Constants.ValidationMessageAllFieldsEmpty)
                         : parsed;
-                }).ConfigureAwait(false);
+                }, token).ConfigureAwait(false);
 
                 result.AddRange(items.Where(e => e.Symbol != null));
                 result = result
@@ -300,6 +324,10 @@ public class YahooFinanceService : IYahooFinanceService
             }
 
             return result;
+        }
+        catch (OperationCanceledException) when (token.IsCancellationRequested)
+        {
+            throw;
         }
         catch
         {
