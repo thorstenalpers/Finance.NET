@@ -56,16 +56,20 @@ internal class YahooSessionManager(ILogger<YahooSessionManager> logger,
         await Semaphore.WaitAsync(token).ConfigureAwait(false);
         try
         {
-            await _retryPolicy.ExecuteAsync(async () =>
+            await _retryPolicy.ExecuteAsync(async ct =>
             {
-                var crumb = await CreateApiCookiesAndCrumb(token).ConfigureAwait(false);
+                var crumb = await CreateApiCookiesAndCrumb(ct).ConfigureAwait(false);
                 _sessionState.SetCrumb(crumb, DateTime.UtcNow);
-                await CreateUiCookies(token).ConfigureAwait(false);
+                await CreateUiCookies(ct).ConfigureAwait(false);
                 if (!_sessionState.IsValid())
                 {
                     throw new FinanceNetException("cannot fetch Yahoo credentials");
                 }
-            }).ConfigureAwait(false);
+            }, token).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) when (token.IsCancellationRequested)
+        {
+            throw;
         }
         catch (Exception ex)
         {
