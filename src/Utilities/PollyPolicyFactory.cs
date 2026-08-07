@@ -29,7 +29,7 @@ internal static class PollyPolicyFactory
 
     /// <summary>
     /// Exponential back-off from <paramref name="baseWaitTimeSecs"/> (1x, 2x, 4x, ...), capped at
-    /// <see cref="MaxRetryDelaySecs"/>, plus up to one base interval of jitter so concurrent
+    /// <see cref="MaxRetryDelaySecs"/>, plus up to one full delay of jitter so concurrent
     /// callers do not retry in lockstep.
     /// </summary>
     internal static TimeSpan GetRetryDelay(int retryAttempt, int baseWaitTimeSecs)
@@ -40,7 +40,9 @@ internal static class PollyPolicyFactory
         }
         var exponent = Math.Min(retryAttempt - 1, 30);  // keep Pow away from infinity
         var backOffSecs = Math.Min(baseWaitTimeSecs * Math.Pow(2, exponent), MaxRetryDelaySecs);
-        var jitterMs = RandomNumberGenerator.GetInt32(0, baseWaitTimeSecs * 1000);
+        // Jitter scales with the delay, not with the base: once the cap is reached a
+        // base-sized window would put every caller back into lockstep.
+        var jitterMs = RandomNumberGenerator.GetInt32(0, (int)(backOffSecs * 1000));
         return TimeSpan.FromSeconds(backOffSecs) + TimeSpan.FromMilliseconds(jitterMs);
     }
 }

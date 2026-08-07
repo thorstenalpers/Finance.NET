@@ -50,7 +50,7 @@ services.AddFinanceNet(new FinanceNetConfiguration
 {
     HttpTimeout = 5,          // seconds (default: 20)
     HttpRetryCount = 3,       // default: 10
-    HttpRetrySleepTime = 1,   // seconds, base for exponential back-off (default: 1)
+    HttpRetrySleepTime = 5,   // seconds, base for exponential back-off; capped at 30s per attempt, plus jitter (default: 5)
     AlphaVantageApiKey = "ALPHA_VANTAGE__API_KEY"
 });
 ```

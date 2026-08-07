@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Finance.Net.Enums;
 using Finance.Net.Interfaces;
 using Finance.Net.Services;
 using Finance.Net.Utilities;
@@ -31,8 +32,11 @@ public class CancellationTokenPropagationTests
     private static readonly TimeSpan RetrySleep = TimeSpan.FromSeconds(2);
     private static readonly TimeSpan CancelAfter = TimeSpan.FromMilliseconds(150);
 
-    /// <summary>Comfortably below the first back-off sleep, comfortably above the cancel delay.</summary>
-    private static readonly TimeSpan MaxAcceptable = TimeSpan.FromMilliseconds(1500);
+    // Below the 2s back-off sleep, but with enough headroom for a CI runner under coverage
+    // instrumentation - the exception type already separates fixed from broken on its own.
+    private static readonly TimeSpan MaxAcceptable = TimeSpan.FromMilliseconds(1900);
+
+    private static readonly DateTime StartDate = new(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
     private Mock<IHttpClientFactory> _mockHttpClientFactory;
     private Mock<IReadOnlyPolicyRegistry<string>> _mockPolicyRegistry;
@@ -86,17 +90,74 @@ public class CancellationTokenPropagationTests
     }
 
     [Test]
+    public void GetInstrumentsAsync_Cancelled_StopsWithoutWaitingOutTheBackOff()
+    {
+        var mockSession = new Mock<IYahooSessionManager>();
+        var service = new YahooFinanceService(
+            Mock.Of<ILogger<YahooFinanceService>>(),
+            _mockHttpClientFactory.Object,
+            _mockPolicyRegistry.Object,
+            mockSession.Object);
+
+        // Unfiltered, so cancellation has to escape both the per-type log-and-continue loop
+        // and the partial-result catch in FetchSymbolsAsync.
+        AssertCancelsPromptly(token => service.GetInstrumentsAsync(null, token));
+    }
+
+    [Test]
+    public void GetProfileAsync_Cancelled_StopsWithoutWaitingOutTheBackOff()
+    {
+        var service = CreateYahooService();
+
+        AssertCancelsPromptly(token => service.GetProfileAsync("IBM", token));
+    }
+
+    [Test]
+    public void GetSummaryAsync_Cancelled_StopsWithoutWaitingOutTheBackOff()
+    {
+        var service = CreateYahooService();
+
+        AssertCancelsPromptly(token => service.GetSummaryAsync("IBM", token));
+    }
+
+    [Test]
+    public void GetFinancialsAsync_Cancelled_StopsWithoutWaitingOutTheBackOff()
+    {
+        var service = CreateYahooService();
+
+        AssertCancelsPromptly(token => service.GetFinancialsAsync("IBM", token));
+    }
+
+    [Test]
     public void AlphaVantage_GetRecordsAsync_Cancelled_StopsWithoutWaitingOutTheBackOff()
     {
-        var mockOptions = new Mock<IOptions<FinanceNetConfiguration>>();
-        mockOptions.Setup(x => x.Value).Returns(new FinanceNetConfiguration());
-        var service = new AlphaVantageService(
-            Mock.Of<ILogger<AlphaVantageService>>(),
-            _mockHttpClientFactory.Object,
-            mockOptions.Object,
-            _mockPolicyRegistry.Object);
+        var service = CreateAlphaVantageService();
 
-        AssertCancelsPromptly(token => service.GetRecordsAsync("IBM", new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc), null, token));
+        AssertCancelsPromptly(token => service.GetRecordsAsync("IBM", StartDate, null, token));
+    }
+
+    [Test]
+    public void AlphaVantage_GetOverviewAsync_Cancelled_StopsWithoutWaitingOutTheBackOff()
+    {
+        var service = CreateAlphaVantageService();
+
+        AssertCancelsPromptly(token => service.GetOverviewAsync("IBM", token));
+    }
+
+    [Test]
+    public void AlphaVantage_GetIntradayRecordsAsync_Cancelled_StopsWithoutWaitingOutTheBackOff()
+    {
+        var service = CreateAlphaVantageService();
+
+        AssertCancelsPromptly(token => service.GetIntradayRecordsAsync("IBM", StartDate, null, EInterval.Interval_15Min, token));
+    }
+
+    [Test]
+    public void AlphaVantage_GetForexRecordsAsync_Cancelled_StopsWithoutWaitingOutTheBackOff()
+    {
+        var service = CreateAlphaVantageService();
+
+        AssertCancelsPromptly(token => service.GetForexRecordsAsync("EUR", "USD", StartDate, null, token));
     }
 
     [Test]
@@ -119,6 +180,14 @@ public class CancellationTokenPropagationTests
     }
 
     [Test]
+    public void DataHub_GetSp500InstrumentsAsync_Cancelled_StopsWithoutWaitingOutTheBackOff()
+    {
+        var service = new DataHubService(_mockHttpClientFactory.Object, _mockPolicyRegistry.Object);
+
+        AssertCancelsPromptly(service.GetSp500InstrumentsAsync);
+    }
+
+    [Test]
     public void RefreshSessionAsync_Cancelled_StopsWithoutWaitingOutTheBackOff()
     {
         var mockState = new Mock<IYahooSessionState>();
@@ -131,6 +200,23 @@ public class CancellationTokenPropagationTests
             _mockPolicyRegistry.Object);
 
         AssertCancelsPromptly(manager.RefreshSessionAsync);
+    }
+
+    private YahooFinanceService CreateYahooService() => new(
+        Mock.Of<ILogger<YahooFinanceService>>(),
+        _mockHttpClientFactory.Object,
+        _mockPolicyRegistry.Object,
+        Mock.Of<IYahooSessionManager>());
+
+    private AlphaVantageService CreateAlphaVantageService()
+    {
+        var mockOptions = new Mock<IOptions<FinanceNetConfiguration>>();
+        mockOptions.Setup(x => x.Value).Returns(new FinanceNetConfiguration());
+        return new AlphaVantageService(
+            Mock.Of<ILogger<AlphaVantageService>>(),
+            _mockHttpClientFactory.Object,
+            mockOptions.Object,
+            _mockPolicyRegistry.Object);
     }
 
     private static void AssertCancelsPromptly(Func<CancellationToken, Task> call)

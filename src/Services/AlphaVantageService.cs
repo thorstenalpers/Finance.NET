@@ -52,14 +52,14 @@ public class AlphaVantageService : IAlphaVantageService
                     (ex, ts, retryCount, ctx) =>
                     {
                         _logger.LogWarning(
-                            "Retry {RetryCount} wegen {Reason}, warte {Delay}s",
+                            "Retry {RetryCount} due to {Reason}, waiting {Delay}s",
                             retryCount,
-                            ex?.Message ?? "Unbekannt",
+                            ex?.Message ?? "unknown",
                             ts.TotalSeconds);
                     });
 
             _logger.LogWarning(
-                "Retry-Policy '{PolicyKey}' nicht gefunden – verwende Default (3x Retry, Backoff).",
+                "Retry policy '{PolicyKey}' not found - falling back to the default (3 retries, back-off).",
                 Constants.DefaultHttpRetryPolicy);
         }
     }

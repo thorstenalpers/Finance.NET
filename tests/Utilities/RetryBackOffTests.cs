@@ -22,9 +22,29 @@ namespace Finance.Net.Tests.Utilities;
 public class RetryBackOffTests
 {
     [Test]
-    public void HttpRetrySleepTime_DefaultsToOneSecond()
+    public void HttpRetrySleepTime_DefaultsToFiveSeconds()
     {
-        Assert.That(new FinanceNetConfiguration().HttpRetrySleepTime, Is.EqualTo(1));
+        Assert.That(new FinanceNetConfiguration().HttpRetrySleepTime, Is.EqualTo(5));
+    }
+
+    [Test]
+    public void DefaultConfiguration_SpacesTheFirstRetriesBeyondARateLimitWindow()
+    {
+        var config = new FinanceNetConfiguration();
+        var elapsed = 0.0;
+        var withinTheFirstMinute = 0;
+
+        for (var attempt = 1; attempt <= config.HttpRetryCount; attempt++)
+        {
+            elapsed += PollyPolicyFactory.GetRetryDelay(attempt, config.HttpRetrySleepTime).TotalSeconds;
+            if (elapsed <= 60.0)
+            {
+                withinTheFirstMinute++;
+            }
+        }
+
+        Assert.That(withinTheFirstMinute, Is.LessThanOrEqualTo(3),
+            "retries are packed into the rate-limit window they are meant to wait out");
     }
 
     [Test]
@@ -34,11 +54,10 @@ public class RetryBackOffTests
             .Select(attempt => PollyPolicyFactory.GetRetryDelay(attempt, 1).TotalSeconds)
             .ToList();
 
-        // 1s, 2s, 4s, 8s, each plus up to one base interval of jitter.
         Assert.That(delays[0], Is.InRange(1.0, 2.0));
-        Assert.That(delays[1], Is.InRange(2.0, 3.0));
-        Assert.That(delays[2], Is.InRange(4.0, 5.0));
-        Assert.That(delays[3], Is.InRange(8.0, 9.0));
+        Assert.That(delays[1], Is.InRange(2.0, 4.0));
+        Assert.That(delays[2], Is.InRange(4.0, 8.0));
+        Assert.That(delays[3], Is.InRange(8.0, 16.0));
     }
 
     [Test]
@@ -47,7 +66,24 @@ public class RetryBackOffTests
         var delay = PollyPolicyFactory.GetRetryDelay(20, 1);
 
         Assert.That(delay.TotalSeconds,
-            Is.InRange(PollyPolicyFactory.MaxRetryDelaySecs, PollyPolicyFactory.MaxRetryDelaySecs + 1.0));
+            Is.InRange(PollyPolicyFactory.MaxRetryDelaySecs, PollyPolicyFactory.MaxRetryDelaySecs * 2.0));
+    }
+
+    [Test]
+    public void GetRetryDelay_AtTheCap_JittersAcrossTheWholeDelay()
+    {
+        var spread = Enumerable.Range(0, 200)
+            .Select(_ => PollyPolicyFactory.GetRetryDelay(20, 1).TotalSeconds - PollyPolicyFactory.MaxRetryDelaySecs)
+            .ToList();
+
+        Assert.That(spread.Max(), Is.GreaterThan(PollyPolicyFactory.MaxRetryDelaySecs / 2.0),
+            "jitter is bounded by the base rather than the delay - capped retries stay in lockstep");
+    }
+
+    [Test]
+    public void GetRetryDelay_HugeBase_DoesNotOverflow()
+    {
+        Assert.That(() => PollyPolicyFactory.GetRetryDelay(1, int.MaxValue), Throws.Nothing);
     }
 
     [Test]

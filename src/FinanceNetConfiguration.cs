@@ -14,11 +14,11 @@ public class FinanceNetConfiguration
     [Required] public int HttpTimeout { get; set; } = 20;
 
     /// <summary>
-    /// Base wait between retries in seconds, default 1 second. Retries back off
-    /// exponentially from this base (1s, 2s, 4s, ...) with jitter, capped per attempt.
-    /// Set to 0 to retry without waiting.
+    /// Base wait between retries in seconds, default 5 seconds. Retries back off
+    /// exponentially from this base (5s, 10s, 20s, ...) with jitter, capped at 30 seconds
+    /// per attempt. Set to 0 to retry without waiting.
     /// </summary>
-    [Required] public int HttpRetrySleepTime { get; set; } = 1;
+    [Required] public int HttpRetrySleepTime { get; set; } = 5;
 
     /// <summary> Alpha Vantage API Key, default null </summary>
     public string? AlphaVantageApiKey { get; set; }

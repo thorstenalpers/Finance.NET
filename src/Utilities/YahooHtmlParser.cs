@@ -16,8 +16,19 @@ namespace Finance.Net.Utilities;
 /// <inheritdoc />
 internal static class YahooHtmlParser
 {
+    // Profile and Summary have no required field, so without this an unexpected page - a
+    // consent interstitial above all - parses as "well-formed but empty" and stops being retried.
+    private static void EnsureQuotePage(IHtmlDocument document, string page)
+    {
+        if (document.Body.SelectSingleNode("//section/h1") is null)
+        {
+            throw new FinanceNetException($"Yahoo did not return the {page} page");
+        }
+    }
+
     public static Profile ParseProfile(IHtmlDocument document)
     {
+        EnsureQuotePage(document, "profile");
         var descriptionElement = document.Body.SelectSingleNode("//section[header/h3[contains(text(), 'Description') or contains(text(), 'Summary')]]/p\n");
         var cntEmployeesElement = document.Body.SelectSingleNode("//dt[contains(text(), 'Employees')]/following-sibling::dd");
         var industryElement = document.Body.SelectSingleNode("//dt[contains(text(), 'Industry')]/following-sibling::a");
@@ -181,6 +192,7 @@ internal static class YahooHtmlParser
 
     public static Summary ParseSummary<T>(IHtmlDocument document, ILogger<T> logger)
     {
+        EnsureQuotePage(document, "summary");
         var nameElement = document.Body.SelectSingleNode("//section/h1");
         var name = Helper.RemoveSymbolHeader(nameElement?.TextContent?.Trim());
 
