@@ -44,10 +44,10 @@ public class XetraService : IXetraService
         var httpClient = _httpClientFactory.CreateClient(Constants.XetraHttpClientName);
         try
         {
-            return await _retryPolicy.ExecuteAsync(async () =>
+            return await _retryPolicy.ExecuteAsync(async ct =>
             {
-                var url = await GetDownloadUrl(token).ConfigureAwait(false);
-                var response = await httpClient.GetAsync(url, token).ConfigureAwait(false);
+                var url = await GetDownloadUrl(ct).ConfigureAwait(false);
+                var response = await httpClient.GetAsync(url, ct).ConfigureAwait(false);
                 response.EnsureSuccessStatusCode();
                 var config = new CsvConfiguration(CultureInfo.InvariantCulture)
                 {
@@ -63,7 +63,7 @@ public class XetraService : IXetraService
                 csv.Context.RegisterClassMap<XetraInstrumentsMapping>();
 
                 var records = new List<InstrumentItem>();
-                await foreach (var record in csv.GetRecordsAsync<InstrumentItem>(token))
+                await foreach (var record in csv.GetRecordsAsync<InstrumentItem>(ct))
                 {
                     records.Add(record);
                 }
@@ -77,7 +77,11 @@ public class XetraService : IXetraService
                     .Where(instrument => !string.IsNullOrWhiteSpace(instrument.Mnemonic))
                     .ToList();
                 return result.IsNullOrEmpty() ? throw new FinanceNetNoDataException("Xetra returned no instruments") : result;
-            }).ConfigureAwait(false);
+            }, token).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) when (token.IsCancellationRequested)
+        {
+            throw;
         }
         catch (Exception ex) when (ex is not FinanceNetNoDataException)
         {
@@ -93,13 +97,17 @@ public class XetraService : IXetraService
 
         try
         {
-            return await _retryPolicy.ExecuteAsync(async () =>
+            return await _retryPolicy.ExecuteAsync(async ct =>
             {
-                var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, token).ConfigureAwait(false);
+                var document = await Helper.FetchHtmlDocumentAsync(httpClient, _logger, url, ct).ConfigureAwait(false);
                 var hrefAttributes = document.DocumentElement.SelectNodes("//a[contains(@class, 'download') and contains(., 'All tradable instruments')]/@href")?.Select(e => e.NodeValue);
                 var relativeDownloadUrl = hrefAttributes?.FirstOrDefault();
                 return new Uri(baseUri, relativeDownloadUrl);
-            }).ConfigureAwait(false);
+            }, token).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) when (token.IsCancellationRequested)
+        {
+            throw;
         }
         catch (Exception ex) when (ex is not FinanceNetNoDataException)
         {

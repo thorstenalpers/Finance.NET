@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Security.Cryptography;
 using Finance.Net.Exceptions;
 using Microsoft.Extensions.Logging;
 using Polly;
@@ -8,7 +9,10 @@ namespace Finance.Net.Utilities;
 
 internal static class PollyPolicyFactory
 {
-    public static AsyncRetryPolicy GetRetryPolicy<T>(int retryCount, int waitTimeSecs, ILogger<T> logger)
+    /// <summary>Upper bound for a single back-off, so a high retry count cannot run away.</summary>
+    internal const int MaxRetryDelaySecs = 30;
+
+    public static AsyncRetryPolicy GetRetryPolicy<T>(int retryCount, int baseWaitTimeSecs, ILogger<T> logger)
     {
         return Policy
             // A provider that answered with no data has given a permanent answer - retrying
@@ -16,10 +20,27 @@ internal static class PollyPolicyFactory
             .Handle<Exception>(ex => ex is not FinanceNetNoDataException)
             .WaitAndRetryAsync(
                 retryCount,
-                retryAttempt => TimeSpan.FromSeconds(waitTimeSecs * retryAttempt), // delayed retry, 1,2,3,..secs
+                retryAttempt => GetRetryDelay(retryAttempt, baseWaitTimeSecs),
                 (exception, timeSpan, retryCount, _) =>
                 {
                     logger?.LogWarning("Retry {RetryCount} after {TimeSpan} due to {Exception}.", retryCount, timeSpan, exception?.Message);
                 });
+    }
+
+    /// <summary>
+    /// Exponential back-off from <paramref name="baseWaitTimeSecs"/> (1x, 2x, 4x, ...), capped at
+    /// <see cref="MaxRetryDelaySecs"/>, plus up to one base interval of jitter so concurrent
+    /// callers do not retry in lockstep.
+    /// </summary>
+    internal static TimeSpan GetRetryDelay(int retryAttempt, int baseWaitTimeSecs)
+    {
+        if (baseWaitTimeSecs <= 0)
+        {
+            return TimeSpan.Zero;
+        }
+        var exponent = Math.Min(retryAttempt - 1, 30);  // keep Pow away from infinity
+        var backOffSecs = Math.Min(baseWaitTimeSecs * Math.Pow(2, exponent), MaxRetryDelaySecs);
+        var jitterMs = RandomNumberGenerator.GetInt32(0, baseWaitTimeSecs * 1000);
+        return TimeSpan.FromSeconds(backOffSecs) + TimeSpan.FromMilliseconds(jitterMs);
     }
 }

@@ -74,9 +74,9 @@ public class AlphaVantageService : IAlphaVantageService
 
         try
         {
-            var instrumentOverview = await _retryPolicy.ExecuteAsync(async () =>
+            var instrumentOverview = await _retryPolicy.ExecuteAsync(async ct =>
                 {
-                    var httpResponse = await httpClient.GetAsync(url, token).ConfigureAwait(false);
+                    var httpResponse = await httpClient.GetAsync(url, ct).ConfigureAwait(false);
                     httpResponse.EnsureSuccessStatusCode();
 
                     var jsonResponse = await httpResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -90,8 +90,12 @@ public class AlphaVantageService : IAlphaVantageService
                         var isNullObj = Helper.AreAllPropertiesNull(overview);
                         return isNullObj ? throw new FinanceNetNoDataException($"Alpha Vantage returned no overview for {symbol}") : overview;
                     }
-                }).ConfigureAwait(false);
+                }, token).ConfigureAwait(false);
             return instrumentOverview;
+        }
+        catch (OperationCanceledException) when (token.IsCancellationRequested)
+        {
+            throw;
         }
         catch (Exception ex) when (ex is not FinanceNetNoDataException)
         {
@@ -119,16 +123,20 @@ public class AlphaVantageService : IAlphaVantageService
         }
         try
         {
-            return await _retryPolicy.ExecuteAsync(async () =>
+            return await _retryPolicy.ExecuteAsync(async ct =>
             {
-                var jsonResponse = await Helper.FetchJsonDocumentAsync(httpClient, _logger, url, token).ConfigureAwait(false);
+                var jsonResponse = await Helper.FetchJsonDocumentAsync(httpClient, _logger, url, ct).ConfigureAwait(false);
                 if (jsonResponse.Contains(Constants.ApiResponseLimitExceeded))
                 {
                     throw new FinanceNetException($"{Constants.ApiResponseLimitExceeded} for {symbol}");
                 }
                 var result = AlphaVantageParser.ParseRecords(symbol, startDate, endDate, jsonResponse, _logger);
                 return result.IsNullOrEmpty() ? throw new FinanceNetNoDataException($"Alpha Vantage returned no records for {symbol}") : result;
-            }).ConfigureAwait(false);
+            }, token).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) when (token.IsCancellationRequested)
+        {
+            throw;
         }
         catch (Exception ex) when (ex is not FinanceNetNoDataException)
         {
@@ -183,9 +191,9 @@ public class AlphaVantageService : IAlphaVantageService
 
         try
         {
-            return await _retryPolicy.ExecuteAsync(async () =>
+            return await _retryPolicy.ExecuteAsync(async ct =>
             {
-                var response = await httpClient.GetAsync(url, token).ConfigureAwait(false);
+                var response = await httpClient.GetAsync(url, ct).ConfigureAwait(false);
                 response.EnsureSuccessStatusCode();
 
                 var jsonResponse = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -195,7 +203,11 @@ public class AlphaVantageService : IAlphaVantageService
                 }
                 var result = AlphaVantageParser.ParseIntradayRecords(symbol, interval, jsonResponse);
                 return result.IsNullOrEmpty() ? throw new FinanceNetNoDataException($"Alpha Vantage returned no intraday records for {symbol} in {month:yyyy-MM}") : result;
-            }).ConfigureAwait(false);
+            }, token).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) when (token.IsCancellationRequested)
+        {
+            throw;
         }
         catch (Exception ex) when (ex is not FinanceNetNoDataException)
         {
@@ -225,9 +237,9 @@ public class AlphaVantageService : IAlphaVantageService
 
         try
         {
-            return await _retryPolicy.ExecuteAsync(async () =>
+            return await _retryPolicy.ExecuteAsync(async ct =>
             {
-                var jsonResponse = await Helper.FetchJsonDocumentAsync(httpClient, _logger, url, token).ConfigureAwait(false);
+                var jsonResponse = await Helper.FetchJsonDocumentAsync(httpClient, _logger, url, ct).ConfigureAwait(false);
                 if (jsonResponse.Contains(Constants.ApiResponseLimitExceeded))
                 {
                     throw new FinanceNetException($"{Constants.ApiResponseLimitExceeded} for {currency1} /{currency2}");
@@ -238,7 +250,11 @@ public class AlphaVantageService : IAlphaVantageService
                 }
                 var result = AlphaVantageParser.ParseForexRecords(currency1, currency2, startDate, endDate, jsonResponse, _logger);
                 return result.IsNullOrEmpty() ? throw new FinanceNetNoDataException($"Alpha Vantage returned no forex records for {currency1}/{currency2}") : result;
-            }).ConfigureAwait(false);
+            }, token).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) when (token.IsCancellationRequested)
+        {
+            throw;
         }
         catch (Exception ex) when (ex is not FinanceNetNoDataException)
         {
