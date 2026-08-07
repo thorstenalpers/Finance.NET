@@ -36,12 +36,12 @@ Entry point is `ServiceCollectionExtensions.AddFinanceNet()` (src/Extensions), w
 
 - Four scoped services in `src/Services/` behind public interfaces in `src/Interfaces/`: `YahooFinanceService`, `AlphaVantageService`, `XetraService`, `DataHubService`. Services are `internal`; only interfaces, models, enums, config (`FinanceNetConfiguration`), and the exception are public API.
 - One named `HttpClient` per provider (names in `src/Constants.cs`, which also holds all provider URLs). Each client gets a randomized User-Agent (`Helper.CreateRandomUserAgent`).
-- A shared Polly retry policy (`PollyPolicyFactory`) registered in a `PolicyRegistry` under `Constants.DefaultHttpRetryPolicy`; services resolve it from the registry and wrap their HTTP calls with it. Retry count and back-off base (`HttpRetryCount`, `HttpRetrySleepTime`) come from `FinanceNetConfiguration`; `HttpTimeout` is the HTTP client timeout only and must not be reused as the back-off base.
+- A shared Polly retry policy (`PollyPolicyFactory`) registered in a `PolicyRegistry` under `Constants.DefaultHttpRetryPolicy`; services resolve it from the registry and wrap their HTTP calls with it. Retry count and back-off base (`HttpRetryCount`, `HttpRetrySleepTime`) come from `FinanceNetConfiguration`; `HttpTimeout` is the HTTP client timeout only and must not be reused as the back-off base. The back-off grows exponentially from the base, is capped at `PollyPolicyFactory.MaxRetryDelaySecs` (30s) per attempt, and carries jitter of up to one full delay.
 - Internal DTOs (`src/Models/*/Dtos/`) are converted to the public models (`src/Models/*/`) by hand-written extension-method mappers in `src/Mappings/` (`YahooQuoteMapper.ToQuote`, `XetraInstrumentMapper.ToInstrument`). The `*Mapping.cs` classes in the same folder are CsvHelper `ClassMap`s, not object-to-object mappers.
 
 Yahoo requires session state: `YahooSessionState` and `YahooSessionManager` (singletons in `src/Utilities/`) fetch consent cookies and an API "crumb", guarded by a semaphore, valid for 6 hours. The Yahoo HttpClient shares the session's `CookieContainer`. HTML parsing uses AngleSharp with XPath (`YahooHtmlParser`); Alpha Vantage JSON parsing is in `AlphaVantageParser`; CSV parsing uses CsvHelper.
 
-All failures are wrapped in `FinanceNetException`.
+All failures surface as `FinanceNetException`. A provider that answered correctly but with no rows throws `FinanceNetNoDataException` (which derives from it) and is deliberately **not** wrapped, so `InnerException` is null there; the retry policy skips it. Everything else - transport errors, an unexpected page, malformed content - stays retryable and keeps its inner exception.
 
 ## Conventions
 

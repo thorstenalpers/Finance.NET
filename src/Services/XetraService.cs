@@ -69,7 +69,7 @@ public class XetraService : IXetraService
                 }
                 if (records.Count == 0)
                 {
-                    throw new FinanceNetNoDataException("CSV liefert keine InstrumentItem-Daten.");
+                    throw new FinanceNetNoDataException("Xetra CSV contains no instrument rows");
                 }
 
                 var result = records
@@ -109,7 +109,7 @@ public class XetraService : IXetraService
         {
             throw;
         }
-        catch (Exception ex) when (ex is not FinanceNetNoDataException)
+        catch (Exception ex)
         {
             throw new FinanceNetException($"Cannot fetch from {Constants.XetraInstrumentsUrl}", ex);
         }

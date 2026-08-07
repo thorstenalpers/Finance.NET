@@ -49,6 +49,7 @@ public class YahooFinanceService : IYahooFinanceService
                                          .ToList();
 
         var typesToProcess = filterByType == null ? instrumentTypes : [filterByType.Value];
+        Exception? lastFailure = null;
 
         foreach (var instrumentType in typesToProcess)
         {
@@ -69,12 +70,25 @@ public class YahooFinanceService : IYahooFinanceService
             {
                 throw;
             }
+            catch (FinanceNetNoDataException ex)
+            {
+                _logger.LogWarning(ex, "No data for {Type}", instrumentType);
+            }
             catch (Exception ex)
             {
                 _logger.LogWarning(ex, "Failed to load {Type}", instrumentType);
+                lastFailure = ex;
             }
         }
-        return result.IsNullOrEmpty() ? throw new FinanceNetNoDataException("No instruments found") : result;
+        if (!result.IsNullOrEmpty())
+        {
+            return result;
+        }
+        // A transport failure is not a permanent no-data answer - reporting it as one would tell
+        // the caller to stop asking while Yahoo is merely down.
+        throw lastFailure is null
+            ? new FinanceNetNoDataException("No instruments found")
+            : new FinanceNetException("No instruments found", lastFailure);
     }
 
     /// <inheritdoc />
@@ -93,11 +107,12 @@ public class YahooFinanceService : IYahooFinanceService
         var url = $"{Constants.YahooQuoteApiUrl}?" +
             $"&symbols={string.Join(",", symbols).ToLowerInvariant()}" +
             $"&crumb={crumb}";
+        List<Quote> quotes;
         try
         {
-            var quotes = await _retryPolicy.ExecuteAsync(async ct =>
+            quotes = await _retryPolicy.ExecuteAsync(async ct =>
             {
-                var quotes = new List<Quote>();
+                var fetched = new List<Quote>();
 
                 var jsonContent = await Helper.FetchJsonDocumentAsync(httpClient, _logger, url, ct).ConfigureAwait(false);
                 var parsedData = JsonConvert.DeserializeObject<QuoteResponseRoot>(jsonContent) ?? throw new FinanceNetException("Invalid data returned by Yahoo");
@@ -120,13 +135,10 @@ public class YahooFinanceService : IYahooFinanceService
                         throw new FinanceNetException("Invalid quote field symbol");
                     }
                     var quote = quoteResponse.ToQuote();
-                    quotes.Add(quote);
+                    fetched.Add(quote);
                 }
-                return quotes;
+                return fetched;
             }, token).ConfigureAwait(false);
-
-            WarnAboutUnresolvedSymbols(symbols, quotes);
-            return quotes;
         }
         catch (OperationCanceledException) when (token.IsCancellationRequested)
         {
@@ -136,17 +148,21 @@ public class YahooFinanceService : IYahooFinanceService
         {
             throw new FinanceNetException("No way to fetch quotes", ex);
         }
+
+        // Outside the try on purpose: a throwing logging sink must not turn a fetch that
+        // already succeeded into a FinanceNetException.
+        WarnAboutUnresolvedSymbols(symbols, quotes);
+        return quotes;
     }
 
-    /// <summary>
-    /// Yahoo silently omits symbols it cannot resolve. Report the shortfall, so a caller
-    /// doing a scheduled refresh can spot bad tickers without diffing the request itself.
-    /// </summary>
     private void WarnAboutUnresolvedSymbols(List<string> requested, List<Quote> quotes)
     {
         // Symbol is never null here - a null one is rejected while building the list above.
         var resolved = new HashSet<string>(quotes.Select(quote => quote.Symbol!), StringComparer.OrdinalIgnoreCase);
-        var unresolved = requested.Where(symbol => !resolved.Contains(symbol)).ToList();
+        var unresolved = requested
+            .Where(symbol => !resolved.Contains(symbol))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
         if (unresolved.Count != 0)
         {
             _logger.LogWarning("Yahoo returned no data for {Count} of {RequestedCount} requested symbols: {Symbols}",
