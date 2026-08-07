@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -88,7 +88,7 @@ public class AlphaVantageService : IAlphaVantageService
                     {
                         var overview = JsonConvert.DeserializeObject<InstrumentOverview>(jsonResponse);
                         var isNullObj = Helper.AreAllPropertiesNull(overview);
-                        return isNullObj ? throw new FinanceNetException(Constants.ValidationMessageAllFieldsEmpty) : overview;
+                        return isNullObj ? throw new FinanceNetNoDataException($"Alpha Vantage returned no overview for {symbol}") : overview;
                     }
                 }, token).ConfigureAwait(false);
             return instrumentOverview;
@@ -97,7 +97,7 @@ public class AlphaVantageService : IAlphaVantageService
         {
             throw;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not FinanceNetNoDataException)
         {
             throw new FinanceNetException($"No overview found for {symbol}", ex);
         }
@@ -131,14 +131,14 @@ public class AlphaVantageService : IAlphaVantageService
                     throw new FinanceNetException($"{Constants.ApiResponseLimitExceeded} for {symbol}");
                 }
                 var result = AlphaVantageParser.ParseRecords(symbol, startDate, endDate, jsonResponse, _logger);
-                return result.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMessageAllFieldsEmpty) : result;
+                return result.IsNullOrEmpty() ? throw new FinanceNetNoDataException($"Alpha Vantage returned no records for {symbol}") : result;
             }, token).ConfigureAwait(false);
         }
         catch (OperationCanceledException) when (token.IsCancellationRequested)
         {
             throw;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not FinanceNetNoDataException)
         {
             throw new FinanceNetException($"No Record found for {symbol}", ex);
         }
@@ -175,7 +175,7 @@ public class AlphaVantageService : IAlphaVantageService
             result.AddRange(currentCourses);
         }
         result = result.Where(e => e.DateTime >= startDate).ToList();
-        return result.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMessageAllFieldsEmpty) : result;
+        return result.IsNullOrEmpty() ? throw new FinanceNetNoDataException($"Alpha Vantage returned no intraday records for {symbol}") : result;
     }
 
     private async Task<List<IntradayRecord>> GetIntradayRecordsByMonthAsync(string symbol, DateTime month, EInterval interval, CancellationToken token = default)
@@ -202,14 +202,14 @@ public class AlphaVantageService : IAlphaVantageService
                     throw new FinanceNetException($"{Constants.ApiResponseLimitExceeded} for {symbol}");
                 }
                 var result = AlphaVantageParser.ParseIntradayRecords(symbol, interval, jsonResponse);
-                return result.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMessageAllFieldsEmpty) : result;
+                return result.IsNullOrEmpty() ? throw new FinanceNetNoDataException($"Alpha Vantage returned no intraday records for {symbol} in {month:yyyy-MM}") : result;
             }, token).ConfigureAwait(false);
         }
         catch (OperationCanceledException) when (token.IsCancellationRequested)
         {
             throw;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not FinanceNetNoDataException)
         {
             throw new FinanceNetException($"No intraday record found for {symbol}", ex);
         }
@@ -249,14 +249,14 @@ public class AlphaVantageService : IAlphaVantageService
                     throw new FinanceNetException($"{Constants.ApiResponseApiKeyInvalid}");
                 }
                 var result = AlphaVantageParser.ParseForexRecords(currency1, currency2, startDate, endDate, jsonResponse, _logger);
-                return result.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMessageAllFieldsEmpty) : result;
+                return result.IsNullOrEmpty() ? throw new FinanceNetNoDataException($"Alpha Vantage returned no forex records for {currency1}/{currency2}") : result;
             }, token).ConfigureAwait(false);
         }
         catch (OperationCanceledException) when (token.IsCancellationRequested)
         {
             throw;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not FinanceNetNoDataException)
         {
             throw new FinanceNetException($"No forex record found for {currency1}, {currency2}", ex);
         }

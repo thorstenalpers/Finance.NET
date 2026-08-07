@@ -1,5 +1,6 @@
 using System;
 using System.Security.Cryptography;
+using Finance.Net.Exceptions;
 using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.Retry;
@@ -14,7 +15,9 @@ internal static class PollyPolicyFactory
     public static AsyncRetryPolicy GetRetryPolicy<T>(int retryCount, int baseWaitTimeSecs, ILogger<T> logger)
     {
         return Policy
-            .Handle<Exception>()
+            // A provider that answered with no data has given a permanent answer - retrying
+            // it burns the whole back-off budget and cannot change the outcome.
+            .Handle<Exception>(ex => ex is not FinanceNetNoDataException)
             .WaitAndRetryAsync(
                 retryCount,
                 retryAttempt => GetRetryDelay(retryAttempt, baseWaitTimeSecs),

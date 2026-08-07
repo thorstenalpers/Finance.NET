@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -50,7 +50,7 @@ internal static class YahooHtmlParser
         };
 
         var isNullObj = Helper.AreAllPropertiesNull(result);
-        return isNullObj ? throw new FinanceNetException(Constants.ValidationMessageAllFieldsEmpty ) : result;
+        return isNullObj ? throw new FinanceNetNoDataException("No profile data in Yahoo response") : result;
     }
 
     public static List<Record> ParseHistoryRecords<T>(IHtmlDocument document, ILogger<T> logger)
@@ -120,7 +120,7 @@ internal static class YahooHtmlParser
                 logger.LogInformation("No records in row {Row}", row.TextContent);    // e.g. date + dividend (over all columns)
             }
         }
-        return records.Count == 0 ? throw new FinanceNetException(Constants.ValidationMessageAllFieldsEmpty ) : records;
+        return records.Count == 0 ? throw new FinanceNetNoDataException("No history records in Yahoo response") : records;
     }
 
     public static Dictionary<string, FinancialReport> ParseFinancialReports<T>(IHtmlDocument document, ILogger<T> logger)
@@ -176,7 +176,7 @@ internal static class YahooHtmlParser
                 logger.LogWarning("Unknown row property {RowTitle}.", rowTitle);
             }
         }
-        return result.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMessageAllFieldsEmpty ) : result;
+        return result.IsNullOrEmpty() ? throw new FinanceNetNoDataException("No financial reports in Yahoo response") : result;
     }
 
     public static Summary ParseSummary<T>(IHtmlDocument document, ILogger<T> logger)
@@ -275,7 +275,7 @@ internal static class YahooHtmlParser
             WeekRange52_Min = weekRange52_Min
         };
         var isNullObj = Helper.AreAllPropertiesNull(summary);
-        return isNullObj ? throw new FinanceNetException(Constants.ValidationMessageAllFieldsEmpty ) : summary;
+        return isNullObj ? throw new FinanceNetNoDataException("No summary data in Yahoo response") : summary;
     }
 
     public static List<Instrument> ParseSymbols<T>(IHtmlDocument document, EInstrumentType type, ILogger<T> logger)
@@ -326,6 +326,6 @@ internal static class YahooHtmlParser
             }
         }
 
-        return instruments.Count == 0 ? throw new FinanceNetException(Constants.ValidationMessageAllFieldsEmpty ) : instruments;
+        return instruments.Count == 0 ? throw new FinanceNetNoDataException($"No {type} symbols in Yahoo response") : instruments;
     }
 }

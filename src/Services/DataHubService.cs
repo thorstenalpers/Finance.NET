@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -42,14 +42,14 @@ public class DataHubService(IHttpClientFactory httpClientFactory,
                 using var csv = new CsvReader(reader, config);
                 csv.Context.RegisterClassMap<NasdaqInstrumentMapping>();
                 var instruments = csv.GetRecords<NasdaqInstrument>().ToList();
-                return instruments.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMessageAllFieldsEmpty) : instruments;
+                return instruments.IsNullOrEmpty() ? throw new FinanceNetNoDataException("DataHub returned no Nasdaq instruments") : instruments;
             }, token).ConfigureAwait(false);
         }
         catch (OperationCanceledException) when (token.IsCancellationRequested)
         {
             throw;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not FinanceNetNoDataException)
         {
             throw new FinanceNetException($"No instruments found", ex);
         }
@@ -73,14 +73,14 @@ public class DataHubService(IHttpClientFactory httpClientFactory,
                 csv.Context.RegisterClassMap<SP500InstrumentMapping>();
 
                 var instruments = csv.GetRecords<Sp500Instrument>().ToList();
-                return instruments.IsNullOrEmpty() ? throw new FinanceNetException(Constants.ValidationMessageAllFieldsEmpty) : instruments;
+                return instruments.IsNullOrEmpty() ? throw new FinanceNetNoDataException("DataHub returned no S&P 500 instruments") : instruments;
             }, token).ConfigureAwait(false);
         }
         catch (OperationCanceledException) when (token.IsCancellationRequested)
         {
             throw;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not FinanceNetNoDataException)
         {
             throw new FinanceNetException($"No instruments found", ex);
         }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -169,9 +169,9 @@ public class DataHubServiceTests
             _mockPolicyRegistry.Object);
 
         // Act + Assert
-        var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetSp500InstrumentsAsync());
-        Assert.That(exception.Message, Does.Contain("No instruments found"));
-        Assert.That(exception.InnerException.Message, Does.Contain("All fields empty"));
+        var exception = Assert.ThrowsAsync<FinanceNetNoDataException>(async () => await service.GetSp500InstrumentsAsync());
+        Assert.That(exception.Message, Does.Contain("returned no S&P 500 instruments"));
+        Assert.That(exception.InnerException, Is.Null);
     }
 
     private void SetupHttpCsvFileResponse(string filePath)
