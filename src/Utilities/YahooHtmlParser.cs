@@ -84,6 +84,13 @@ internal static class YahooHtmlParser
         }
         if (!expectedHeaderSet.IsSubsetOf(headerMap.Keys))
         {
+            // A range with no trading day in it drops the price columns and renders a
+            // single error cell: "There are no  in the selected time period."
+            var noRecords = table.QuerySelector("tbody td.error")?.TextContent.Trim();
+            if (!string.IsNullOrEmpty(noRecords))
+            {
+                throw new FinanceNetNoDataException($"No history records in Yahoo response: {noRecords}");
+            }
             throw new FinanceNetException("Headers are missing");
         }
 
