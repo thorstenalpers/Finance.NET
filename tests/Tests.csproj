@@ -97,6 +97,9 @@
     <None Update="TestData\Yahoo\records.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="TestData\Yahoo\records_empty_period.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
 	<None Update="TestData\Yahoo\summary.html">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</None>

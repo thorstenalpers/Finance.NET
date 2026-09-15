@@ -494,6 +494,26 @@ public class YahooFinanceServiceTests
     }
 
     [Test]
+    public void GetRecordsAsync_NoRecordsInPeriod_ThrowsNoData()
+    {
+        // A range with no trading day in it (a weekend, or today for a mutual fund
+        // whose NAV is not out yet) comes back as a column-less table holding a
+        // single "There are no ... in the selected time period." cell. That is a
+        // correct answer with no rows, not a page whose layout changed.
+        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Yahoo", "records_empty_period.html");
+        SetupHttpHtmlFileResponse(filePath);
+        var service = new YahooFinanceService(
+            _mockLogger.Object,
+            _mockHttpClientFactory.Object,
+            _mockPolicyRegistry.Object,
+            _mockYahooSession.Object);
+
+        var exception = Assert.ThrowsAsync<FinanceNetNoDataException>(async () => await service.GetRecordsAsync("FAVQX", new DateTime(2026, 9, 12, 0, 0, 0, DateTimeKind.Utc)));
+
+        Assert.That(exception.Message, Does.Contain("in the selected time period"));
+    }
+
+    [Test]
     public void GetInstrumentsAsync_NoResponse_Throws()
     {
         _mockHandler
