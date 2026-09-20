@@ -81,7 +81,7 @@ public class AlphaVantageService : IAlphaVantageService
 
                     var jsonResponse = await httpResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
                     ThrowIfRejected(jsonResponse);
-                    if (jsonResponse.Contains(Constants.ApiResponseLimitExceeded))
+                    if (IsRateLimited(jsonResponse))
                     {
                         throw new FinanceNetException($"{Constants.ApiResponseLimitExceeded} for {symbol}");
                     }
@@ -128,7 +128,7 @@ public class AlphaVantageService : IAlphaVantageService
             {
                 var jsonResponse = await Helper.FetchJsonDocumentAsync(httpClient, _logger, url, ct).ConfigureAwait(false);
                 ThrowIfRejected(jsonResponse);
-                if (jsonResponse.Contains(Constants.ApiResponseLimitExceeded))
+                if (IsRateLimited(jsonResponse))
                 {
                     throw new FinanceNetException($"{Constants.ApiResponseLimitExceeded} for {symbol}");
                 }
@@ -200,7 +200,7 @@ public class AlphaVantageService : IAlphaVantageService
 
                 var jsonResponse = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 ThrowIfRejected(jsonResponse);
-                if (jsonResponse.Contains(Constants.ApiResponseLimitExceeded))
+                if (IsRateLimited(jsonResponse))
                 {
                     throw new FinanceNetException($"{Constants.ApiResponseLimitExceeded} for {symbol}");
                 }
@@ -244,7 +244,7 @@ public class AlphaVantageService : IAlphaVantageService
             {
                 var jsonResponse = await Helper.FetchJsonDocumentAsync(httpClient, _logger, url, ct).ConfigureAwait(false);
                 ThrowIfRejected(jsonResponse);
-                if (jsonResponse.Contains(Constants.ApiResponseLimitExceeded))
+                if (IsRateLimited(jsonResponse))
                 {
                     throw new FinanceNetException($"{Constants.ApiResponseLimitExceeded} for {currency1} /{currency2}");
                 }
@@ -262,16 +262,13 @@ public class AlphaVantageService : IAlphaVantageService
         }
     }
 
-    /// <summary>
-    /// Alpha Vantage answers a refused request with HTTP 200 and a JSON message instead of data.
-    /// A premium-only endpoint or a bad API key will not change on retry, so fail immediately.
-    /// </summary>
+    // Alpha Vantage refuses with HTTP 200 and a JSON message; a premium endpoint or a bad key will not change on retry.
     private static void ThrowIfRejected(string jsonResponse)
     {
         if (jsonResponse.Contains(Constants.ApiResponsePremiumEndpoint))
         {
             throw new FinanceNetAccessDeniedException(
-                $"Alpha Vantage rejected the request: this is a {Constants.ApiResponsePremiumEndpoint} and needs a premium plan");
+                "Alpha Vantage rejected the request: this is a premium endpoint and needs a premium plan");
         }
         if (jsonResponse.Contains(Constants.ApiResponseApiKeyInvalid))
         {
@@ -279,4 +276,7 @@ public class AlphaVantageService : IAlphaVantageService
                 $"Alpha Vantage rejected the request: {Constants.ApiResponseApiKeyInvalid} or missing");
         }
     }
+
+    private static bool IsRateLimited(string jsonResponse) =>
+        jsonResponse.Contains(Constants.ApiResponseRateLimit) || jsonResponse.Contains(Constants.ApiResponseLimitExceeded);
 }
