@@ -15,9 +15,10 @@ internal static class PollyPolicyFactory
     public static AsyncRetryPolicy GetRetryPolicy<T>(int retryCount, int baseWaitTimeSecs, ILogger<T> logger)
     {
         return Policy
-            // A provider that answered with no data has given a permanent answer - retrying
-            // it burns the whole back-off budget and cannot change the outcome.
-            .Handle<Exception>(ex => ex is not FinanceNetNoDataException)
+            // A provider that answered with no data, or refused the request for this account,
+            // has given a permanent answer - retrying it burns the whole back-off budget and
+            // cannot change the outcome.
+            .Handle<Exception>(ex => ex is not (FinanceNetNoDataException or FinanceNetAccessDeniedException))
             .WaitAndRetryAsync(
                 retryCount,
                 retryAttempt => GetRetryDelay(retryAttempt, baseWaitTimeSecs),

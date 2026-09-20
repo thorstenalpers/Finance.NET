@@ -80,6 +80,7 @@ public class AlphaVantageService : IAlphaVantageService
                     httpResponse.EnsureSuccessStatusCode();
 
                     var jsonResponse = await httpResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
+                    ThrowIfRejected(jsonResponse);
                     if (jsonResponse.Contains(Constants.ApiResponseLimitExceeded))
                     {
                         throw new FinanceNetException($"{Constants.ApiResponseLimitExceeded} for {symbol}");
@@ -97,7 +98,7 @@ public class AlphaVantageService : IAlphaVantageService
         {
             throw;
         }
-        catch (Exception ex) when (ex is not FinanceNetNoDataException)
+        catch (Exception ex) when (ex is not (FinanceNetNoDataException or FinanceNetAccessDeniedException))
         {
             throw new FinanceNetException($"No overview found for {symbol}", ex);
         }
@@ -126,6 +127,7 @@ public class AlphaVantageService : IAlphaVantageService
             return await _retryPolicy.ExecuteAsync(async ct =>
             {
                 var jsonResponse = await Helper.FetchJsonDocumentAsync(httpClient, _logger, url, ct).ConfigureAwait(false);
+                ThrowIfRejected(jsonResponse);
                 if (jsonResponse.Contains(Constants.ApiResponseLimitExceeded))
                 {
                     throw new FinanceNetException($"{Constants.ApiResponseLimitExceeded} for {symbol}");
@@ -138,7 +140,7 @@ public class AlphaVantageService : IAlphaVantageService
         {
             throw;
         }
-        catch (Exception ex) when (ex is not FinanceNetNoDataException)
+        catch (Exception ex) when (ex is not (FinanceNetNoDataException or FinanceNetAccessDeniedException))
         {
             throw new FinanceNetException($"No Record found for {symbol}", ex);
         }
@@ -197,6 +199,7 @@ public class AlphaVantageService : IAlphaVantageService
                 response.EnsureSuccessStatusCode();
 
                 var jsonResponse = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                ThrowIfRejected(jsonResponse);
                 if (jsonResponse.Contains(Constants.ApiResponseLimitExceeded))
                 {
                     throw new FinanceNetException($"{Constants.ApiResponseLimitExceeded} for {symbol}");
@@ -209,7 +212,7 @@ public class AlphaVantageService : IAlphaVantageService
         {
             throw;
         }
-        catch (Exception ex) when (ex is not FinanceNetNoDataException)
+        catch (Exception ex) when (ex is not (FinanceNetNoDataException or FinanceNetAccessDeniedException))
         {
             throw new FinanceNetException($"No intraday record found for {symbol}", ex);
         }
@@ -240,13 +243,10 @@ public class AlphaVantageService : IAlphaVantageService
             return await _retryPolicy.ExecuteAsync(async ct =>
             {
                 var jsonResponse = await Helper.FetchJsonDocumentAsync(httpClient, _logger, url, ct).ConfigureAwait(false);
+                ThrowIfRejected(jsonResponse);
                 if (jsonResponse.Contains(Constants.ApiResponseLimitExceeded))
                 {
                     throw new FinanceNetException($"{Constants.ApiResponseLimitExceeded} for {currency1} /{currency2}");
-                }
-                if (jsonResponse.Contains(Constants.ApiResponseApiKeyInvalid))
-                {
-                    throw new FinanceNetException($"{Constants.ApiResponseApiKeyInvalid}");
                 }
                 var result = AlphaVantageParser.ParseForexRecords(currency1, currency2, startDate, endDate, jsonResponse, _logger);
                 return result.IsNullOrEmpty() ? throw new FinanceNetNoDataException($"Alpha Vantage returned no forex records for {currency1}/{currency2}") : result;
@@ -256,9 +256,27 @@ public class AlphaVantageService : IAlphaVantageService
         {
             throw;
         }
-        catch (Exception ex) when (ex is not FinanceNetNoDataException)
+        catch (Exception ex) when (ex is not (FinanceNetNoDataException or FinanceNetAccessDeniedException))
         {
             throw new FinanceNetException($"No forex record found for {currency1}, {currency2}", ex);
+        }
+    }
+
+    /// <summary>
+    /// Alpha Vantage answers a refused request with HTTP 200 and a JSON message instead of data.
+    /// A premium-only endpoint or a bad API key will not change on retry, so fail immediately.
+    /// </summary>
+    private static void ThrowIfRejected(string jsonResponse)
+    {
+        if (jsonResponse.Contains(Constants.ApiResponsePremiumEndpoint))
+        {
+            throw new FinanceNetAccessDeniedException(
+                $"Alpha Vantage rejected the request: this is a {Constants.ApiResponsePremiumEndpoint} and needs a premium plan");
+        }
+        if (jsonResponse.Contains(Constants.ApiResponseApiKeyInvalid))
+        {
+            throw new FinanceNetAccessDeniedException(
+                $"Alpha Vantage rejected the request: {Constants.ApiResponseApiKeyInvalid} or missing");
         }
     }
 }
