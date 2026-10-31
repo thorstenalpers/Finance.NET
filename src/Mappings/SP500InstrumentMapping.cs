@@ -1,29 +1,47 @@
-﻿using CsvHelper.Configuration;
+﻿using CsvHelper;
 using Finance.Net.Models.DataHub;
 
 namespace Finance.Net.Mappings;
 
-internal class SP500InstrumentMapping : ClassMap<Sp500Instrument>
+[CsvRecordMap(typeof(Sp500Instrument))]
+internal partial class SP500InstrumentMapping
 {
-    public SP500InstrumentMapping()
-    {
-        InitializeMappings();
-    }
+    [CsvColumn("Symbol")]
+    public string? Symbol { get; set; }
 
-    private void InitializeMappings()
-    {
-        Map(m => m.Symbol).Name("Symbol");
-        Map(m => m.Name).Name("Name");
-        Map(m => m.Sector).Name("Sector");
-        Map(m => m.Price).Name("Price");
-        Map(m => m.PriceEarnings).Name("Price/Earnings");
-        Map(m => m.DividendYield).Name("Dividend Yield");
-        Map(m => m.EarningsShare).Name("Earnings/Share");
-        Map(m => m.FiftyTwoWeekLow).Name("52 Week Low");
-        Map(m => m.FiftyTwoWeekHigh).Name("52 Week High");
-        Map(m => m.MarketCap).Name("Market Cap");
-        Map(m => m.EBITDA).Name("EBITDA");
-        Map(m => m.PriceSales).Name("Price/Sales");
-        Map(m => m.PriceBook).Name("Price/Book");
-    }
+    [CsvColumn("Name")]
+    public string? Name { get; set; }
+
+    [CsvColumn("Sector")]
+    public string? Sector { get; set; }
+
+    [CsvColumn("Price")]
+    public double? Price { get; set; }
+
+    [CsvColumn("Price/Earnings")]
+    public double? PriceEarnings { get; set; }
+
+    [CsvColumn("Dividend Yield")]
+    public double? DividendYield { get; set; }
+
+    [CsvColumn("Earnings/Share")]
+    public double? EarningsShare { get; set; }
+
+    [CsvColumn("52 Week Low")]
+    public double? FiftyTwoWeekLow { get; set; }
+
+    [CsvColumn("52 Week High")]
+    public double? FiftyTwoWeekHigh { get; set; }
+
+    [CsvColumn("Market Cap")]
+    public long? MarketCap { get; set; }
+
+    [CsvColumn("EBITDA")]
+    public long? EBITDA { get; set; }
+
+    [CsvColumn("Price/Sales")]
+    public double? PriceSales { get; set; }
+
+    [CsvColumn("Price/Book")]
+    public double? PriceBook { get; set; }
 }

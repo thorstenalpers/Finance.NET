@@ -1,18 +1,14 @@
-﻿using CsvHelper.Configuration;
+﻿using CsvHelper;
 using Finance.Net.Models.DataHub;
 
 namespace Finance.Net.Mappings;
 
-internal class NasdaqInstrumentMapping : ClassMap<NasdaqInstrument>
+[CsvRecordMap(typeof(NasdaqInstrument))]
+internal partial class NasdaqInstrumentMapping
 {
-    public NasdaqInstrumentMapping()
-    {
-        InitializeMappings();
-    }
+    [CsvColumn("Symbol")]
+    public string? Symbol { get; set; }
 
-    private void InitializeMappings()
-    {
-        Map(m => m.Symbol).Name("Symbol");
-        Map(m => m.Name).Name("Company Name");
-    }
+    [CsvColumn("Company Name")]
+    public string? Name { get; set; }
 }

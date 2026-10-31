@@ -1,14 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using AngleSharp.XPath;
 using CsvHelper;
-using CsvHelper.Configuration;
 using Finance.Net.Exceptions;
 using Finance.Net.Interfaces;
 using Finance.Net.Mappings;
@@ -49,18 +46,16 @@ public class XetraService : IXetraService
                 var url = await GetDownloadUrl(ct).ConfigureAwait(false);
                 var response = await httpClient.GetAsync(url, ct).ConfigureAwait(false);
                 response.EnsureSuccessStatusCode();
-                var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+
+                // CsvReaderOptions has init-only setters whose netstandard2.1 signature is missing from CsvHelper's net8.0+ build, so the defaults (separator detection) are used.
+                using var csv = CsvReader.Create(await response.Content.ReadAsStreamAsync().ConfigureAwait(false), null, leaveOpen: false);
+                // The column header is the third line; the first two hold the market and the last update date.
+                await csv.ReadAsync(ct).ConfigureAwait(false);
+                if (!await csv.ReadAsync(ct).ConfigureAwait(false))
                 {
-                    HasHeaderRecord = true,
-                    Delimiter = ";",
-                };
-
-                using var reader = new StreamReader(await response.Content.ReadAsStreamAsync().ConfigureAwait(false));
-                using var csv = new CsvReader(reader, config);
-                await csv.ReadAsync().ConfigureAwait(false);
-                await csv.ReadAsync().ConfigureAwait(false);
-
-                csv.Context.RegisterClassMap<XetraInstrumentsMapping>();
+                    throw new FinanceNetNoDataException("Xetra CSV contains no instrument rows");
+                }
+                await csv.ReadHeaderAsync(ct).ConfigureAwait(false);
 
                 var records = new List<InstrumentItem>();
                 await foreach (var record in csv.GetRecordsAsync<InstrumentItem>(ct))

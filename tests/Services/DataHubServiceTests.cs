@@ -109,7 +109,7 @@ public class DataHubServiceTests
         // Act + Assert
         var exception = await Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetNasdaqInstrumentsAsync());
         Assert.That(exception.Message, Does.Contain("No instruments found"));
-        Assert.That(exception.InnerException.Message, Does.Contain("was not found"));
+        Assert.That(exception.InnerException.Message, Does.Contain("has no column for"));
     }
 
     [Test]
