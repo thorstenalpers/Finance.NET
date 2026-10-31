@@ -63,7 +63,7 @@ public class NoDataFailFastTests
     }
 
     [Test]
-    public void Yahoo_GetQuotesAsync_EmptyResultSet_FailsFastWithoutRetrying()
+    public async Task Yahoo_GetQuotesAsync_EmptyResultSet_FailsFastWithoutRetrying()
     {
         SetUpResponse("{\"quoteResponse\":{\"result\":[],\"error\":null}}", "application/json");
         var service = new YahooFinanceService(
@@ -72,12 +72,12 @@ public class NoDataFailFastTests
             _mockPolicyRegistry.Object,
             Mock.Of<IYahooSessionManager>());
 
-        Assert.CatchAsync<FinanceNetNoDataException>(async () => await service.GetQuotesAsync(["BOGUSTICKER"]));
+        await Assert.CatchAsync<FinanceNetNoDataException>(async () => await service.GetQuotesAsync(["BOGUSTICKER"]));
         Assert.That(_requestCount, Is.EqualTo(1), "an empty result set was retried");
     }
 
     [Test]
-    public void Yahoo_GetRecordsAsync_NoRecords_FailsFastWithoutRetrying()
+    public async Task Yahoo_GetRecordsAsync_NoRecords_FailsFastWithoutRetrying()
     {
         // A real history page for a symbol with no bars in range: correct table, no rows.
         SetUpResponse(
@@ -91,29 +91,29 @@ public class NoDataFailFastTests
             _mockPolicyRegistry.Object,
             Mock.Of<IYahooSessionManager>());
 
-        Assert.CatchAsync<FinanceNetNoDataException>(
+        await Assert.CatchAsync<FinanceNetNoDataException>(
             async () => await service.GetRecordsAsync("BOGUSTICKER", new DateTime(2026, 7, 1, 0, 0, 0, DateTimeKind.Utc)));
         Assert.That(_requestCount, Is.EqualTo(1), "an empty history page was retried");
     }
 
     [Test]
-    public void Yahoo_GetRecordsAsync_NoTradingDayInRange_FailsFastWithoutRetrying()
+    public async Task Yahoo_GetRecordsAsync_NoTradingDayInRange_FailsFastWithoutRetrying()
     {
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Yahoo", "records_empty_period.html");
-        SetUpResponse(File.ReadAllText(filePath), "text/html");
+        SetUpResponse(await File.ReadAllTextAsync(filePath), "text/html");
         var service = new YahooFinanceService(
             Mock.Of<ILogger<YahooFinanceService>>(),
             _mockHttpClientFactory.Object,
             _mockPolicyRegistry.Object,
             Mock.Of<IYahooSessionManager>());
 
-        Assert.CatchAsync<FinanceNetNoDataException>(
+        await Assert.CatchAsync<FinanceNetNoDataException>(
             async () => await service.GetRecordsAsync("FAVQX", new DateTime(2026, 9, 12, 0, 0, 0, DateTimeKind.Utc)));
         Assert.That(_requestCount, Is.EqualTo(1), "an empty-range history page was retried");
     }
 
     [Test]
-    public void AlphaVantage_GetRecordsAsync_NoRecords_FailsFastWithoutRetrying()
+    public async Task AlphaVantage_GetRecordsAsync_NoRecords_FailsFastWithoutRetrying()
     {
         // A valid time series that happens to be empty.
         SetUpResponse("{\"Time Series (Daily)\":{}}", "application/json");
@@ -125,18 +125,18 @@ public class NoDataFailFastTests
             mockOptions.Object,
             _mockPolicyRegistry.Object);
 
-        Assert.CatchAsync<FinanceNetNoDataException>(
+        await Assert.CatchAsync<FinanceNetNoDataException>(
             async () => await service.GetRecordsAsync("BOGUSTICKER", new DateTime(2026, 7, 1, 0, 0, 0, DateTimeKind.Utc)));
         Assert.That(_requestCount, Is.EqualTo(1), "an empty time series was retried");
     }
 
     [Test]
-    public void DataHub_GetNasdaqInstrumentsAsync_NoRows_FailsFastWithoutRetrying()
+    public async Task DataHub_GetNasdaqInstrumentsAsync_NoRows_FailsFastWithoutRetrying()
     {
         SetUpResponse("Symbol,Company Name\r\n", "text/csv");
         var service = new DataHubService(_mockHttpClientFactory.Object, _mockPolicyRegistry.Object);
 
-        Assert.CatchAsync<FinanceNetNoDataException>(async () => await service.GetNasdaqInstrumentsAsync());
+        await Assert.CatchAsync<FinanceNetNoDataException>(async () => await service.GetNasdaqInstrumentsAsync());
         Assert.That(_requestCount, Is.EqualTo(1), "an empty CSV was retried");
     }
 

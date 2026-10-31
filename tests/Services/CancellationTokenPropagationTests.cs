@@ -64,7 +64,7 @@ public class CancellationTokenPropagationTests
     }
 
     [Test]
-    public void GetQuotesAsync_Cancelled_StopsWithoutWaitingOutTheBackOff()
+    public async Task GetQuotesAsync_Cancelled_StopsWithoutWaitingOutTheBackOff()
     {
         var mockSession = new Mock<IYahooSessionManager>();
         var service = new YahooFinanceService(
@@ -73,11 +73,11 @@ public class CancellationTokenPropagationTests
             _mockPolicyRegistry.Object,
             mockSession.Object);
 
-        AssertCancelsPromptly(token => service.GetQuotesAsync(["IBM"], token));
+        await AssertCancelsPromptly(token => service.GetQuotesAsync(["IBM"], token));
     }
 
     [Test]
-    public void GetRecordsAsync_Cancelled_StopsWithoutWaitingOutTheBackOff()
+    public async Task GetRecordsAsync_Cancelled_StopsWithoutWaitingOutTheBackOff()
     {
         var mockSession = new Mock<IYahooSessionManager>();
         var service = new YahooFinanceService(
@@ -86,11 +86,11 @@ public class CancellationTokenPropagationTests
             _mockPolicyRegistry.Object,
             mockSession.Object);
 
-        AssertCancelsPromptly(token => service.GetRecordsAsync("IBM", new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc), null, token));
+        await AssertCancelsPromptly(token => service.GetRecordsAsync("IBM", new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc), null, token));
     }
 
     [Test]
-    public void GetInstrumentsAsync_Cancelled_StopsWithoutWaitingOutTheBackOff()
+    public async Task GetInstrumentsAsync_Cancelled_StopsWithoutWaitingOutTheBackOff()
     {
         var mockSession = new Mock<IYahooSessionManager>();
         var service = new YahooFinanceService(
@@ -101,94 +101,94 @@ public class CancellationTokenPropagationTests
 
         // Unfiltered, so cancellation has to escape both the per-type log-and-continue loop
         // and the partial-result catch in FetchSymbolsAsync.
-        AssertCancelsPromptly(token => service.GetInstrumentsAsync(null, token));
+        await AssertCancelsPromptly(token => service.GetInstrumentsAsync(null, token));
     }
 
     [Test]
-    public void GetProfileAsync_Cancelled_StopsWithoutWaitingOutTheBackOff()
+    public async Task GetProfileAsync_Cancelled_StopsWithoutWaitingOutTheBackOff()
     {
         var service = CreateYahooService();
 
-        AssertCancelsPromptly(token => service.GetProfileAsync("IBM", token));
+        await AssertCancelsPromptly(token => service.GetProfileAsync("IBM", token));
     }
 
     [Test]
-    public void GetSummaryAsync_Cancelled_StopsWithoutWaitingOutTheBackOff()
+    public async Task GetSummaryAsync_Cancelled_StopsWithoutWaitingOutTheBackOff()
     {
         var service = CreateYahooService();
 
-        AssertCancelsPromptly(token => service.GetSummaryAsync("IBM", token));
+        await AssertCancelsPromptly(token => service.GetSummaryAsync("IBM", token));
     }
 
     [Test]
-    public void GetFinancialsAsync_Cancelled_StopsWithoutWaitingOutTheBackOff()
+    public async Task GetFinancialsAsync_Cancelled_StopsWithoutWaitingOutTheBackOff()
     {
         var service = CreateYahooService();
 
-        AssertCancelsPromptly(token => service.GetFinancialsAsync("IBM", token));
+        await AssertCancelsPromptly(token => service.GetFinancialsAsync("IBM", token));
     }
 
     [Test]
-    public void AlphaVantage_GetRecordsAsync_Cancelled_StopsWithoutWaitingOutTheBackOff()
+    public async Task AlphaVantage_GetRecordsAsync_Cancelled_StopsWithoutWaitingOutTheBackOff()
     {
         var service = CreateAlphaVantageService();
 
-        AssertCancelsPromptly(token => service.GetRecordsAsync("IBM", StartDate, null, token));
+        await AssertCancelsPromptly(token => service.GetRecordsAsync("IBM", StartDate, null, token));
     }
 
     [Test]
-    public void AlphaVantage_GetOverviewAsync_Cancelled_StopsWithoutWaitingOutTheBackOff()
+    public async Task AlphaVantage_GetOverviewAsync_Cancelled_StopsWithoutWaitingOutTheBackOff()
     {
         var service = CreateAlphaVantageService();
 
-        AssertCancelsPromptly(token => service.GetOverviewAsync("IBM", token));
+        await AssertCancelsPromptly(token => service.GetOverviewAsync("IBM", token));
     }
 
     [Test]
-    public void AlphaVantage_GetIntradayRecordsAsync_Cancelled_StopsWithoutWaitingOutTheBackOff()
+    public async Task AlphaVantage_GetIntradayRecordsAsync_Cancelled_StopsWithoutWaitingOutTheBackOff()
     {
         var service = CreateAlphaVantageService();
 
-        AssertCancelsPromptly(token => service.GetIntradayRecordsAsync("IBM", StartDate, null, EInterval.Interval_15Min, token));
+        await AssertCancelsPromptly(token => service.GetIntradayRecordsAsync("IBM", StartDate, null, EInterval.Interval_15Min, token));
     }
 
     [Test]
-    public void AlphaVantage_GetForexRecordsAsync_Cancelled_StopsWithoutWaitingOutTheBackOff()
+    public async Task AlphaVantage_GetForexRecordsAsync_Cancelled_StopsWithoutWaitingOutTheBackOff()
     {
         var service = CreateAlphaVantageService();
 
-        AssertCancelsPromptly(token => service.GetForexRecordsAsync("EUR", "USD", StartDate, null, token));
+        await AssertCancelsPromptly(token => service.GetForexRecordsAsync("EUR", "USD", StartDate, null, token));
     }
 
     [Test]
-    public void Xetra_GetInstrumentsAsync_Cancelled_StopsWithoutWaitingOutTheBackOff()
+    public async Task Xetra_GetInstrumentsAsync_Cancelled_StopsWithoutWaitingOutTheBackOff()
     {
         var service = new XetraService(
             Mock.Of<ILogger<XetraService>>(),
             _mockHttpClientFactory.Object,
             _mockPolicyRegistry.Object);
 
-        AssertCancelsPromptly(service.GetInstrumentsAsync);
+        await AssertCancelsPromptly(service.GetInstrumentsAsync);
     }
 
     [Test]
-    public void DataHub_GetNasdaqInstrumentsAsync_Cancelled_StopsWithoutWaitingOutTheBackOff()
+    public async Task DataHub_GetNasdaqInstrumentsAsync_Cancelled_StopsWithoutWaitingOutTheBackOff()
     {
         var service = new DataHubService(_mockHttpClientFactory.Object, _mockPolicyRegistry.Object);
 
-        AssertCancelsPromptly(service.GetNasdaqInstrumentsAsync);
+        await AssertCancelsPromptly(service.GetNasdaqInstrumentsAsync);
     }
 
     [Test]
-    public void DataHub_GetSp500InstrumentsAsync_Cancelled_StopsWithoutWaitingOutTheBackOff()
+    public async Task DataHub_GetSp500InstrumentsAsync_Cancelled_StopsWithoutWaitingOutTheBackOff()
     {
         var service = new DataHubService(_mockHttpClientFactory.Object, _mockPolicyRegistry.Object);
 
-        AssertCancelsPromptly(service.GetSp500InstrumentsAsync);
+        await AssertCancelsPromptly(service.GetSp500InstrumentsAsync);
     }
 
     [Test]
-    public void RefreshSessionAsync_Cancelled_StopsWithoutWaitingOutTheBackOff()
+    public async Task RefreshSessionAsync_Cancelled_StopsWithoutWaitingOutTheBackOff()
     {
         var mockState = new Mock<IYahooSessionState>();
         mockState.Setup(e => e.IsValid()).Returns(false);
@@ -199,7 +199,7 @@ public class CancellationTokenPropagationTests
             mockState.Object,
             _mockPolicyRegistry.Object);
 
-        AssertCancelsPromptly(manager.RefreshSessionAsync);
+        await AssertCancelsPromptly(manager.RefreshSessionAsync);
     }
 
     private YahooFinanceService CreateYahooService() => new(
@@ -219,12 +219,12 @@ public class CancellationTokenPropagationTests
             _mockPolicyRegistry.Object);
     }
 
-    private static void AssertCancelsPromptly(Func<CancellationToken, Task> call)
+    private static async Task AssertCancelsPromptly(Func<CancellationToken, Task> call)
     {
         using var cts = new CancellationTokenSource(CancelAfter);
         var stopwatch = Stopwatch.StartNew();
 
-        Assert.CatchAsync<OperationCanceledException>(async () => await call(cts.Token));
+        await Assert.CatchAsync<OperationCanceledException>(async () => await call(cts.Token));
 
         stopwatch.Stop();
         Assert.That(stopwatch.Elapsed, Is.LessThan(MaxAcceptable),

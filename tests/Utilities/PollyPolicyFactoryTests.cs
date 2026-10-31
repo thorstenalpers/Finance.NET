@@ -38,14 +38,14 @@ public class PollyPolicyFactoryTests
     }
 
     [Test]
-    public void GetRetryPolicy_ExceptionsFlow_Throws()
+    public async Task GetRetryPolicy_ExceptionsFlow_Throws()
     {
         // Arrange + Act
         const int retryCount = 3;
         var policy = PollyPolicyFactory.GetRetryPolicy(retryCount, 1, _mockLogger.Object);
 
         // Assert
-        Assert.ThrowsAsync<FinanceNetException>(async () => await policy.ExecuteAsync<int>(() => throw new FinanceNetException("Message")));
+        await Assert.ThrowsAsync<FinanceNetException>(async () => await policy.ExecuteAsync<int>(() => throw new FinanceNetException("Message")));
 
         _mockLogger.Verify(
             logger => logger.Log(
@@ -76,13 +76,13 @@ public class PollyPolicyFactoryTests
     }
 
     [Test]
-    public void GetRetryPolicy_ExceptionsFlowNullLogger_Throws()
+    public async Task GetRetryPolicy_ExceptionsFlowNullLogger_Throws()
     {
         // Arrange + Act
         const int retryCount = 3;
         var policy = PollyPolicyFactory.GetRetryPolicy<PolicyRegistry>(retryCount, 1, null);
 
         // Assert
-        Assert.ThrowsAsync<FinanceNetException>(async () => await policy.ExecuteAsync<int>(() => throw new FinanceNetException("Message")));
+        await Assert.ThrowsAsync<FinanceNetException>(async () => await policy.ExecuteAsync<int>(() => throw new FinanceNetException("Message")));
     }
 }

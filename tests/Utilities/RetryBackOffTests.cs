@@ -104,7 +104,7 @@ public class RetryBackOffTests
     }
 
     [Test]
-    public void RegisteredPolicy_BacksOffByHttpRetrySleepTime_NotHttpTimeout()
+    public async Task RegisteredPolicy_BacksOffByHttpRetrySleepTime_NotHttpTimeout()
     {
         var services = new ServiceCollection();
         services.AddFinanceNet(new FinanceNetConfiguration
@@ -118,7 +118,7 @@ public class RetryBackOffTests
                              .Get<AsyncPolicy>(Constants.DefaultHttpRetryPolicy);
 
         var stopwatch = Stopwatch.StartNew();
-        Assert.ThrowsAsync<FinanceNetException>(
+        await Assert.ThrowsAsync<FinanceNetException>(
             async () => await policy.ExecuteAsync<int>(() => throw new FinanceNetException("transient")));
         stopwatch.Stop();
 

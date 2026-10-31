@@ -87,7 +87,7 @@ public class XetraServiceTests
     }
 
     [Test]
-    public void GetInstrumentsAsync_NoHtml_Throws()
+    public async Task GetInstrumentsAsync_NoHtml_Throws()
     {
         // Arrange
         var csvFilePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Xetra", "t7-xetr-allTradableInstruments.csv");
@@ -99,11 +99,11 @@ public class XetraServiceTests
             _mockPolicyRegistry.Object);
 
         // Act
-        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetInstrumentsAsync());
+        await Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetInstrumentsAsync());
     }
 
     [Test]
-    public void GetInstrumentsAsync_NoCsv_Throws()
+    public async Task GetInstrumentsAsync_NoCsv_Throws()
     {
         // Arrange
         var htmlFilePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Xetra", "xetra-download-area.html");
@@ -116,7 +116,7 @@ public class XetraServiceTests
             _mockPolicyRegistry.Object);
 
         // Act
-        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetInstrumentsAsync());
+        await Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetInstrumentsAsync());
     }
 
     private void SetupHttpResponses(string htmlFilePath, string csvFilePath)

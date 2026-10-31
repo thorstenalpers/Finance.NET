@@ -40,7 +40,7 @@ public class AlphaVantageTests
         }
         else
         {
-            Assert.CatchAsync<FinanceNetException>(async () => await _service.GetOverviewAsync(symbol));
+            await Assert.CatchAsync<FinanceNetException>(async () => await _service.GetOverviewAsync(symbol));
         }
     }
 
@@ -61,7 +61,7 @@ public class AlphaVantageTests
         }
         else
         {
-            Assert.CatchAsync<FinanceNetException>(async () => await _service.GetRecordsAsync(symbol, DateTime.UtcNow.AddDays(-7)));
+            await Assert.CatchAsync<FinanceNetException>(async () => await _service.GetRecordsAsync(symbol, DateTime.UtcNow.AddDays(-7)));
         }
     }
 
@@ -85,7 +85,7 @@ public class AlphaVantageTests
         }
         else
         {
-            Assert.CatchAsync<FinanceNetException>(async () => await _service.GetIntradayRecordsAsync(symbol, startDay, endDay, eInterval));
+            await Assert.CatchAsync<FinanceNetException>(async () => await _service.GetIntradayRecordsAsync(symbol, startDay, endDay, eInterval));
         }
     }
 
@@ -101,7 +101,7 @@ public class AlphaVantageTests
         }
         else
         {
-            Assert.CatchAsync<FinanceNetException>(async () => await _service.GetForexRecordsAsync(currency1, currency2, DateTime.UtcNow.AddDays(-3)));
+            await Assert.CatchAsync<FinanceNetException>(async () => await _service.GetForexRecordsAsync(currency1, currency2, DateTime.UtcNow.AddDays(-3)));
         }
     }
 }

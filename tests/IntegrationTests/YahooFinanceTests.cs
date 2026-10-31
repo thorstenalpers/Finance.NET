@@ -101,7 +101,7 @@ public class YahooFinanceTests
         }
         else
         {
-            Assert.ThrowsAsync<FinanceNetException>(async () => await _service.GetRecordsAsync(symbol, startDate));
+            await Assert.ThrowsAsync<FinanceNetException>(async () => await _service.GetRecordsAsync(symbol, startDate));
         }
     }
 
@@ -132,7 +132,7 @@ public class YahooFinanceTests
         }
         else
         {
-            Assert.ThrowsAsync<FinanceNetException>(async () => await _service.GetQuoteAsync(symbol));
+            await Assert.ThrowsAsync<FinanceNetException>(async () => await _service.GetQuoteAsync(symbol));
         }
     }
 
@@ -166,7 +166,7 @@ public class YahooFinanceTests
         }
         else
         {
-            Assert.ThrowsAsync<FinanceNetException>(async () => await _service.GetProfileAsync(symbol));
+            await Assert.ThrowsAsync<FinanceNetException>(async () => await _service.GetProfileAsync(symbol));
         }
     }
 
@@ -194,7 +194,7 @@ public class YahooFinanceTests
         }
         else
         {
-            Assert.ThrowsAsync<FinanceNetException>(async () => await _service.GetSummaryAsync(symbol));
+            await Assert.ThrowsAsync<FinanceNetException>(async () => await _service.GetSummaryAsync(symbol));
         }
     }
 
@@ -222,7 +222,7 @@ public class YahooFinanceTests
         }
         else
         {
-            Assert.ThrowsAsync<FinanceNetException>(async () => await _service.GetFinancialsAsync(symbol));
+            await Assert.ThrowsAsync<FinanceNetException>(async () => await _service.GetFinancialsAsync(symbol));
         }
     }
 }

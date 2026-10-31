@@ -79,34 +79,34 @@ public class AlphaVantageRejectedRequestTests
     ];
 
     [TestCaseSource(nameof(Calls))]
-    public void PremiumEndpoint_FailsFastWithoutRetrying(string name, Func<AlphaVantageService, Task> call)
+    public async Task PremiumEndpoint_FailsFastWithoutRetrying(string name, Func<AlphaVantageService, Task> call)
     {
         SetUpResponse(PremiumResponse);
 
-        var exception = Assert.CatchAsync<FinanceNetAccessDeniedException>(async () => await call(_service), name);
+        var exception = await Assert.CatchAsync<FinanceNetAccessDeniedException>(async () => await call(_service), name);
         Assert.That(exception.Message, Does.Contain("premium endpoint"), name);
         Assert.That(exception.InnerException, Is.Null, name);
         Assert.That(_requestCount, Is.EqualTo(1), $"{name}: a premium-endpoint refusal was retried");
     }
 
     [TestCaseSource(nameof(Calls))]
-    public void InvalidApiKey_FailsFastWithoutRetrying(string name, Func<AlphaVantageService, Task> call)
+    public async Task InvalidApiKey_FailsFastWithoutRetrying(string name, Func<AlphaVantageService, Task> call)
     {
         SetUpResponse(InvalidApiKeyResponse);
 
-        var exception = Assert.CatchAsync<FinanceNetAccessDeniedException>(async () => await call(_service), name);
+        var exception = await Assert.CatchAsync<FinanceNetAccessDeniedException>(async () => await call(_service), name);
         Assert.That(exception.Message, Does.Contain("apikey is invalid"), name);
         Assert.That(exception.InnerException, Is.Null, name);
         Assert.That(_requestCount, Is.EqualTo(1), $"{name}: an invalid-API-key refusal was retried");
     }
 
     [TestCaseSource(nameof(Calls))]
-    public void RateLimit_IsStillRetried(string name, Func<AlphaVantageService, Task> call)
+    public async Task RateLimit_IsStillRetried(string name, Func<AlphaVantageService, Task> call)
     {
         // The rate-limit notice advertises "premium endpoints" too, but clears on its own.
         SetUpResponse("{\"Information\": \"Thank you for using Alpha Vantage! Please consider spreading out your free API requests more sparingly (1 request per second). You may subscribe to any of the premium plans at https://www.alphavantage.co/premium/ to lift the free key rate limit (25 requests per day), raise the per-second burst limit, and instantly unlock all premium endpoints\"}");
 
-        var exception = Assert.CatchAsync<FinanceNetException>(async () => await call(_service), name);
+        var exception = await Assert.CatchAsync<FinanceNetException>(async () => await call(_service), name);
         Assert.That(exception, Is.Not.InstanceOf<FinanceNetAccessDeniedException>(), name);
         Assert.That(_requestCount, Is.EqualTo(RetryCount + 1), $"{name}: a rate-limit notice was not retried");
     }

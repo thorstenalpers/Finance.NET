@@ -70,12 +70,12 @@ public class RetryableFailureTests
     public void SetUp() => _requests = 0;
 
     [Test]
-    public void GetSummaryAsync_ConsentPage_KeepsRetrying()
+    public async Task GetSummaryAsync_ConsentPage_KeepsRetrying()
     {
         SetUpResponse(HttpStatusCode.OK, ConsentPage, "text/html");
         var service = CreateService();
 
-        var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetSummaryAsync("IBM"));
+        var exception = await Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetSummaryAsync("IBM"));
 
         Assert.That(exception, Is.Not.InstanceOf<FinanceNetNoDataException>());
         Assert.That(_requests, Is.EqualTo(RetryCount + 1),
@@ -83,12 +83,12 @@ public class RetryableFailureTests
     }
 
     [Test]
-    public void GetProfileAsync_ConsentPage_KeepsRetrying()
+    public async Task GetProfileAsync_ConsentPage_KeepsRetrying()
     {
         SetUpResponse(HttpStatusCode.OK, ConsentPage, "text/html");
         var service = CreateService();
 
-        var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetProfileAsync("IBM"));
+        var exception = await Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetProfileAsync("IBM"));
 
         Assert.That(exception, Is.Not.InstanceOf<FinanceNetNoDataException>());
         Assert.That(_requests, Is.EqualTo(RetryCount + 1),
@@ -96,12 +96,12 @@ public class RetryableFailureTests
     }
 
     [Test]
-    public void GetInstrumentsAsync_ProviderOutage_IsNotReportedAsNoData()
+    public async Task GetInstrumentsAsync_ProviderOutage_IsNotReportedAsNoData()
     {
         SetUpResponse(HttpStatusCode.ServiceUnavailable, "", "text/html");
         var service = CreateService();
 
-        var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetInstrumentsAsync());
+        var exception = await Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetInstrumentsAsync());
 
         Assert.That(exception, Is.Not.InstanceOf<FinanceNetNoDataException>(),
             "a 503 told the caller the instrument catalogue is permanently empty");
