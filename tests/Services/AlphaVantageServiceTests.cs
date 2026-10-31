@@ -106,7 +106,7 @@ public class AlphaVantageServiceTests
     }
 
     [Test]
-    public void GetOverviewAsync_ApiThrottled_Throws()
+    public async Task GetOverviewAsync_ApiThrottled_Throws()
     {
         _mockHandler
             .Protected()
@@ -121,11 +121,11 @@ public class AlphaVantageServiceTests
             _mockPolicyRegistry.Object);
 
         // Act
-        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetOverviewAsync("IBM"));
+        await Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetOverviewAsync("IBM"));
     }
 
     [Test]
-    public void GetOverviewAsync_NoData_Throws()
+    public async Task GetOverviewAsync_NoData_Throws()
     {
         _mockHandler
             .Protected()
@@ -143,13 +143,13 @@ public class AlphaVantageServiceTests
             _mockPolicyRegistry.Object);
 
         // Act
-        var exception = Assert.ThrowsAsync<FinanceNetNoDataException>(async () => await service.GetOverviewAsync("IBM"));
+        var exception = await Assert.ThrowsAsync<FinanceNetNoDataException>(async () => await service.GetOverviewAsync("IBM"));
         Assert.That(exception.Message, Does.Contain("returned no overview for IBM"));
         Assert.That(exception.InnerException, Is.Null);
     }
 
     [Test]
-    public void GetOverviewAsync_EmptyData_Throws()
+    public async Task GetOverviewAsync_EmptyData_Throws()
     {
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "empty.json");
         _mockHandler
@@ -157,7 +157,7 @@ public class AlphaVantageServiceTests
             .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
             {
-                Content = new StringContent(File.ReadAllText(filePath), Encoding.UTF8, "text/html"),
+                Content = new StringContent(await File.ReadAllTextAsync(filePath), Encoding.UTF8, "text/html"),
             });
         _mockHttpClientFactory.Setup(e => e.CreateClient(It.IsAny<string>())).Returns(new HttpClient(_mockHandler.Object));
 
@@ -168,7 +168,7 @@ public class AlphaVantageServiceTests
             _mockPolicyRegistry.Object);
 
         // Act
-        var exception = Assert.ThrowsAsync<FinanceNetNoDataException>(async () => await service.GetOverviewAsync("IBM"));
+        var exception = await Assert.ThrowsAsync<FinanceNetNoDataException>(async () => await service.GetOverviewAsync("IBM"));
         Assert.That(exception.Message, Does.Contain("returned no overview for IBM"));
         Assert.That(exception.InnerException, Is.Null);
     }
@@ -201,7 +201,7 @@ public class AlphaVantageServiceTests
     }
 
     [Test]
-    public void GetRecordsAsync_NoData_Throws()
+    public async Task GetRecordsAsync_NoData_Throws()
     {
         _mockHandler
             .Protected()
@@ -221,13 +221,13 @@ public class AlphaVantageServiceTests
         var startDate = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Utc);
 
         // Act
-        var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetRecordsAsync("IBM", startDate));
+        var exception = await Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetRecordsAsync("IBM", startDate));
         Assert.That(exception.Message, Does.Contain("No Record found "));
         Assert.That(exception.InnerException.Message, Does.Contain("data is invalid"));
     }
 
     [Test]
-    public void GetRecordsAsync_EmptyData_Throws()
+    public async Task GetRecordsAsync_EmptyData_Throws()
     {
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "AlphaVantage", "records-empty.json");
         _mockHandler
@@ -235,7 +235,7 @@ public class AlphaVantageServiceTests
             .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
             {
-                Content = new StringContent(File.ReadAllText(filePath), Encoding.UTF8, "text/html"),
+                Content = new StringContent(await File.ReadAllTextAsync(filePath), Encoding.UTF8, "text/html"),
             });
         _mockHttpClientFactory.Setup(e => e.CreateClient(It.IsAny<string>())).Returns(new HttpClient(_mockHandler.Object));
 
@@ -248,7 +248,7 @@ public class AlphaVantageServiceTests
         var startDate = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Utc);
 
         // Act
-        var exception = Assert.ThrowsAsync<FinanceNetNoDataException>(async () => await service.GetRecordsAsync("IBM", startDate));
+        var exception = await Assert.ThrowsAsync<FinanceNetNoDataException>(async () => await service.GetRecordsAsync("IBM", startDate));
         Assert.That(exception.Message, Does.Contain("returned no records for IBM"));
         Assert.That(exception.InnerException, Is.Null);
     }
@@ -280,7 +280,7 @@ public class AlphaVantageServiceTests
     }
 
     [Test]
-    public void GetRecordsAsync_StartdateAfterEnddate_Throws()
+    public async Task GetRecordsAsync_StartdateAfterEnddate_Throws()
     {
         var service = new AlphaVantageService(
             _mockLogger.Object,
@@ -292,11 +292,11 @@ public class AlphaVantageServiceTests
         var endDate = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Utc);
 
         // Act
-        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetRecordsAsync("IBM", startDate, endDate));
+        await Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetRecordsAsync("IBM", startDate, endDate));
     }
 
     [Test]
-    public void GetRecordsAsync_ApiThrottled_Throws()
+    public async Task GetRecordsAsync_ApiThrottled_Throws()
     {
         _mockHandler
             .Protected()
@@ -312,7 +312,7 @@ public class AlphaVantageServiceTests
             _mockPolicyRegistry.Object);
 
         // Act
-        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetRecordsAsync("IBM", startDate));
+        await Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetRecordsAsync("IBM", startDate));
     }
 
     [Test]
@@ -338,7 +338,7 @@ public class AlphaVantageServiceTests
     }
 
     [Test]
-    public void GetIntradayRecordsAsync_NoData_Throws()
+    public async Task GetIntradayRecordsAsync_NoData_Throws()
     {
         _mockHandler
             .Protected()
@@ -358,13 +358,13 @@ public class AlphaVantageServiceTests
         var startDate = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Utc);
 
         // Act
-        var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetIntradayRecordsAsync("IBM", startDate));
+        var exception = await Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetIntradayRecordsAsync("IBM", startDate));
         Assert.That(exception.Message, Does.Contain("No intraday record"));
         Assert.That(exception.InnerException.Message, Does.Contain("no timeSeries"));
     }
 
     [Test]
-    public void GetIntradayRecordsAsync_EmptyData_Throws()
+    public async Task GetIntradayRecordsAsync_EmptyData_Throws()
     {
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "AlphaVantage", "intraday-empty.json");
         _mockHandler
@@ -372,7 +372,7 @@ public class AlphaVantageServiceTests
             .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
             {
-                Content = new StringContent(File.ReadAllText(filePath), Encoding.UTF8, "text/html"),
+                Content = new StringContent(await File.ReadAllTextAsync(filePath), Encoding.UTF8, "text/html"),
             });
         _mockHttpClientFactory.Setup(e => e.CreateClient(It.IsAny<string>())).Returns(new HttpClient(_mockHandler.Object));
 
@@ -385,13 +385,13 @@ public class AlphaVantageServiceTests
         var startDate = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Utc);
 
         // Act
-        var exception = Assert.ThrowsAsync<FinanceNetNoDataException>(async () => await service.GetIntradayRecordsAsync("IBM", startDate));
+        var exception = await Assert.ThrowsAsync<FinanceNetNoDataException>(async () => await service.GetIntradayRecordsAsync("IBM", startDate));
         Assert.That(exception.Message, Does.Contain("returned no intraday records for IBM"));
         Assert.That(exception.InnerException, Is.Null);
     }
 
     [Test]
-    public void GetIntradayRecordsAsync_ApiThrottled_Throws()
+    public async Task GetIntradayRecordsAsync_ApiThrottled_Throws()
     {
         _mockHandler
             .Protected()
@@ -407,11 +407,11 @@ public class AlphaVantageServiceTests
             _mockPolicyRegistry.Object);
 
         // Act
-        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetIntradayRecordsAsync("IBM", startDate));
+        await Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetIntradayRecordsAsync("IBM", startDate));
     }
 
     [Test]
-    public void GetIntradayRecordsAsync_StartdateAfterEnddate_Throws()
+    public async Task GetIntradayRecordsAsync_StartdateAfterEnddate_Throws()
     {
         var service = new AlphaVantageService(
             _mockLogger.Object,
@@ -423,11 +423,11 @@ public class AlphaVantageServiceTests
         var endDate = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Utc);
 
         // Act
-        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetIntradayRecordsAsync("IBM", startDate, endDate));
+        await Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetIntradayRecordsAsync("IBM", startDate, endDate));
     }
 
     [Test]
-    public void GetIntradayRecordsAsync_IvalidInterval_Throws()
+    public async Task GetIntradayRecordsAsync_IvalidInterval_Throws()
     {
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "AlphaVantage", "intraday.json");
         SetupHttpJsonFileResponse(filePath);
@@ -443,7 +443,7 @@ public class AlphaVantageServiceTests
         var interval = (EInterval)100;
 
         // Act
-        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetIntradayRecordsAsync("IBM", startDate, endDate, interval));
+        await Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetIntradayRecordsAsync("IBM", startDate, endDate, interval));
     }
 
     [Test]
@@ -473,7 +473,7 @@ public class AlphaVantageServiceTests
     }
 
     [Test]
-    public void GetForexRecordsAsync_NoData_Throws()
+    public async Task GetForexRecordsAsync_NoData_Throws()
     {
         _mockHandler
             .Protected()
@@ -493,13 +493,13 @@ public class AlphaVantageServiceTests
         var startDate = new DateTime(2024, 11, 01, 0, 0, 0, DateTimeKind.Utc);
 
         // Act
-        var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetForexRecordsAsync("EUR", "USD", startDate));
+        var exception = await Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetForexRecordsAsync("EUR", "USD", startDate));
         Assert.That(exception.Message, Does.Contain("No forex record found"));
         Assert.That(exception.InnerException.Message, Does.Contain("data is invalid"));
     }
 
     [Test]
-    public void GetForexRecordsAsync_EmptyData_Throws()
+    public async Task GetForexRecordsAsync_EmptyData_Throws()
     {
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "AlphaVantage", "forex-empty.json");
         _mockHandler
@@ -507,7 +507,7 @@ public class AlphaVantageServiceTests
             .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
             {
-                Content = new StringContent(File.ReadAllText(filePath), Encoding.UTF8, "text/html"),
+                Content = new StringContent(await File.ReadAllTextAsync(filePath), Encoding.UTF8, "text/html"),
             });
         _mockHttpClientFactory.Setup(e => e.CreateClient(It.IsAny<string>())).Returns(new HttpClient(_mockHandler.Object));
 
@@ -520,7 +520,7 @@ public class AlphaVantageServiceTests
         var startDate = new DateTime(2024, 11, 01, 0, 0, 0, DateTimeKind.Utc);
 
         // Act
-        var exception = Assert.ThrowsAsync<FinanceNetNoDataException>(async () => await service.GetForexRecordsAsync("EUR", "USD", startDate));
+        var exception = await Assert.ThrowsAsync<FinanceNetNoDataException>(async () => await service.GetForexRecordsAsync("EUR", "USD", startDate));
         Assert.That(exception.Message, Does.Contain("returned no forex records for EUR/USD"));
         Assert.That(exception.InnerException, Is.Null);
     }
@@ -552,7 +552,7 @@ public class AlphaVantageServiceTests
     }
 
     [Test]
-    public void GetForexRecordsAsync_ApiThrottled_Throws()
+    public async Task GetForexRecordsAsync_ApiThrottled_Throws()
     {
         _mockHandler
             .Protected()
@@ -568,12 +568,12 @@ public class AlphaVantageServiceTests
             _mockPolicyRegistry.Object);
 
         // Act
-        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetForexRecordsAsync("EUR", "USD", startDate));
+        await Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetForexRecordsAsync("EUR", "USD", startDate));
     }
 
 
     [Test]
-    public void GetForexRecordsAsync_StartdateAfterEnddate_Throws()
+    public async Task GetForexRecordsAsync_StartdateAfterEnddate_Throws()
     {
         var service = new AlphaVantageService(
             _mockLogger.Object,
@@ -585,7 +585,7 @@ public class AlphaVantageServiceTests
         var endDate = new DateTime(2024, 01, 01, 0, 0, 0, DateTimeKind.Utc);
 
         // Act
-        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetForexRecordsAsync("EUR", "USD", startDate, endDate));
+        await Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetForexRecordsAsync("EUR", "USD", startDate, endDate));
     }
 
     private void SetupHttpJsonFileResponse(string filePath)

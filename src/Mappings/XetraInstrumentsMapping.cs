@@ -1,160 +1,440 @@
-﻿using CsvHelper.Configuration;
+﻿using CsvHelper;
 using Finance.Net.Models.Xetra.Dto;
 
 namespace Finance.Net.Mappings;
 
-internal class XetraInstrumentsMapping : ClassMap<InstrumentItem>
+[CsvRecordMap(typeof(InstrumentItem))]
+internal partial class XetraInstrumentsMapping
 {
-    public XetraInstrumentsMapping()
-    {
-        InitializeMappings();
-    }
+    [CsvColumn("Product Status")]
+    public string? ProductStatus { get; set; }
 
-    private void InitializeMappings()
-    {
-        Map(m => m.ProductStatus).Name("Product Status");
-        Map(m => m.InstrumentStatus).Name("Instrument Status");
-        Map(m => m.Instrument).Name("Instrument");
-        Map(m => m.ISIN).Name("ISIN");
-        Map(m => m.ProductID).Name("Product ID");
-        Map(m => m.InstrumentID).Name("Instrument ID");
-        Map(m => m.WKN).Name("WKN");
-        Map(m => m.Mnemonic).Name("Mnemonic");
-        Map(m => m.MICCode).Name("MIC Code");
-        Map(m => m.CCPeligibleCode).Name("CCP eligible Code");
-        Map(m => m.TradingModelType).Name("Trading Model Type");
-        Map(m => m.ProductAssignmentGroup).Name("Product Assignment Group");
-        Map(m => m.ProductAssignmentGroupDescription).Name("Product Assignment Group Description");
-        Map(m => m.DesignatedSponsorMemberID).Name("Designated Sponsor Member ID");
-        Map(m => m.DesignatedSponsor).Name("Designated Sponsor");
-        Map(m => m.PriceRangeValue).Name("Price Range Value");
-        Map(m => m.PriceRangePercentage).Name("Price Range Percentage");
-        Map(m => m.MinimumQuoteSize).Name("Minimum Quote Size");
-        Map(m => m.InstrumentType).Name("Instrument Type");
-        Map(m => m.TickSize1).Name("Tick Size 1");
-        Map(m => m.UpperPriceLimitMax).Name("Upper Price Limit Max");
-        Map(m => m.TickSize2).Name("Tick Size 2");
-        Map(m => m.UpperPriceLimit2).Name("Upper Price Limit 2");
-        Map(m => m.TickSize3).Name("Tick Size 3");
-        Map(m => m.UpperPriceLimit3).Name("Upper Price Limit 3");
-        Map(m => m.TickSize4).Name("Tick Size 4");
-        Map(m => m.UpperPriceLimit4).Name("Upper Price Limit 4");
-        Map(m => m.TickSize5).Name("Tick Size 5");
-        Map(m => m.UpperPriceLimit5).Name("Upper Price Limit 5");
-        Map(m => m.TickSize6).Name("Tick Size 6");
-        Map(m => m.UpperPriceLimit6).Name("Upper Price Limit 6");
-        Map(m => m.TickSize7).Name("Tick Size 7");
-        Map(m => m.UpperPriceLimit7).Name("Upper Price Limit 7");
-        Map(m => m.TickSize8).Name("Tick Size 8");
-        Map(m => m.UpperPriceLimit8).Name("Upper Price Limit 8");
-        Map(m => m.TickSize9).Name("Tick Size 9");
-        Map(m => m.UpperPriceLimit9).Name("Upper Price Limit 9");
-        Map(m => m.TickSize10).Name("Tick Size 10");
-        Map(m => m.UpperPriceLimit10).Name("Upper Price Limit 10");
-        Map(m => m.TickSize11).Name("Tick Size 11");
-        Map(m => m.UpperPriceLimit11).Name("Upper Price Limit 11");
-        Map(m => m.TickSize12).Name("Tick Size 12");
-        Map(m => m.UpperPriceLimit12).Name("Upper Price Limit 12");
-        Map(m => m.TickSize13).Name("Tick Size 13");
-        Map(m => m.UpperPriceLimit13).Name("Upper Price Limit 13");
-        Map(m => m.TickSize14).Name("Tick Size 14");
-        Map(m => m.UpperPriceLimit14).Name("Upper Price Limit 14");
-        Map(m => m.TickSize15).Name("Tick Size 15");
-        Map(m => m.UpperPriceLimit15).Name("Upper Price Limit 15");
-        Map(m => m.TickSize16).Name("Tick Size 16");
-        Map(m => m.UpperPriceLimit16).Name("Upper Price Limit 16");
-        Map(m => m.TickSize17).Name("Tick Size 17");
-        Map(m => m.UpperPriceLimit17).Name("Upper Price Limit 17");
-        Map(m => m.TickSize18).Name("Tick Size 18");
-        Map(m => m.UpperPriceLimit18).Name("Upper Price Limit 18");
-        Map(m => m.TickSize19).Name("Tick Size 19");
-        Map(m => m.UpperPriceLimit19).Name("Upper Price Limit 19");
-        Map(m => m.TickSize20).Name("Tick Size 20");
-        Map(m => m.UpperPriceLimit20).Name("Upper Price Limit 20");
-        Map(m => m.NumberofDecimalDigits).Name("Number of Decimal Digits");
-        Map(m => m.UnitofQuotation).Name("Unit of Quotation");
-        Map(m => m.MarketSegment).Name("Market Segment");
-        Map(m => m.MarketSegmentSupplement).Name("Market Segment Supplement");
-        Map(m => m.ClearingLocation).Name("Clearing Location");
-        Map(m => m.PrimaryMarketMICCode).Name("Primary Market MIC Code");
-        Map(m => m.ReportingMarket).Name("Reporting Market");
-        Map(m => m.SettlementPeriod).Name("Settlement Period");
-        Map(m => m.SettlementCurrency).Name("Settlement Currency");
-        Map(m => m.ClosedBookIndicator).Name("Closed Book Indicator");
-        Map(m => m.MarketImbalanceIndicator).Name("Market Imbalance Indicator");
-        Map(m => m.CUMEXIndicator).Name("CUM/EX Indicator");
-        Map(m => m.MinimumIcebergTotalVolume).Name("Minimum Iceberg Total Volume");
-        Map(m => m.MinimumIcebergDisplayVolume).Name("Minimum Iceberg Display Volume");
-        Map(m => m.EMDIIncrementalA_Unnetted).Name("EMDI Incremental A - Unnetted");
-        Map(m => m.EMDIIncrementalA_UnnettedPort).Name("EMDI Incremental A - Unnetted Port");
-        Map(m => m.EMDIIncrementalB_Unnetted).Name("EMDI Incremental B - Unnetted");
-        Map(m => m.EMDIIncrementalB_UnnettedPort).Name("EMDI Incremental B - Unnetted Port");
-        Map(m => m.EMDISnapshotA_Unnetted).Name("EMDI Snapshot A - Unnetted");
-        Map(m => m.EMDISnapshotA_UnnettedPort).Name("EMDI Snapshot A - Unnetted Port");
-        Map(m => m.EMDISnapshotB_Unnetted).Name("EMDI Snapshot B - Unnetted");
-        Map(m => m.EMDISnapshotB_UnnettedPort).Name("EMDI Snapshot B - Unnetted Port");
-        Map(m => m.EMDIMarketDepth_Unnetted).Name("EMDI Market Depth - Unnetted");
-        Map(m => m.EMDISnapshotRecoveryTimeInterval_Unnetted).Name("EMDI Snapshot Recovery Time Interval - Unnetted");
-        Map(m => m.MDIAddressA_Netted).Name("MDI Address A - Netted");
-        Map(m => m.MDIPortA_Netted).Name("MDI Port A - Netted");
-        Map(m => m.MDIAddressB_Netted).Name("MDI Address B - Netted");
-        Map(m => m.MDIPortB_Netted).Name("MDI Port B - Netted");
-        Map(m => m.MDIMarketDepth_Netted).Name("MDI Market Depth - Netted");
-        Map(m => m.MDIMarketDepthTimeInterval_Netted).Name("MDI Market Depth Time Interval - Netted");
-        Map(m => m.MDIRecoveryTimeInterval_Netted).Name("MDI Recovery Time Interval - Netted");
-        Map(m => m.EOBIIncrementalA).Name("EOBI Incremental A");
-        Map(m => m.EOBIIncrementalPortA).Name("EOBI Incremental Port A");
-        Map(m => m.EOBIIncrementalB).Name("EOBI Incremental B");
-        Map(m => m.EOBIIncrementalPortB).Name("EOBI Incremental Port B");
-        Map(m => m.EOBISnapshotA).Name("EOBI Snapshot A");
-        Map(m => m.EOBISnapshotPortA).Name("EOBI Snapshot Port A");
-        Map(m => m.EOBISnapshotB).Name("EOBI Snapshot B");
-        Map(m => m.EOBISnapshotPortB).Name("EOBI Snapshot Port B");
-        Map(m => m.MarketMakerMemberID).Name("Market Maker Member ID");
-        Map(m => m.MarketMaker).Name("Market Maker");
-        Map(m => m.RegulatoryLiquidInstrument).Name("Regulatory Liquid Instrument");
-        Map(m => m.Pre_tradeLISValue).Name("Pre-trade LIS Value");
-        Map(m => m.PartitionID).Name("Partition ID");
-        Map(m => m.MultiCCP_eligible).Name("Multi CCP-eligible");
-        Map(m => m.TickSizeBand).Name("Tick Size Band");
-        Map(m => m.SecuritySubType).Name("Security Sub Type");
-        Map(m => m.IssueDate).Name("Issue Date");
-        Map(m => m.Underlying).Name("Underlying");
-        Map(m => m.MaturityDate).Name("Maturity Date");
-        Map(m => m.FlatIndicator).Name("Flat Indicator");
-        Map(m => m.CouponRate).Name("Coupon Rate");
-        Map(m => m.PreviousCouponPaymentDate).Name("Previous Coupon Payment Date");
-        Map(m => m.NextCouponPaymentDate).Name("Next Coupon Payment Date");
-        Map(m => m.PoolFactor).Name("Pool Factor");
-        Map(m => m.IndexationCoefficient).Name("Indexation Coefficient");
-        Map(m => m.AccruedInterestCalculationMethod).Name("Accrued Interest Calculation Method");
-        Map(m => m.CountryOfIssue).Name("Country Of Issue");
-        Map(m => m.MinimumTradableUnit).Name("Minimum Tradable Unit");
-        Map(m => m.In_Subscription).Name("In-Subscription");
-        Map(m => m.StrikePrice).Name("Strike Price");
-        Map(m => m.MinimumOrderQuantity).Name("Minimum Order Quantity");
-        Map(m => m.Off_BookReportingMarket).Name("Off-Book Reporting Market");
-        Map(m => m.InstrumentAuctionType).Name("Instrument Auction Type");
-        Map(m => m.SpecialistMemberID).Name("Specialist Member ID");
-        Map(m => m.Specialist).Name("Specialist");
-        Map(m => m.LiquidityProviderUserGroup).Name("Liquidity Provider User Group");
-        Map(m => m.SpecialistUserGroup).Name("Specialist User Group");
-        Map(m => m.QuotingPeriodStart).Name("Quoting Period Start");
-        Map(m => m.QuotingPeriodEnd).Name("Quoting Period End");
-        Map(m => m.Currency).Name("Currency");
-        Map(m => m.WarrantType).Name("Warrant Type");
-        Map(m => m.FirstTradingDate).Name("First Trading Date");
-        Map(m => m.LastTradingDate).Name("Last Trading Date");
-        Map(m => m.DepositType).Name("Deposit Type");
-        Map(m => m.SingleSidedQuoteSupport).Name("Single Sided Quote Support");
-        Map(m => m.LiquidityClass).Name("Liquidity Class");
-        Map(m => m.CoverIndicator).Name("Cover Indicator");
-        Map(m => m.VolatilityCorridorOpeningAuction).Name("VolatilityCorridorOpeningAuction");
-        Map(m => m.VolatilityCorridorIntradayAuction).Name("VolatilityCorridorIntradayAuction");
-        Map(m => m.VolatilityCorridorClosingAuction).Name("VolatilityCorridorClosingAuction");
-        Map(m => m.VolatilityCorridorContinuous).Name("VolatilityCorridorContinuous");
-        Map(m => m.DisableOnBookTrading).Name("DisableOnBookTrading");
-        Map(m => m.MaximumOrderQuantity).Name("Maximum Order Quantity");
-        Map(m => m.MaximumOrderValue).Name("Maximum Order Value");
-    }
+    [CsvColumn("Instrument Status")]
+    public string? InstrumentStatus { get; set; }
+
+    [CsvColumn("Instrument")]
+    public string? Instrument { get; set; }
+
+    [CsvColumn("ISIN")]
+    public string? ISIN { get; set; }
+
+    [CsvColumn("Product ID")]
+    public string? ProductID { get; set; }
+
+    [CsvColumn("Instrument ID")]
+    public string? InstrumentID { get; set; }
+
+    [CsvColumn("WKN")]
+    public string? WKN { get; set; }
+
+    [CsvColumn("Mnemonic")]
+    public string? Mnemonic { get; set; }
+
+    [CsvColumn("MIC Code")]
+    public string? MICCode { get; set; }
+
+    [CsvColumn("CCP eligible Code")]
+    public string? CCPeligibleCode { get; set; }
+
+    [CsvColumn("Trading Model Type")]
+    public string? TradingModelType { get; set; }
+
+    [CsvColumn("Product Assignment Group")]
+    public string? ProductAssignmentGroup { get; set; }
+
+    [CsvColumn("Product Assignment Group Description")]
+    public string? ProductAssignmentGroupDescription { get; set; }
+
+    [CsvColumn("Designated Sponsor Member ID")]
+    public string? DesignatedSponsorMemberID { get; set; }
+
+    [CsvColumn("Designated Sponsor")]
+    public string? DesignatedSponsor { get; set; }
+
+    [CsvColumn("Price Range Value")]
+    public string? PriceRangeValue { get; set; }
+
+    [CsvColumn("Price Range Percentage")]
+    public string? PriceRangePercentage { get; set; }
+
+    [CsvColumn("Minimum Quote Size")]
+    public string? MinimumQuoteSize { get; set; }
+
+    [CsvColumn("Instrument Type")]
+    public string? InstrumentType { get; set; }
+
+    [CsvColumn("Tick Size 1")]
+    public string? TickSize1 { get; set; }
+
+    [CsvColumn("Upper Price Limit Max")]
+    public string? UpperPriceLimitMax { get; set; }
+
+    [CsvColumn("Tick Size 2")]
+    public double TickSize2 { get; set; }
+
+    [CsvColumn("Upper Price Limit 2")]
+    public double UpperPriceLimit2 { get; set; }
+
+    [CsvColumn("Tick Size 3")]
+    public double TickSize3 { get; set; }
+
+    [CsvColumn("Upper Price Limit 3")]
+    public double UpperPriceLimit3 { get; set; }
+
+    [CsvColumn("Tick Size 4")]
+    public string? TickSize4 { get; set; }
+
+    [CsvColumn("Upper Price Limit 4")]
+    public string? UpperPriceLimit4 { get; set; }
+
+    [CsvColumn("Tick Size 5")]
+    public string? TickSize5 { get; set; }
+
+    [CsvColumn("Upper Price Limit 5")]
+    public string? UpperPriceLimit5 { get; set; }
+
+    [CsvColumn("Tick Size 6")]
+    public string? TickSize6 { get; set; }
+
+    [CsvColumn("Upper Price Limit 6")]
+    public string? UpperPriceLimit6 { get; set; }
+
+    [CsvColumn("Tick Size 7")]
+    public string? TickSize7 { get; set; }
+
+    [CsvColumn("Upper Price Limit 7")]
+    public string? UpperPriceLimit7 { get; set; }
+
+    [CsvColumn("Tick Size 8")]
+    public string? TickSize8 { get; set; }
+
+    [CsvColumn("Upper Price Limit 8")]
+    public string? UpperPriceLimit8 { get; set; }
+
+    [CsvColumn("Tick Size 9")]
+    public string? TickSize9 { get; set; }
+
+    [CsvColumn("Upper Price Limit 9")]
+    public string? UpperPriceLimit9 { get; set; }
+
+    [CsvColumn("Tick Size 10")]
+    public string? TickSize10 { get; set; }
+
+    [CsvColumn("Upper Price Limit 10")]
+    public string? UpperPriceLimit10 { get; set; }
+
+    [CsvColumn("Tick Size 11")]
+    public string? TickSize11 { get; set; }
+
+    [CsvColumn("Upper Price Limit 11")]
+    public string? UpperPriceLimit11 { get; set; }
+
+    [CsvColumn("Tick Size 12")]
+    public string? TickSize12 { get; set; }
+
+    [CsvColumn("Upper Price Limit 12")]
+    public string? UpperPriceLimit12 { get; set; }
+
+    [CsvColumn("Tick Size 13")]
+    public string? TickSize13 { get; set; }
+
+    [CsvColumn("Upper Price Limit 13")]
+    public string? UpperPriceLimit13 { get; set; }
+
+    [CsvColumn("Tick Size 14")]
+    public string? TickSize14 { get; set; }
+
+    [CsvColumn("Upper Price Limit 14")]
+    public string? UpperPriceLimit14 { get; set; }
+
+    [CsvColumn("Tick Size 15")]
+    public string? TickSize15 { get; set; }
+
+    [CsvColumn("Upper Price Limit 15")]
+    public string? UpperPriceLimit15 { get; set; }
+
+    [CsvColumn("Tick Size 16")]
+    public string? TickSize16 { get; set; }
+
+    [CsvColumn("Upper Price Limit 16")]
+    public int? UpperPriceLimit16 { get; set; }
+
+    [CsvColumn("Tick Size 17")]
+    public string? TickSize17 { get; set; }
+
+    [CsvColumn("Upper Price Limit 17")]
+    public int? UpperPriceLimit17 { get; set; }
+
+    [CsvColumn("Tick Size 18")]
+    public string? TickSize18 { get; set; }
+
+    [CsvColumn("Upper Price Limit 18")]
+    public int? UpperPriceLimit18 { get; set; }
+
+    [CsvColumn("Tick Size 19")]
+    public string? TickSize19 { get; set; }
+
+    [CsvColumn("Upper Price Limit 19")]
+    public string? UpperPriceLimit19 { get; set; }
+
+    [CsvColumn("Tick Size 20")]
+    public string? TickSize20 { get; set; }
+
+    [CsvColumn("Upper Price Limit 20")]
+    public string? UpperPriceLimit20 { get; set; }
+
+    [CsvColumn("Number of Decimal Digits")]
+    public int? NumberofDecimalDigits { get; set; }
+
+    [CsvColumn("Unit of Quotation")]
+    public string? UnitofQuotation { get; set; }
+
+    [CsvColumn("Market Segment")]
+    public string? MarketSegment { get; set; }
+
+    [CsvColumn("Market Segment Supplement")]
+    public string? MarketSegmentSupplement { get; set; }
+
+    [CsvColumn("Clearing Location")]
+    public string? ClearingLocation { get; set; }
+
+    [CsvColumn("Primary Market MIC Code")]
+    public string? PrimaryMarketMICCode { get; set; }
+
+    [CsvColumn("Reporting Market")]
+    public string? ReportingMarket { get; set; }
+
+    [CsvColumn("Settlement Period")]
+    public string? SettlementPeriod { get; set; }
+
+    [CsvColumn("Settlement Currency")]
+    public string? SettlementCurrency { get; set; }
+
+    [CsvColumn("Closed Book Indicator")]
+    public string? ClosedBookIndicator { get; set; }
+
+    [CsvColumn("Market Imbalance Indicator")]
+    public string? MarketImbalanceIndicator { get; set; }
+
+    [CsvColumn("CUM/EX Indicator")]
+    public string? CUMEXIndicator { get; set; }
+
+    [CsvColumn("Minimum Iceberg Total Volume")]
+    public string? MinimumIcebergTotalVolume { get; set; }
+
+    [CsvColumn("Minimum Iceberg Display Volume")]
+    public string? MinimumIcebergDisplayVolume { get; set; }
+
+    [CsvColumn("EMDI Incremental A - Unnetted")]
+    public string? EMDIIncrementalA_Unnetted { get; set; }
+
+    [CsvColumn("EMDI Incremental A - Unnetted Port")]
+    public string? EMDIIncrementalA_UnnettedPort { get; set; }
+
+    [CsvColumn("EMDI Incremental B - Unnetted")]
+    public string? EMDIIncrementalB_Unnetted { get; set; }
+
+    [CsvColumn("EMDI Incremental B - Unnetted Port")]
+    public string? EMDIIncrementalB_UnnettedPort { get; set; }
+
+    [CsvColumn("EMDI Snapshot A - Unnetted")]
+    public string? EMDISnapshotA_Unnetted { get; set; }
+
+    [CsvColumn("EMDI Snapshot A - Unnetted Port")]
+    public string? EMDISnapshotA_UnnettedPort { get; set; }
+
+    [CsvColumn("EMDI Snapshot B - Unnetted")]
+    public string? EMDISnapshotB_Unnetted { get; set; }
+
+    [CsvColumn("EMDI Snapshot B - Unnetted Port")]
+    public string? EMDISnapshotB_UnnettedPort { get; set; }
+
+    [CsvColumn("EMDI Market Depth - Unnetted")]
+    public string? EMDIMarketDepth_Unnetted { get; set; }
+
+    [CsvColumn("EMDI Snapshot Recovery Time Interval - Unnetted")]
+    public int EMDISnapshotRecoveryTimeInterval_Unnetted { get; set; }
+
+    [CsvColumn("MDI Address A - Netted")]
+    public string? MDIAddressA_Netted { get; set; }
+
+    [CsvColumn("MDI Port A - Netted")]
+    public string? MDIPortA_Netted { get; set; }
+
+    [CsvColumn("MDI Address B - Netted")]
+    public string? MDIAddressB_Netted { get; set; }
+
+    [CsvColumn("MDI Port B - Netted")]
+    public string? MDIPortB_Netted { get; set; }
+
+    [CsvColumn("MDI Market Depth - Netted")]
+    public string? MDIMarketDepth_Netted { get; set; }
+
+    [CsvColumn("MDI Market Depth Time Interval - Netted")]
+    public int MDIMarketDepthTimeInterval_Netted { get; set; }
+
+    [CsvColumn("MDI Recovery Time Interval - Netted")]
+    public int MDIRecoveryTimeInterval_Netted { get; set; }
+
+    [CsvColumn("EOBI Incremental A")]
+    public string? EOBIIncrementalA { get; set; }
+
+    [CsvColumn("EOBI Incremental Port A")]
+    public string? EOBIIncrementalPortA { get; set; }
+
+    [CsvColumn("EOBI Incremental B")]
+    public string? EOBIIncrementalB { get; set; }
+
+    [CsvColumn("EOBI Incremental Port B")]
+    public string? EOBIIncrementalPortB { get; set; }
+
+    [CsvColumn("EOBI Snapshot A")]
+    public string? EOBISnapshotA { get; set; }
+
+    [CsvColumn("EOBI Snapshot Port A")]
+    public string? EOBISnapshotPortA { get; set; }
+
+    [CsvColumn("EOBI Snapshot B")]
+    public string? EOBISnapshotB { get; set; }
+
+    [CsvColumn("EOBI Snapshot Port B")]
+    public string? EOBISnapshotPortB { get; set; }
+
+    [CsvColumn("Market Maker Member ID")]
+    public string? MarketMakerMemberID { get; set; }
+
+    [CsvColumn("Market Maker")]
+    public string? MarketMaker { get; set; }
+
+    [CsvColumn("Regulatory Liquid Instrument")]
+    public string? RegulatoryLiquidInstrument { get; set; }
+
+    [CsvColumn("Pre-trade LIS Value")]
+    public string? Pre_tradeLISValue { get; set; }
+
+    [CsvColumn("Partition ID")]
+    public string? PartitionID { get; set; }
+
+    [CsvColumn("Multi CCP-eligible")]
+    public string? MultiCCP_eligible { get; set; }
+
+    [CsvColumn("Tick Size Band")]
+    public string? TickSizeBand { get; set; }
+
+    [CsvColumn("Security Sub Type")]
+    public string? SecuritySubType { get; set; }
+
+    [CsvColumn("Issue Date")]
+    public string? IssueDate { get; set; }
+
+    [CsvColumn("Underlying")]
+    public string? Underlying { get; set; }
+
+    [CsvColumn("Maturity Date")]
+    public string? MaturityDate { get; set; }
+
+    [CsvColumn("Flat Indicator")]
+    public string? FlatIndicator { get; set; }
+
+    [CsvColumn("Coupon Rate")]
+    public string? CouponRate { get; set; }
+
+    [CsvColumn("Previous Coupon Payment Date")]
+    public string? PreviousCouponPaymentDate { get; set; }
+
+    [CsvColumn("Next Coupon Payment Date")]
+    public string? NextCouponPaymentDate { get; set; }
+
+    [CsvColumn("Pool Factor")]
+    public string? PoolFactor { get; set; }
+
+    [CsvColumn("Indexation Coefficient")]
+    public string? IndexationCoefficient { get; set; }
+
+    [CsvColumn("Accrued Interest Calculation Method")]
+    public string? AccruedInterestCalculationMethod { get; set; }
+
+    [CsvColumn("Country Of Issue")]
+    public string? CountryOfIssue { get; set; }
+
+    [CsvColumn("Minimum Tradable Unit")]
+    public string? MinimumTradableUnit { get; set; }
+
+    [CsvColumn("In-Subscription")]
+    public string? In_Subscription { get; set; }
+
+    [CsvColumn("Strike Price")]
+    public string? StrikePrice { get; set; }
+
+    [CsvColumn("Minimum Order Quantity")]
+    public string? MinimumOrderQuantity { get; set; }
+
+    [CsvColumn("Off-Book Reporting Market")]
+    public string? Off_BookReportingMarket { get; set; }
+
+    [CsvColumn("Instrument Auction Type")]
+    public string? InstrumentAuctionType { get; set; }
+
+    [CsvColumn("Specialist Member ID")]
+    public string? SpecialistMemberID { get; set; }
+
+    [CsvColumn("Specialist")]
+    public string? Specialist { get; set; }
+
+    [CsvColumn("Liquidity Provider User Group")]
+    public string? LiquidityProviderUserGroup { get; set; }
+
+    [CsvColumn("Specialist User Group")]
+    public string? SpecialistUserGroup { get; set; }
+
+    [CsvColumn("Quoting Period Start")]
+    public string? QuotingPeriodStart { get; set; }
+
+    [CsvColumn("Quoting Period End")]
+    public string? QuotingPeriodEnd { get; set; }
+
+    [CsvColumn("Currency")]
+    public string? Currency { get; set; }
+
+    [CsvColumn("Warrant Type")]
+    public string? WarrantType { get; set; }
+
+    [CsvColumn("First Trading Date")]
+    public string? FirstTradingDate { get; set; }
+
+    [CsvColumn("Last Trading Date")]
+    public string? LastTradingDate { get; set; }
+
+    [CsvColumn("Deposit Type")]
+    public string? DepositType { get; set; }
+
+    [CsvColumn("Single Sided Quote Support")]
+    public string? SingleSidedQuoteSupport { get; set; }
+
+    [CsvColumn("Liquidity Class")]
+    public string? LiquidityClass { get; set; }
+
+    [CsvColumn("Cover Indicator")]
+    public string? CoverIndicator { get; set; }
+
+    [CsvColumn("VolatilityCorridorOpeningAuction")]
+    public int? VolatilityCorridorOpeningAuction { get; set; }
+
+    [CsvColumn("VolatilityCorridorIntradayAuction")]
+    public int? VolatilityCorridorIntradayAuction { get; set; }
+
+    [CsvColumn("VolatilityCorridorClosingAuction")]
+    public int? VolatilityCorridorClosingAuction { get; set; }
+
+    [CsvColumn("VolatilityCorridorContinuous")]
+    public int? VolatilityCorridorContinuous { get; set; }
+
+    [CsvColumn("DisableOnBookTrading")]
+    public string? DisableOnBookTrading { get; set; }
+
+    [CsvColumn("Maximum Order Quantity")]
+    public string? MaximumOrderQuantity { get; set; }
+
+    [CsvColumn("Maximum Order Value")]
+    public string? MaximumOrderValue { get; set; }
 }

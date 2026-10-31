@@ -107,7 +107,7 @@ public class YahooFinanceServiceTests
     }
 
     [Test]
-    public void GetQuoteAsync_NoResponse_Throws()
+    public async Task GetQuoteAsync_NoResponse_Throws()
     {
         _mockHandler
             .Protected()
@@ -126,12 +126,12 @@ public class YahooFinanceServiceTests
             _mockYahooSession.Object);
 
         // Act
-        var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetQuoteAsync("IBM"));
+        var exception = await Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetQuoteAsync("IBM"));
         Assert.That(exception.InnerException.Message, Does.Contain("Invalid data"));
     }
 
     [Test]
-    public void GetQuoteAsync_EmptyResponse_Throws()
+    public async Task GetQuoteAsync_EmptyResponse_Throws()
     {
         // Arrange
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "empty.json");
@@ -143,7 +143,7 @@ public class YahooFinanceServiceTests
             _mockYahooSession.Object);
 
         // Act
-        var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetQuoteAsync("IBM"));
+        var exception = await Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetQuoteAsync("IBM"));
         Assert.That(exception.InnerException.Message, Does.Contain("Invalid content"));
     }
 
@@ -164,7 +164,7 @@ public class YahooFinanceServiceTests
     }
 
     [Test]
-    public void GetQuoteAsync_ErrorResponse_Throws()
+    public async Task GetQuoteAsync_ErrorResponse_Throws()
     {
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Yahoo", "quote_error_response.json");
         SetupHttpJsonFileResponse(filePath);
@@ -177,11 +177,11 @@ public class YahooFinanceServiceTests
             _mockYahooSession.Object);
 
         // Act
-        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetQuoteAsync("IBM"));
+        await Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetQuoteAsync("IBM"));
     }
 
     [Test]
-    public void GetQuoteAsync_InvalidResponse_Throws()
+    public async Task GetQuoteAsync_InvalidResponse_Throws()
     {
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Yahoo", "quote_invalid_response.json");
         SetupHttpJsonFileResponse(filePath);
@@ -194,7 +194,7 @@ public class YahooFinanceServiceTests
             _mockYahooSession.Object);
 
         // Act
-        Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetQuoteAsync("SAP"));
+        await Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetQuoteAsync("SAP"));
     }
 
     [Test]
@@ -247,7 +247,7 @@ public class YahooFinanceServiceTests
     }
 
     [Test]
-    public void GetProfileAsync_NoResponse_Throws()
+    public async Task GetProfileAsync_NoResponse_Throws()
     {
         _mockHandler
             .Protected()
@@ -266,12 +266,12 @@ public class YahooFinanceServiceTests
             _mockYahooSession.Object);
 
         // Act
-        var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetProfileAsync("IBM"));
+        var exception = await Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetProfileAsync("IBM"));
         Assert.That(exception.InnerException.Message, Does.Contain("received 200, but no html content"));
     }
 
     [Test]
-    public void GetProfileAsync_EmptyResponse_Throws()
+    public async Task GetProfileAsync_EmptyResponse_Throws()
     {
         // Arrange
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "empty.html");
@@ -283,7 +283,7 @@ public class YahooFinanceServiceTests
             _mockYahooSession.Object);
 
         // Act
-        var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetProfileAsync("IBM"));
+        var exception = await Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetProfileAsync("IBM"));
         Assert.That(exception, Is.Not.InstanceOf<FinanceNetNoDataException>(), "an unexpected page is not a permanent no-data answer");
         Assert.That(exception.Message, Does.Contain("No profile found"));
     }
@@ -313,7 +313,7 @@ public class YahooFinanceServiceTests
     }
 
     [Test]
-    public void GetSummaryAsync_NoResponse_Throws()
+    public async Task GetSummaryAsync_NoResponse_Throws()
     {
         _mockHandler
             .Protected()
@@ -332,13 +332,13 @@ public class YahooFinanceServiceTests
             _mockYahooSession.Object);
 
         // Act
-        var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetSummaryAsync("IBM"));
+        var exception = await Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetSummaryAsync("IBM"));
         Assert.That(exception.Message, Does.Contain("No summary"));
         Assert.That(exception.InnerException.Message, Does.Contain("received 200, but no html content"));
     }
 
     [Test]
-    public void GetSummaryAsync_EmptyResponse_Throws()
+    public async Task GetSummaryAsync_EmptyResponse_Throws()
     {
         // Arrange
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "empty.html");
@@ -350,7 +350,7 @@ public class YahooFinanceServiceTests
             _mockYahooSession.Object);
 
         // Act
-        var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetSummaryAsync("IBM"));
+        var exception = await Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetSummaryAsync("IBM"));
         Assert.That(exception, Is.Not.InstanceOf<FinanceNetNoDataException>(), "an unexpected page is not a permanent no-data answer");
         Assert.That(exception.Message, Does.Contain("No summary found"));
     }
@@ -382,7 +382,7 @@ public class YahooFinanceServiceTests
     }
 
     [Test]
-    public void GetFinancialsAsync_EmptyResponse_Throws()
+    public async Task GetFinancialsAsync_EmptyResponse_Throws()
     {
         // Arrange
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "empty.html");
@@ -395,13 +395,13 @@ public class YahooFinanceServiceTests
             _mockYahooSession.Object);
 
         // Act
-        var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetFinancialsAsync("IBM"));
+        var exception = await Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetFinancialsAsync("IBM"));
 
         Assert.That(exception.InnerException.Message, Does.Contain("no content"));
     }
 
     [Test]
-    public void GetFinancialsAsync_NoResponse_Throws()
+    public async Task GetFinancialsAsync_NoResponse_Throws()
     {
         _mockHandler
             .Protected()
@@ -420,7 +420,7 @@ public class YahooFinanceServiceTests
             _mockYahooSession.Object);
 
         // Act
-        var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetFinancialsAsync("IBM"));
+        var exception = await Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetFinancialsAsync("IBM"));
         Assert.That(exception.InnerException.Message, Does.Contain("received 200, but no html content"));
     }
 
@@ -450,7 +450,7 @@ public class YahooFinanceServiceTests
         Assert.That(result.All(e => e.High != null));
     }
     [Test]
-    public void GetRecordsAsync_NoResponse_Throws()
+    public async Task GetRecordsAsync_NoResponse_Throws()
     {
         _mockHandler
             .Protected()
@@ -471,11 +471,11 @@ public class YahooFinanceServiceTests
         DateTime startDate = default;
 
         // Act
-        var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetRecordsAsync("IBM", startDate));
+        var exception = await Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetRecordsAsync("IBM", startDate));
         Assert.That(exception.InnerException.Message, Does.Contain("received 200, but no html content"));
     }
     [Test]
-    public void GetRecordsAsync_EmptyResponse_Throws()
+    public async Task GetRecordsAsync_EmptyResponse_Throws()
     {
         // Arrange
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "empty.html");
@@ -489,12 +489,12 @@ public class YahooFinanceServiceTests
         DateTime startDate = default;
 
         // Act
-        var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetRecordsAsync("IBM", startDate));
+        var exception = await Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetRecordsAsync("IBM", startDate));
         Assert.That(exception.InnerException.Message, Does.Contain("table is null"));
     }
 
     [Test]
-    public void GetRecordsAsync_NoRecordsInPeriod_ThrowsNoData()
+    public async Task GetRecordsAsync_NoRecordsInPeriod_ThrowsNoData()
     {
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Yahoo", "records_empty_period.html");
         SetupHttpHtmlFileResponse(filePath);
@@ -504,14 +504,14 @@ public class YahooFinanceServiceTests
             _mockPolicyRegistry.Object,
             _mockYahooSession.Object);
 
-        var exception = Assert.ThrowsAsync<FinanceNetNoDataException>(async () => await service.GetRecordsAsync("FAVQX", new DateTime(2026, 9, 12, 0, 0, 0, DateTimeKind.Utc)));
+        var exception = await Assert.ThrowsAsync<FinanceNetNoDataException>(async () => await service.GetRecordsAsync("FAVQX", new DateTime(2026, 9, 12, 0, 0, 0, DateTimeKind.Utc)));
 
         Assert.That(exception.Message, Does.Contain("FAVQX"));
         Assert.That(exception.InnerException, Is.Null);
     }
 
     [Test]
-    public void GetRecordsAsync_MissingHeadersWithoutErrorCell_Throws()
+    public async Task GetRecordsAsync_MissingHeadersWithoutErrorCell_Throws()
     {
         _mockHandler
             .Protected()
@@ -531,13 +531,13 @@ public class YahooFinanceServiceTests
             _mockPolicyRegistry.Object,
             _mockYahooSession.Object);
 
-        var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetRecordsAsync("IBM", new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)));
+        var exception = await Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetRecordsAsync("IBM", new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)));
 
         Assert.That(exception.InnerException.Message, Does.Contain("Headers are missing"));
     }
 
     [Test]
-    public void GetInstrumentsAsync_NoResponse_Throws()
+    public async Task GetInstrumentsAsync_NoResponse_Throws()
     {
         _mockHandler
             .Protected()
@@ -556,13 +556,13 @@ public class YahooFinanceServiceTests
             _mockYahooSession.Object);
 
         // Act
-        var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetInstrumentsAsync());
+        var exception = await Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetInstrumentsAsync());
         Assert.That(exception, Is.Not.InstanceOf<FinanceNetNoDataException>(), "a transport failure is not a permanent no-data answer");
         Assert.That(exception.Message, Does.Contain("No instruments found"));
     }
 
     [Test]
-    public void GetInstrumentsAsync_EmptyResponse_Throws()
+    public async Task GetInstrumentsAsync_EmptyResponse_Throws()
     {
         // Arrange		
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "empty.html");
@@ -574,7 +574,7 @@ public class YahooFinanceServiceTests
             _mockYahooSession.Object);
 
         // Act
-        var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetInstrumentsAsync());
+        var exception = await Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetInstrumentsAsync());
         Assert.That(exception, Is.Not.InstanceOf<FinanceNetNoDataException>(), "a transport failure is not a permanent no-data answer");
         Assert.That(exception.Message, Does.Contain("No instruments found"));
     }

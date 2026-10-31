@@ -1,16 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using CsvHelper;
-using CsvHelper.Configuration;
 using Finance.Net.Exceptions;
 using Finance.Net.Interfaces;
-using Finance.Net.Mappings;
 using Finance.Net.Models.DataHub;
 using Finance.Net.Utilities;
 using Polly;
@@ -29,7 +25,6 @@ public class DataHubService(IHttpClientFactory httpClientFactory,
     public async Task<IEnumerable<NasdaqInstrument>> GetNasdaqInstrumentsAsync(CancellationToken token = default)
     {
         var httpClient = _httpClientFactory.CreateClient(Constants.DatahubIoHttpClientName);
-        var config = new CsvConfiguration(CultureInfo.InvariantCulture);
         try
         {
             return await _retryPolicy.ExecuteAsync(async ct =>
@@ -38,10 +33,9 @@ public class DataHubService(IHttpClientFactory httpClientFactory,
                 response.EnsureSuccessStatusCode();
 
                 var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                using var reader = new StringReader(content);
-                using var csv = new CsvReader(reader, config);
-                csv.Context.RegisterClassMap<NasdaqInstrumentMapping>();
-                var instruments = csv.GetRecords<NasdaqInstrument>().ToList();
+                // CsvReaderOptions has init-only setters whose netstandard2.1 signature is missing from CsvHelper's net8.0+ build, so the defaults are used.
+                using var csv = CsvReader.FromText(content, null);
+                List<NasdaqInstrument> instruments = csv.Headers.Count == 0 ? [] : csv.GetRecords<NasdaqInstrument>().ToList();
                 return instruments.IsNullOrEmpty() ? throw new FinanceNetNoDataException("DataHub returned no Nasdaq instruments") : instruments;
             }, token).ConfigureAwait(false);
         }
@@ -65,14 +59,11 @@ public class DataHubService(IHttpClientFactory httpClientFactory,
             {
                 var response = await httpClient.GetAsync(Constants.DatahubSp500SymbolsUrl, ct).ConfigureAwait(false);
                 response.EnsureSuccessStatusCode();
-                var config = new CsvConfiguration(CultureInfo.InvariantCulture);
 
                 var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                using var reader = new StringReader(content);
-                using var csv = new CsvReader(reader, config);
-                csv.Context.RegisterClassMap<SP500InstrumentMapping>();
+                using var csv = CsvReader.FromText(content, null);
 
-                var instruments = csv.GetRecords<Sp500Instrument>().ToList();
+                List<Sp500Instrument> instruments = csv.Headers.Count == 0 ? [] : csv.GetRecords<Sp500Instrument>().ToList();
                 return instruments.IsNullOrEmpty() ? throw new FinanceNetNoDataException("DataHub returned no S&P 500 instruments") : instruments;
             }, token).ConfigureAwait(false);
         }

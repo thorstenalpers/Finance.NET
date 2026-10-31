@@ -287,7 +287,7 @@ public class YahooSessionManagerTests
     }
 
     [Test]
-    public void RefreshSessionAsync_SessionInvalid_Throws()
+    public async Task RefreshSessionAsync_SessionInvalid_Throws()
     {
         // Arrange
         var cookieContainer = new CookieContainer();
@@ -392,6 +392,6 @@ public class YahooSessionManagerTests
             _mockPolicyRegistry.Object);
 
         // Act
-        Assert.ThrowsAsync<FinanceNetException>(async () => await manager.RefreshSessionAsync());
+        await Assert.ThrowsAsync<FinanceNetException>(async () => await manager.RefreshSessionAsync());
     }
 }

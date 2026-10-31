@@ -73,7 +73,7 @@ public class DataHubServiceTests
     }
 
     [Test]
-    public void GetNasdaqInstrumentsAsync_ErrorResponse_Throws()
+    public async Task GetNasdaqInstrumentsAsync_ErrorResponse_Throws()
     {
         // Arrange
         _mockHandler
@@ -87,13 +87,13 @@ public class DataHubServiceTests
             _mockPolicyRegistry.Object);
 
         // Act + Assert
-        var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetNasdaqInstrumentsAsync());
+        var exception = await Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetNasdaqInstrumentsAsync());
         Assert.That(exception.Message, Does.Contain("No instruments found"));
         Assert.That(exception.InnerException.Message, Does.Contain("404"));
     }
 
     [Test]
-    public void GetNasdaqInstrumentsAsync_EmptyResponse_Throws()
+    public async Task GetNasdaqInstrumentsAsync_EmptyResponse_Throws()
     {
         // Arrange
         _mockHandler
@@ -107,9 +107,9 @@ public class DataHubServiceTests
             _mockPolicyRegistry.Object);
 
         // Act + Assert
-        var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetNasdaqInstrumentsAsync());
+        var exception = await Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetNasdaqInstrumentsAsync());
         Assert.That(exception.Message, Does.Contain("No instruments found"));
-        Assert.That(exception.InnerException.Message, Does.Contain("was not found"));
+        Assert.That(exception.InnerException.Message, Does.Contain("has no column for"));
     }
 
     [Test]
@@ -133,7 +133,7 @@ public class DataHubServiceTests
     }
 
     [Test]
-    public void GetSp500InstrumentsAsync_ErrorResponse_Throws()
+    public async Task GetSp500InstrumentsAsync_ErrorResponse_Throws()
     {
         // Arrange
         _mockHandler
@@ -148,13 +148,13 @@ public class DataHubServiceTests
             _mockPolicyRegistry.Object);
 
         // Act + Assert
-        var exception = Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetSp500InstrumentsAsync());
+        var exception = await Assert.ThrowsAsync<FinanceNetException>(async () => await service.GetSp500InstrumentsAsync());
         Assert.That(exception.Message, Does.Contain("No instruments found"));
         Assert.That(exception.InnerException.Message, Does.Contain("404"));
     }
 
     [Test]
-    public void GetSp500InstrumentsAsync_EmptyResponse_Throws()
+    public async Task GetSp500InstrumentsAsync_EmptyResponse_Throws()
     {
         // Arrange
         _mockHandler
@@ -169,7 +169,7 @@ public class DataHubServiceTests
             _mockPolicyRegistry.Object);
 
         // Act + Assert
-        var exception = Assert.ThrowsAsync<FinanceNetNoDataException>(async () => await service.GetSp500InstrumentsAsync());
+        var exception = await Assert.ThrowsAsync<FinanceNetNoDataException>(async () => await service.GetSp500InstrumentsAsync());
         Assert.That(exception.Message, Does.Contain("returned no S&P 500 instruments"));
         Assert.That(exception.InnerException, Is.Null);
     }
